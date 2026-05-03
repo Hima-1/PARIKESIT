@@ -1,7 +1,7 @@
 # Audit Keamanan Laravel Web/API
 
-Tanggal audit: 2026-03-28  
-Lingkup: `parikesit_laravel`  
+Tanggal audit: 2026-03-28
+Lingkup: `parikesit_laravel`
 Metode: white-box static review + verifikasi dengan test yang sudah ada
 
 ## Ringkasan

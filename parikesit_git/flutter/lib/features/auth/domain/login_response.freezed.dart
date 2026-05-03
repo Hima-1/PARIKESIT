@@ -77,7 +77,7 @@ as String,
 @override
 @pragma('vm:prefer-inline')
 $UserCopyWith<$Res> get user {
-  
+
   return $UserCopyWith<$Res>(_self.user, (value) {
     return _then(_self.copyWith(user: value));
   });
@@ -288,7 +288,7 @@ as String,
 @override
 @pragma('vm:prefer-inline')
 $UserCopyWith<$Res> get user {
-  
+
   return $UserCopyWith<$Res>(_self.user, (value) {
     return _then(_self.copyWith(user: value));
   });

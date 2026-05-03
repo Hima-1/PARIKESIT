@@ -60,7 +60,7 @@ Follow the established directory structure:
 - **Formatting:** Run `dart format .` before committing.
 - **Lints:** Follow `package:flutter_lints/flutter.yaml`. Do not ignore lints unless critical.
 - **Error Handling:** Use `AsyncValue.guard` in Notifiers to handle errors gracefully in the UI.
-- **Naming:** 
+- **Naming:**
   - Classes: `PascalCase`
   - Files/Variables: `snake_case`
   - Providers: `<feature><Type>Provider` (e.g., `authControllerProvider`).

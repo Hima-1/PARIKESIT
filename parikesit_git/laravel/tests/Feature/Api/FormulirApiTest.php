@@ -36,7 +36,7 @@ test('user can create a formulir', function () {
     $response->assertStatus(201)
         ->assertJsonPath('data.nama_formulir', 'Test API Formulir')
         ->assertJsonPath('data.created_by.id', $user->id);
-    
+
     $this->assertDatabaseHas('formulirs', [
         'nama_formulir' => 'Test API Formulir',
         'created_by_id' => $user->id,

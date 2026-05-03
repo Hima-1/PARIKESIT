@@ -25,7 +25,7 @@ class FilePembinaanController extends Controller
 
         $disk = Storage::disk('public');
         $fileExisted = $disk->exists($filePemb->nama_file);
-        
+
         if ($fileExisted) {
             $disk->delete($filePemb->nama_file);
         }
@@ -33,8 +33,8 @@ class FilePembinaanController extends Controller
         $filePemb->delete();
 
         return response()->json([
-            'message' => $fileExisted 
-                ? 'File berhasil dihapus' 
+            'message' => $fileExisted
+                ? 'File berhasil dihapus'
                 : 'Data file dihapus dari database (file fisik tidak ditemukan di storage)'
         ]);
     }

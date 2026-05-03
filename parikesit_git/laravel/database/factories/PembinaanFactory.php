@@ -20,7 +20,7 @@ class PembinaanFactory extends Factory
     {
         $judul = $this->faker->sentence();
         $slug = Str::slug($judul . '-' . time());
-        
+
         return [
             'created_by_id' => User::factory(),
             'judul_pembinaan' => $judul,

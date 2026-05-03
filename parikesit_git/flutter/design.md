@@ -102,7 +102,7 @@ class AppSpacing {
 
   static const pH16 = EdgeInsets.symmetric(horizontal: md);
   static const pV16 = EdgeInsets.symmetric(vertical: md);
-  
+
   // Semantic Padding
   static const pPage = EdgeInsets.all(md);
 }

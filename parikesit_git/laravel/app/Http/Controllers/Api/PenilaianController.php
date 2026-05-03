@@ -135,9 +135,9 @@ class PenilaianController extends Controller
         }
 
         $penilaian = $this->penilaianService->storePenilaian(
-            $formulir, 
-            $indikator, 
-            $request->validated(), 
+            $formulir,
+            $indikator,
+            $request->validated(),
             $request->file('bukti_dukung')
         );
 

@@ -78,7 +78,7 @@ as PaginationLinks,
 @override
 @pragma('vm:prefer-inline')
 $PaginationMetaCopyWith<$Res> get meta {
-  
+
   return $PaginationMetaCopyWith<$Res>(_self.meta, (value) {
     return _then(_self.copyWith(meta: value));
   });
@@ -87,7 +87,7 @@ $PaginationMetaCopyWith<$Res> get meta {
 @override
 @pragma('vm:prefer-inline')
 $PaginationLinksCopyWith<$Res> get links {
-  
+
   return $PaginationLinksCopyWith<$Res>(_self.links, (value) {
     return _then(_self.copyWith(links: value));
   });
@@ -306,7 +306,7 @@ as PaginationLinks,
 @override
 @pragma('vm:prefer-inline')
 $PaginationMetaCopyWith<$Res> get meta {
-  
+
   return $PaginationMetaCopyWith<$Res>(_self.meta, (value) {
     return _then(_self.copyWith(meta: value));
   });
@@ -315,7 +315,7 @@ $PaginationMetaCopyWith<$Res> get meta {
 @override
 @pragma('vm:prefer-inline')
 $PaginationLinksCopyWith<$Res> get links {
-  
+
   return $PaginationLinksCopyWith<$Res>(_self.links, (value) {
     return _then(_self.copyWith(links: value));
   });

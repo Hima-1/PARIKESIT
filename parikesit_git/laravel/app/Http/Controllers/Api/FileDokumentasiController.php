@@ -25,7 +25,7 @@ class FileDokumentasiController extends Controller
 
         $disk = Storage::disk('public');
         $fileExisted = $disk->exists($fileDok->nama_file);
-        
+
         if ($fileExisted) {
             $disk->delete($fileDok->nama_file);
         }
@@ -33,8 +33,8 @@ class FileDokumentasiController extends Controller
         $fileDok->delete();
 
         return response()->json([
-            'message' => $fileExisted 
-                ? 'File berhasil dihapus' 
+            'message' => $fileExisted
+                ? 'File berhasil dihapus'
                 : 'Data file dihapus dari database (file fisik tidak ditemukan di storage)'
         ]);
     }

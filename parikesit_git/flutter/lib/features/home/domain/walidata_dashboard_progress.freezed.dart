@@ -81,7 +81,7 @@ as WalidataStats,
 @override
 @pragma('vm:prefer-inline')
 $WalidataStatsCopyWith<$Res> get stats {
-  
+
   return $WalidataStatsCopyWith<$Res>(_self.stats, (value) {
     return _then(_self.copyWith(stats: value));
   });
@@ -306,7 +306,7 @@ as WalidataStats,
 @override
 @pragma('vm:prefer-inline')
 $WalidataStatsCopyWith<$Res> get stats {
-  
+
   return $WalidataStatsCopyWith<$Res>(_self.stats, (value) {
     return _then(_self.copyWith(stats: value));
   });

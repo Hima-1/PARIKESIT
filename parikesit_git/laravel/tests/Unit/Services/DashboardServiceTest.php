@@ -32,7 +32,7 @@ test('it returns correct aggregate statistics', function () {
 test('it returns progress data for opd role', function () {
     $user = User::factory()->create(['role' => 'opd']);
     $formulir = Formulir::factory()->create();
-    
+
     // Simulate assessment
     $ind = \App\Models\Indikator::factory()->create();
     \App\Models\Penilaian::factory()->create([
@@ -41,9 +41,9 @@ test('it returns progress data for opd role', function () {
         'indikator_id' => $ind->id,
         'nilai' => 4
     ]);
-    
+
     $progress = $this->service->getOPDProgress($user);
-    
+
     expect($progress)->toBeArray()
         ->and(count($progress))->toBeGreaterThan(0)
         ->and($progress[0]['nama'])->toBe($formulir->nama_formulir);

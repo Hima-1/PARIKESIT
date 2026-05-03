@@ -132,10 +132,10 @@ test('penilaian indicators returns 404 when formulir id does not exist', functio
 
 test('user can store a penilaian with file upload', function () {
     Storage::fake('public');
-    
+
     $user = User::factory()->create(['role' => 'opd']);
     $formulir = Formulir::factory()->create(['created_by_id' => $user->id]);
-    
+
     // Setup valid indicator for this formulir
     $domain = Domain::factory()->create();
     $formulir->domains()->attach($domain);

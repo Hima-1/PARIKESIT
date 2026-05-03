@@ -6,7 +6,7 @@ use App\Models\User;
 
 test('admin can view global dashboard stats', function () {
     $user = User::factory()->create();
-    
+
     $response = loginAsAdmin()->getJson('/api/dashboard/stats');
 
     $response->assertStatus(200)

@@ -9,10 +9,10 @@ test('owner can delete media file', function () {
     Storage::fake('public');
     $user = User::factory()->create(['role' => 'opd']);
     $pembinaan = Pembinaan::factory()->create(['created_by_id' => $user->id]);
-    
+
     $filePath = 'file-pembinaan/media/test.jpg';
     Storage::disk('public')->put($filePath, 'fake image content');
-    
+
     $fileMedia = FilePembinaan::factory()->create([
         'pembinaan_id' => $pembinaan->id,
         'nama_file' => $filePath
@@ -59,10 +59,10 @@ test('owner can delete dokumentasi media file', function () {
     Storage::fake('public');
     $user = User::factory()->create(['role' => 'opd']);
     $dokumentasi = \App\Models\DokumentasiKegiatan::factory()->create(['created_by_id' => $user->id]);
-    
+
     $filePath = 'file-dokumentasi/media/test-dok.jpg';
     Storage::disk('public')->put($filePath, 'fake image content');
-    
+
     $fileMedia = \App\Models\FileDokumentasi::factory()->create([
         'dokumentasi_kegiatan_id' => $dokumentasi->id,
         'nama_file' => $filePath
