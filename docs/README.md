@@ -1,33 +1,34 @@
-# Parikesit Git Documentation
+# Dokumentasi Parikesit Git
 
-Start here when preparing a new machine or onboarding another developer.
+Mulai dari halaman ini saat menyiapkan komputer baru atau onboarding developer lain.
 
-## Zero-to-Running Path
+## Urutan Baca
 
-1. Complete [Prerequisites](prerequisites.md).
-2. Choose one backend database stack:
-   - [XAMPP backend setup](backend-xampp.md)
-   - [Laragon backend setup](backend-laragon.md)
-3. Run the mobile client with [Android emulator, USB, or Wi-Fi instructions](mobile-running.md).
-4. Use [Port forwarding and device networking](port-forwarding.md) when the app cannot reach the API.
-5. Check [Troubleshooting](troubleshooting.md) for common Windows, Laravel, MySQL, Flutter, and Android issues.
+1. Selesaikan [Prasyarat](01-prasyarat.md).
+2. Pilih salah satu stack database backend:
+   - [Setup backend dengan XAMPP](02-backend-xampp.md)
+   - [Setup backend dengan Laragon](03-backend-laragon.md)
+3. Jalankan client mobile dengan [panduan emulator Android, USB, atau Wi-Fi](04-menjalankan-aplikasi-mobile.md).
+4. Gunakan [port forwarding dan jaringan perangkat](05-port-forwarding-dan-jaringan.md) jika aplikasi tidak bisa menjangkau API.
+5. Baca [pemecahan masalah](07-pemecahan-masalah.md) untuk kendala umum Windows, Laravel, MySQL, Flutter, dan Android.
+6. Lihat [struktur proyek](06-struktur-proyek.md) sebelum menambah file, dependency, atau konfigurasi baru.
 
-## Important Defaults
+## Default Penting
 
 | Item | Default |
 | --- | --- |
-| Laravel path | `parikesit_git/laravel` |
-| Flutter path | `parikesit_git/flutter` |
-| API server | `http://127.0.0.1:8000/api` |
-| Android emulator API base | `http://10.0.2.2:8000` |
-| USB debugging API base with `adb reverse` | `http://127.0.0.1:8000` |
-| Database name | `parikesit` |
-| MySQL user for local XAMPP/Laragon | `root` |
-| MySQL password for local XAMPP/Laragon | empty unless you changed it |
+| Path Laravel | `laravel` |
+| Path Flutter | `flutter` |
+| Server API | `http://127.0.0.1:8000/api` |
+| API base emulator Android | `http://10.0.2.2:8000` |
+| API base USB debugging dengan `adb reverse` | `http://127.0.0.1:8000` |
+| Nama database | `parikesit` |
+| User MySQL lokal XAMPP/Laragon | `root` |
+| Password MySQL lokal XAMPP/Laragon | kosong, kecuali sudah diubah |
 
-## Source Documentation
+## Dokumentasi Source
 
-The original framework documentation was kept with each app:
+Dokumentasi framework bawaan tetap berada di masing-masing aplikasi:
 
-- Laravel: `parikesit_git/laravel/docs`
-- Flutter: `parikesit_git/flutter/docs`
+- Laravel: `laravel/docs`
+- Flutter: `flutter/docs`
