@@ -1,0 +1,327 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../core/router/route_constants.dart';
+import '../../../firebase_options.dart';
+
+final FlutterLocalNotificationsPlugin _sharedLocalNotifications =
+    FlutterLocalNotificationsPlugin();
+
+const AndroidNotificationChannel _highImportanceChannel =
+    AndroidNotificationChannel(
+      'high_importance_channel',
+      'High Importance Notifications',
+      description: 'This channel is used for important notifications.',
+      importance: Importance.max,
+    );
+
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
+
+  await _showLocalNotification(message, ensureInitialized: true);
+  debugPrint('Handling background message: ${message.messageId}');
+}
+
+Future<void> _showLocalNotification(
+  RemoteMessage message, {
+  bool ensureInitialized = false,
+}) async {
+  final notification = message.notification;
+  final title = notification?.title ?? message.data['title'] as String?;
+  final body = notification?.body ?? message.data['body'] as String?;
+  if (title == null && body == null) {
+    return;
+  }
+
+  if (ensureInitialized) {
+    const initializationSettings = InitializationSettings(
+      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+    );
+    await _sharedLocalNotifications.initialize(
+      settings: initializationSettings,
+    );
+  }
+  await _sharedLocalNotifications
+      .resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin
+      >()
+      ?.createNotificationChannel(_highImportanceChannel);
+
+  await _sharedLocalNotifications.show(
+    id: message.messageId.hashCode,
+    title: title,
+    body: body,
+    notificationDetails: const NotificationDetails(
+      android: AndroidNotificationDetails(
+        'high_importance_channel',
+        'High Importance Notifications',
+        channelDescription: 'This channel is used for important notifications.',
+        icon: '@mipmap/ic_launcher',
+        importance: Importance.max,
+        priority: Priority.high,
+      ),
+    ),
+    payload: jsonEncode(message.data),
+  );
+}
+
+class NotificationService {
+  factory NotificationService() => _instance;
+
+  NotificationService._internal();
+
+  static final NotificationService _instance = NotificationService._internal();
+
+  static bool _isInitialized = false;
+  static const String _reminderType = 'incomplete_form_reminder';
+  static const String _summaryType = 'incomplete_form_summary';
+
+  FirebaseMessaging get _fcm => FirebaseMessaging.instance;
+  final FlutterLocalNotificationsPlugin _localNotifications =
+      _sharedLocalNotifications;
+  StreamSubscription<String>? _tokenRefreshSubscription;
+  StreamSubscription<RemoteMessage>? _foregroundMessageSubscription;
+  StreamSubscription<RemoteMessage>? _messageOpenedAppSubscription;
+  Future<void> Function(String token)? _tokenSyncHandler;
+  GoRouter? _router;
+  String? _pendingRoute;
+  String? _lastKnownToken;
+
+  Future<void> initialize() async {
+    if (_isInitialized) {
+      return;
+    }
+
+    if (Firebase.apps.isEmpty) {
+      debugPrint(
+        'Skipping notification initialization: Firebase not initialized.',
+      );
+      return;
+    }
+
+    try {
+      // 1. Meminta izin (Android 13+)
+      await _fcm.requestPermission();
+
+      // 2. Konfigurasi Local Notifications untuk Android
+      const AndroidInitializationSettings initializationSettingsAndroid =
+          AndroidInitializationSettings('@mipmap/ic_launcher');
+      const InitializationSettings initializationSettings =
+          InitializationSettings(android: initializationSettingsAndroid);
+      await _localNotifications.initialize(
+        settings: initializationSettings,
+        onDidReceiveNotificationResponse: (response) {
+          final payload = response.payload;
+          if (payload == null || payload.isEmpty) {
+            return;
+          }
+
+          try {
+            final decoded = jsonDecode(payload);
+            if (decoded is Map<String, dynamic>) {
+              _handleNotificationInteraction(decoded);
+            } else if (decoded is Map) {
+              _handleNotificationInteraction(decoded.cast<String, dynamic>());
+            }
+          } catch (_) {
+            // Ignore malformed notification payloads.
+          }
+        },
+      );
+      await _localNotifications
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
+          ?.requestNotificationsPermission();
+
+      // 3. Create Android Notification Channel
+      await _localNotifications
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
+          ?.createNotificationChannel(_highImportanceChannel);
+
+      // 4. Konfigurasi Firebase Messaging Foreground Presentation Options
+      // Ini membantu di beberapa versi Android agar sistem tahu kita ingin banner
+      await _fcm.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+
+      // 5. Mendapatkan token FCM
+      final token = await _fcm.getToken();
+      await _handleTokenUpdate(token);
+      await _tokenRefreshSubscription?.cancel();
+      _tokenRefreshSubscription = _fcm.onTokenRefresh.listen((token) {
+        unawaited(_handleTokenUpdate(token));
+      });
+
+      // 6. Menangani pesan saat aplikasi di foreground
+      await _foregroundMessageSubscription?.cancel();
+      _foregroundMessageSubscription = FirebaseMessaging.onMessage.listen((
+        RemoteMessage message,
+      ) {
+        unawaited(_showLocalNotification(message));
+        final notification = message.notification;
+        final title = notification?.title ?? message.data['title'] as String?;
+        debugPrint('Foreground message: $title');
+      });
+
+      // 7. Menangani tap notifikasi saat aplikasi di background tapi masih terbuka
+      await _messageOpenedAppSubscription?.cancel();
+      _messageOpenedAppSubscription = FirebaseMessaging.onMessageOpenedApp
+          .listen((RemoteMessage message) {
+            _handleNotificationInteraction(message.data);
+          });
+
+      // 8. Cek jika aplikasi terbuka dari terminasi via notifikasi
+      final RemoteMessage? initialMessage = await _fcm.getInitialMessage();
+      if (initialMessage != null) {
+        _handleNotificationInteraction(initialMessage.data);
+      }
+
+      _isInitialized = true;
+    } catch (e, stackTrace) {
+      debugPrint('Notification service init failed: $e');
+      debugPrint('$stackTrace');
+    }
+  }
+
+  Future<void> setTokenSyncHandler(
+    Future<void> Function(String token)? handler,
+  ) async {
+    _tokenSyncHandler = handler;
+
+    if (handler == null) {
+      return;
+    }
+
+    final token = await _fcm.getToken();
+    await _handleTokenUpdate(token);
+  }
+
+  void attachRouter(GoRouter router) {
+    _router = router;
+    flushPendingNavigation();
+  }
+
+  void flushPendingNavigation() {
+    if (_pendingRoute == null || _router == null) {
+      return;
+    }
+
+    final route = _pendingRoute!;
+    _pendingRoute = null;
+    _router!.go(route);
+  }
+
+  Future<void> _handleTokenUpdate(String? token) async {
+    if (token == null || token.isEmpty) {
+      debugPrint('FCM token unavailable.');
+      return;
+    }
+
+    _lastKnownToken = token;
+    debugPrint('FCM token refreshed.');
+    final handler = _tokenSyncHandler;
+    if (handler == null) {
+      return;
+    }
+
+    try {
+      await handler(token);
+    } catch (error, stackTrace) {
+      debugPrint('FCM token sync failed: $error');
+      debugPrint('$stackTrace');
+    }
+  }
+
+  Future<String?> currentToken() async {
+    return _lastKnownToken ?? await _fcm.getToken();
+  }
+
+  Future<void> unregisterDeviceToken({
+    Future<void> Function(String token)? deactivate,
+  }) async {
+    final token = await currentToken();
+    if (token != null && token.isNotEmpty && deactivate != null) {
+      try {
+        await deactivate(token);
+      } catch (error, stackTrace) {
+        debugPrint('FCM token deactivate failed: $error');
+        debugPrint('$stackTrace');
+      }
+    }
+
+    try {
+      await _fcm.deleteToken();
+    } catch (error, stackTrace) {
+      debugPrint('FCM deleteToken failed: $error');
+      debugPrint('$stackTrace');
+    }
+
+    _lastKnownToken = null;
+    _tokenSyncHandler = null;
+  }
+
+  void _handleNotificationInteraction(Map<String, dynamic> data) {
+    debugPrint('Notification tapped.');
+
+    final type = data['type']?.toString();
+    if (type == null || type.isEmpty) {
+      return;
+    }
+
+    final route = _resolveTargetRoute(data);
+    if (route == null || route.isEmpty) {
+      return;
+    }
+
+    if (_router == null) {
+      _pendingRoute = route;
+      return;
+    }
+
+    _router!.go(route);
+  }
+
+  String? _resolveTargetRoute(Map<String, dynamic> data) {
+    final targetRoute = data['target_route']?.toString();
+    if (targetRoute != null && targetRoute.isNotEmpty) {
+      return targetRoute;
+    }
+
+    if (data['type'] == _summaryType) {
+      return RouteConstants.assessmentKegiatan;
+    }
+
+    final formulirId = data['formulir_id']?.toString();
+    if (data['type'] != _reminderType ||
+        formulirId == null ||
+        formulirId.isEmpty) {
+      return null;
+    }
+
+    return Uri(
+      path: RouteConstants.assessmentKegiatan,
+      queryParameters: {'formulirId': formulirId},
+    ).toString();
+  }
+}
+
+final notificationServiceProvider = Provider<NotificationService>((ref) {
+  return NotificationService();
+});
