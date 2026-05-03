@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class PublicPenilaianIndicatorResource extends JsonResource
+{
+    /**
+     * Transform the resource into an array.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'indikator_id' => $this->indikator_id,
+            'formulir_id' => $this->formulir_id,
+            'user_id' => $this->user_id,
+            'nilai' => $this->nilai !== null ? number_format((float) $this->nilai, 2, '.', '') : null,
+            'catatan' => $this->catatan,
+            'tanggal_penilaian' => $this->tanggal_penilaian,
+            'evaluasi' => $this->evaluasi,
+            'catatan_koreksi' => $this->catatan_koreksi,
+            'nilai_diupdate' => $this->nilai_diupdate,
+            'nilai_koreksi' => $this->nilai_koreksi,
+            'tanggal_diperbarui' => $this->tanggal_diperbarui,
+            'tanggal_dikoreksi' => $this->tanggal_dikoreksi,
+            'bukti_dukung' => $this->normalizedBuktiDukung() !== [] ? $this->normalizedBuktiDukung() : null,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+        ];
+    }
+}
