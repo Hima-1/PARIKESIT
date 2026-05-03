@@ -11,6 +11,10 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+.appdata/
+.agents/
+.kilocode/
+skills-lock.json
 
 # IntelliJ related
 *.iml
@@ -18,10 +22,8 @@ migrate_working_dir/
 *.iws
 .idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# Keep local editor settings out of the shared repo.
+.vscode/
 
 # Flutter/Dart/Pub related
 **/doc/api/
@@ -55,4 +57,5 @@ app.*.map.json
 # File Firebase Android dan signing tetap release-only, tidak masuk Git.
 /android/app/google-services.json
 /android/app/*.keystore
+/android/app/*.jks
 /android/key.properties
