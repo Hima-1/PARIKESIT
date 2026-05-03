@@ -1,0 +1,28 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:integration_test/integration_test.dart';
+import 'package:parikesit/main.dart' as app;
+
+import 'test_helpers.dart';
+
+void main() {
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
+  testWidgets('login as opd user and view dashboard', (tester) async {
+    app.main();
+    await tester.pumpAndSettle();
+
+    // Use a standard OPD test account
+    await loginAs(tester, 'dpupr@klaten.go.id', 'password');
+
+    // Wait for the OPD Dashboard to appear. Fresh seed data can legitimately
+    // have no active assessment progress.
+    await pumpUntil(tester, find.text('dpupr@klaten.go.id'));
+
+    // Verify that OPD Dashboard widgets are present
+    expect(find.text('dpupr@klaten.go.id'), findsWidgets);
+    expect(find.text('Belum ada data penilaian aktif.'), findsOneWidget);
+
+    // Verify it's NOT the admin dashboard
+    expect(find.text('Manajemen User'), findsNothing);
+  });
+}
