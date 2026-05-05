@@ -278,6 +278,59 @@ it('allows opd to open their own completed assessment detail page', function () 
     $response->assertSeeText($formulir->nama_formulir);
 });
 
+it('uses assessment calculation service scores on opd completed assessment detail page', function () {
+    [$opd, $formulir] = createDisposisiScoringFixture([
+        'nilai' => 3,
+        'nilai_diupdate' => 4,
+        'nilai_koreksi' => 5,
+        'evaluasi' => 'Evaluasi admin berupa catatan',
+    ]);
+
+    $response = $this->actingAs($opd)->get(route('disposisi.penilaian.tersedia.detail', [
+        'formulir' => $formulir->nama_formulir,
+    ]));
+
+    $response->assertOk();
+    $response->assertSeeText('3.00');
+    $response->assertSeeText('4.00');
+    $response->assertSeeText('5.00');
+    $response->assertDontSeeText('N/A');
+});
+
+it('uses legacy numeric evaluasi fallback for admin score on opd completed assessment detail page', function () {
+    [$opd, $formulir] = createDisposisiScoringFixture([
+        'nilai' => 3,
+        'nilai_diupdate' => 4,
+        'nilai_koreksi' => null,
+        'evaluasi' => '5',
+    ]);
+
+    $response = $this->actingAs($opd)->get(route('disposisi.penilaian.tersedia.detail', [
+        'formulir' => $formulir->nama_formulir,
+    ]));
+
+    $response->assertOk();
+    $response->assertSeeText('5.00');
+    $response->assertDontSeeText('N/A');
+});
+
+it('counts admin progress from nilai koreksi on opd completed assessment detail page', function () {
+    [$opd, $formulir] = createDisposisiScoringFixture([
+        'nilai' => 3,
+        'nilai_diupdate' => 4,
+        'nilai_koreksi' => 5,
+        'evaluasi' => null,
+    ]);
+
+    $response = $this->actingAs($opd)->get(route('disposisi.penilaian.tersedia.detail', [
+        'formulir' => $formulir->nama_formulir,
+    ]));
+
+    $response->assertOk();
+    $response->assertSeeText('Selesai');
+    $response->assertDontSeeText('Belum Lengkap (0/1)');
+});
+
 it('forbids opd from opening another opd completed assessment detail page', function () {
     $owner = User::factory()->create([
         'role' => 'opd',
@@ -501,4 +554,49 @@ function createDisposisiValidationFixture(): array
     ]);
 
     return [$walidata, $opd, $formulir, $domain, $aspek, $indikator, $penilaian];
+}
+
+function createDisposisiScoringFixture(array $penilaianOverrides): array
+{
+    $opd = User::factory()->create([
+        'role' => 'opd',
+        'name' => 'OPD Skor Disposisi',
+    ]);
+
+    $formulir = Formulir::create([
+        'nama_formulir' => 'Form Skor Disposisi '.str()->random(8),
+        'created_by_id' => $opd->id,
+    ]);
+
+    $domain = Domain::create([
+        'nama_domain' => 'Domain Skor Disposisi',
+        'bobot_domain' => 100,
+    ]);
+
+    FormulirDomain::create([
+        'formulir_id' => $formulir->id,
+        'domain_id' => $domain->id,
+    ]);
+
+    $aspek = Aspek::create([
+        'domain_id' => $domain->id,
+        'nama_aspek' => 'Aspek Skor Disposisi',
+        'bobot_aspek' => 100,
+    ]);
+
+    $indikator = Indikator::create([
+        'aspek_id' => $aspek->id,
+        'nama_indikator' => 'Indikator Skor Disposisi',
+        'bobot_indikator' => 100,
+    ]);
+
+    Penilaian::create(array_merge([
+        'indikator_id' => $indikator->id,
+        'formulir_id' => $formulir->id,
+        'tanggal_penilaian' => now(),
+        'user_id' => $opd->id,
+        'bukti_dukung' => null,
+    ], $penilaianOverrides));
+
+    return [$opd, $formulir, $domain, $aspek, $indikator];
 }

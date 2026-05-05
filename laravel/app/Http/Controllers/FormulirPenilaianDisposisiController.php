@@ -405,66 +405,30 @@ class FormulirPenilaianDisposisiController extends Controller
      */
     private function getPerbandinganHasilForOPD($formulir, $user)
     {
-        // Hitung nilai dari OPD (penilaian mandiri)
-        $nilaiOPD = $this->calculateRataRataDomain($formulir, $user, 'nilai');
-        
-        // Hitung nilai dari Walidata (koreksi)
-        $nilaiWalidata = $this->calculateRataRataDomainKoreksiPerUser($formulir, $user);
-        
-        // Hitung nilai dari Admin (evaluasi)
-        $nilaiBPS = $this->calculateRataRataDomainEvaluasiPerUser($formulir, $user);
-
-        // Hitung statistik indikator untuk status
-        $totalIndikator = 0;
-        $terisiOPD = 0;
-        $terkoreksiWalidata = 0;
-        $terevaluasiAdmin = 0;
-
-        foreach ($formulir->domains as $domain) {
-            foreach ($domain->aspek as $aspek) {
-                foreach ($aspek->indikator as $indikator) {
-                    $totalIndikator++;
-                    $penilaian = $this->penilaianSelectionService->resolveFromCollection(
-                        $indikator->penilaian,
-                        $formulir->id,
-                        $user->id,
-                        'nilai',
-                    );
-                    
-                    if ($penilaian && $penilaian->nilai !== null) {
-                        $terisiOPD++;
-                    }
-                    if ($penilaian && $penilaian->nilai_diupdate !== null) {
-                        $terkoreksiWalidata++;
-                    }
-                    if ($penilaian && $penilaian->evaluasi !== null) {
-                        $terevaluasiAdmin++;
-                    }
-                }
-            }
-        }
+        $scores = $this->calculationService->calculateFormulirScores($formulir, $user);
+        $stats = $this->calculationService->getStats($formulir, $user);
 
         return [
             'nama' => $formulir->nama_formulir,
             'tanggal' => $formulir->tanggal_dibuat,
-            'total_indikator' => $totalIndikator,
+            'total_indikator' => $stats['total_indikator'],
             'opd_result' => [
                 'user_id' => $user->id,
                 'user_name' => $user->name,
-                'nilai' => $nilaiOPD,
-                'terisi' => $terisiOPD,
+                'nilai' => $scores['opd'],
+                'terisi' => $stats['opd_progress']['count'],
             ],
             'walidata_result' => [
                 'user_id' => $user->id,
                 'user_name' => $user->name,
-                'nilai' => $nilaiWalidata,
-                'terkoreksi' => $terkoreksiWalidata,
+                'nilai' => $scores['walidata'],
+                'terkoreksi' => $stats['walidata_progress']['count'],
             ],
             'bps_result' => [
                 'user_id' => $user->id,
                 'user_name' => $user->name,
-                'nilai' => $nilaiBPS,
-                'terevaluasi' => $terevaluasiAdmin,
+                'nilai' => $scores['admin'],
+                'terevaluasi' => $stats['admin_progress']['count'],
             ],
         ];
     }
@@ -474,36 +438,20 @@ class FormulirPenilaianDisposisiController extends Controller
      */
     private function getPerbandinganHasilForAllOPD($formulir)
     {
-        // Ambil semua user OPD yang memiliki penilaian di formulir ini
-        $opdUsers = User::where('role', 'opd')
-            ->whereHas('penilaians', function($query) use ($formulir) {
-                $query->where('formulir_id', $formulir->id);
-            })
-            ->get();
-
         $results = [];
 
-        foreach ($opdUsers as $opdUser) {
-            // Hitung nilai dari OPD (penilaian mandiri)
-            $nilaiOPD = $this->calculateRataRataDomain($formulir, $opdUser, 'nilai');
-            
-            // Hitung nilai dari Walidata (koreksi)
-            $nilaiWalidata = $this->calculateRataRataDomainKoreksiPerUser($formulir, $opdUser);
-            
-            // Hitung nilai dari Admin (evaluasi)
-            $nilaiBPS = $this->calculateRataRataDomainEvaluasiPerUser($formulir, $opdUser);
-
+        foreach ($this->calculationService->getOpdComparisonSummary($formulir) as $summary) {
             $results[] = [
-                'user_id' => $opdUser->id,
-                'user_name' => $opdUser->name,
+                'user_id' => $summary['opd_id'],
+                'user_name' => $summary['nama_opd'],
                 'opd_result' => [
-                    'nilai' => $nilaiOPD,
+                    'nilai' => $summary['skor_mandiri'],
                 ],
                 'walidata_result' => [
-                    'nilai' => $nilaiWalidata,
+                    'nilai' => $summary['skor_walidata'],
                 ],
                 'bps_result' => [
-                    'nilai' => $nilaiBPS,
+                    'nilai' => $summary['skor_bps'],
                 ],
             ];
         }
@@ -514,150 +462,6 @@ class FormulirPenilaianDisposisiController extends Controller
             'results' => $results,
         ];
     }
-
-    /**
-     * Calculate average value from domains (for OPD initial assessment)
-     */
-    private function calculateRataRataDomain($formulir, $user, $field = 'nilai')
-    {
-        $domainAverages = [];
-        
-        foreach ($formulir->domains as $domain) {
-            $domainNilai = [];
-            $totalBobot = 0;
-
-            foreach ($domain->aspek as $aspek) {
-                foreach ($aspek->indikator as $indikator) {
-                    $penilaian = $this->penilaianSelectionService->resolveFromCollection(
-                        $indikator->penilaian,
-                        $formulir->id,
-                        $user->id,
-                        'nilai',
-                    );
-                    
-                    if ($penilaian && $penilaian->$field !== null) {
-                        $bobot = $indikator->bobot_indikator ?? 1;
-                        $domainNilai[] = $penilaian->$field * $bobot;
-                        $totalBobot += $bobot;
-                    }
-                }
-            }
-
-            if (count($domainNilai) > 0 && $totalBobot > 0) {
-                $domainAverages[$domain->nama_domain] = [
-                    'nilai' => round(array_sum($domainNilai) / $totalBobot, 2),
-                    'bobot' => $domain->bobot_domain ?? 1,
-                ];
-            }
-        }
-
-        // Hitung Indeks Pembangunan Statistik (rata-rata tertimbang domain)
-        $totalNilai = 0;
-        $totalBobot = 0;
-        foreach ($domainAverages as $domain) {
-            $totalNilai += $domain['nilai'] * $domain['bobot'];
-            $totalBobot += $domain['bobot'];
-        }
-
-        return $totalBobot > 0 ? round($totalNilai / $totalBobot, 2) : null;
-    }
-
-    /**
-     * Calculate average correction value per user (for comparison)
-     */
-    private function calculateRataRataDomainKoreksiPerUser($formulir, $user)
-    {
-        $domainAverages = [];
-        
-        foreach ($formulir->domains as $domain) {
-            $domainNilai = [];
-            $totalBobot = 0;
-
-            foreach ($domain->aspek as $aspek) {
-                foreach ($aspek->indikator as $indikator) {
-                    $penilaian = $this->penilaianSelectionService->resolveFromCollection(
-                        $indikator->penilaian,
-                        $formulir->id,
-                        $user->id,
-                        'nilai_diupdate',
-                    );
-                    
-                    if ($penilaian && $penilaian->nilai_diupdate !== null) {
-                        $bobot = $indikator->bobot_indikator ?? 1;
-                        $domainNilai[] = $penilaian->nilai_diupdate * $bobot;
-                        $totalBobot += $bobot;
-                    }
-                }
-            }
-
-            if (count($domainNilai) > 0 && $totalBobot > 0) {
-                $domainAverages[$domain->nama_domain] = [
-                    'nilai' => round(array_sum($domainNilai) / $totalBobot, 2),
-                    'bobot' => $domain->bobot_domain ?? 1,
-                ];
-            }
-        }
-
-        $totalNilai = 0;
-        $totalBobot = 0;
-        foreach ($domainAverages as $domain) {
-            $totalNilai += $domain['nilai'] * $domain['bobot'];
-            $totalBobot += $domain['bobot'];
-        }
-
-        return $totalBobot > 0 ? round($totalNilai / $totalBobot, 2) : null;
-    }
-
-    /**
-     * Calculate average evaluation value per user (for comparison)
-     */
-    private function calculateRataRataDomainEvaluasiPerUser($formulir, $user)
-    {
-        $domainAverages = [];
-        
-        foreach ($formulir->domains as $domain) {
-            $domainNilai = [];
-            $totalBobot = 0;
-
-            foreach ($domain->aspek as $aspek) {
-                foreach ($aspek->indikator as $indikator) {
-                    $penilaian = $this->penilaianSelectionService->resolveFromCollection(
-                        $indikator->penilaian,
-                        $formulir->id,
-                        $user->id,
-                        'evaluasi',
-                    );
-                    
-                    if ($penilaian && $penilaian->evaluasi !== null) {
-                        $nilaiEvaluasi = is_numeric($penilaian->evaluasi) ? (float)$penilaian->evaluasi : null;
-                        
-                        if ($nilaiEvaluasi !== null) {
-                            $bobot = $indikator->bobot_indikator ?? 1;
-                            $domainNilai[] = $nilaiEvaluasi * $bobot;
-                            $totalBobot += $bobot;
-                        }
-                    }
-                }
-            }
-
-            if (count($domainNilai) > 0 && $totalBobot > 0) {
-                $domainAverages[$domain->nama_domain] = [
-                    'nilai' => round(array_sum($domainNilai) / $totalBobot, 2),
-                    'bobot' => $domain->bobot_domain ?? 1,
-                ];
-            }
-        }
-
-        $totalNilai = 0;
-        $totalBobot = 0;
-        foreach ($domainAverages as $domain) {
-            $totalNilai += $domain['nilai'] * $domain['bobot'];
-            $totalBobot += $domain['bobot'];
-        }
-
-        return $totalBobot > 0 ? round($totalNilai / $totalBobot, 2) : null;
-    }
-
     private function normalizeRouteParam(string $value): string
     {
         $decoded = rawurldecode($value);
