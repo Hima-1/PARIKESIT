@@ -7,6 +7,7 @@ import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
 import 'package:parikesit/core/utils/app_dialogs.dart';
 import 'package:parikesit/core/utils/app_error_mapper.dart';
+import 'package:parikesit/core/widgets/app_add_icon_button.dart';
 import 'package:parikesit/core/widgets/app_empty_state.dart';
 import 'package:parikesit/core/widgets/app_pagination_footer.dart';
 import 'package:parikesit/core/widgets/ethno_card.dart';
@@ -51,31 +52,21 @@ class _PenilaianMandiriScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      floatingActionButton: _segment == _PenilaianSegment.buatFormulir
-          ? FloatingActionButton.extended(
+      floatingActionButton:
+          _segment == _PenilaianSegment.isiFormulir && _selectedFormulir != null
+          ? FloatingActionButton.small(
               onPressed: () {
                 HapticFeedback.lightImpact();
-                context.push(RouteConstants.assessmentTambah);
+                setState(() {
+                  _selectedFormulir = null;
+                  _segment = _PenilaianSegment.isiFormulir;
+                });
               },
-              backgroundColor: AppTheme.sogan,
-              foregroundColor: AppTheme.gold,
-              icon: const Icon(Icons.add),
-              label: const Text('Tambah Formulir'),
+              backgroundColor: AppTheme.gold,
+              foregroundColor: AppTheme.sogan,
+              child: const Icon(Icons.arrow_back),
             )
-          : (_selectedFormulir != null
-                ? FloatingActionButton.small(
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      setState(() {
-                        _selectedFormulir = null;
-                        _segment = _PenilaianSegment.isiFormulir;
-                      });
-                    },
-                    backgroundColor: AppTheme.gold,
-                    foregroundColor: AppTheme.sogan,
-                    child: const Icon(Icons.arrow_back),
-                  )
-                : null),
+          : null,
       body: Column(
         children: [
           _buildToggle(),

@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:parikesit/core/auth/user_role.dart';
 import 'package:parikesit/core/router/route_constants.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
-import 'package:parikesit/core/widgets/ethno_button.dart';
+import 'package:parikesit/core/widgets/app_add_icon_button.dart';
 import 'package:parikesit/features/admin/presentation/widgets/dokumentasi_form.dart';
 
 import '../../../core/widgets/app_empty_state.dart';
@@ -64,11 +64,9 @@ class _DokumentasiListScreenState extends ConsumerState<DokumentasiListScreen> {
             padding: EdgeInsets.fromLTRB(16, 6, 16, 10),
             child: DokumentasiFilterBar(),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: _buildAddButton(context, ref, state.mode, role),
+          Expanded(
+            child: _buildRefreshableContent(context, state, isAdmin, role),
           ),
-          Expanded(child: _buildRefreshableContent(context, state, isAdmin)),
         ],
       ),
     );
@@ -99,6 +97,7 @@ class _DokumentasiListScreenState extends ConsumerState<DokumentasiListScreen> {
     BuildContext context,
     AdminDokumentasiState state,
     bool isAdmin,
+    UserRole role,
   ) {
     if (state.isLoading && state.currentItems.isEmpty) {
       return const Center(
@@ -111,7 +110,7 @@ class _DokumentasiListScreenState extends ConsumerState<DokumentasiListScreen> {
     return RefreshIndicator(
       onRefresh: _handleRefresh,
       color: AppTheme.sogan,
-      child: _buildContentBody(context, state, isAdmin),
+      child: _buildContentBody(context, state, isAdmin, role),
     );
   }
 
@@ -119,6 +118,7 @@ class _DokumentasiListScreenState extends ConsumerState<DokumentasiListScreen> {
     BuildContext context,
     AdminDokumentasiState state,
     bool isAdmin,
+    UserRole role,
   ) {
     if (state.errorMessage != null) {
       return _buildScrollableState(
@@ -129,7 +129,7 @@ class _DokumentasiListScreenState extends ConsumerState<DokumentasiListScreen> {
       );
     }
 
-    return _buildList(context, state, isAdmin);
+    return _buildList(context, state, isAdmin, role);
   }
 
   Widget _buildToggle(
@@ -166,25 +166,20 @@ class _DokumentasiListScreenState extends ConsumerState<DokumentasiListScreen> {
     );
   }
 
-  Widget _buildAddButton(
-    BuildContext context,
-    WidgetRef ref,
-    DokumentasiMode mode,
-    UserRole role,
-  ) {
+  bool _canAdd(DokumentasiMode mode, UserRole role) {
     final isPembinaan = mode == DokumentasiMode.pembinaan;
+    return !isPembinaan || role == UserRole.admin;
+  }
 
-    // Pembinaan tetap admin-only. Kegiatan mengikuti akses route saat ini.
-    if (isPembinaan && role != UserRole.admin) return const SizedBox.shrink();
+  Widget _buildAddButton(DokumentasiMode mode, UserRole role) {
+    if (!_canAdd(mode, role)) {
+      return const SizedBox.shrink();
+    }
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: EthnoButton(
-        onPressed: () => _showDokumentasiForm(context, ref, isPembinaan),
-        icon: Icons.add_circle_outline_rounded,
-        label: 'TAMBAH ${isPembinaan ? 'PEMBINAAN' : 'KEGIATAN'}',
-        isFullWidth: true,
-      ),
+    final isPembinaan = mode == DokumentasiMode.pembinaan;
+    return AppAddIconButton(
+      onPressed: () => _showDokumentasiForm(context, ref, isPembinaan),
+      tooltip: isPembinaan ? 'Tambah pembinaan' : 'Tambah kegiatan',
     );
   }
 
@@ -204,20 +199,38 @@ class _DokumentasiListScreenState extends ConsumerState<DokumentasiListScreen> {
     );
   }
 
-  Widget _buildPaginationFooter(AdminDokumentasiState state) {
+  Widget _buildPaginationFooter(AdminDokumentasiState state, UserRole role) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-      child: AppPaginationFooter(
-        currentPage: state.currentPage,
-        lastPage: state.lastPage,
-        hasPreviousPage: state.hasPreviousPage,
-        hasNextPage: state.hasNextPage,
-        onPrevious: () => ref
-            .read(adminDokumentasiControllerProvider.notifier)
-            .previousPage(),
-        onNext: () =>
-            ref.read(adminDokumentasiControllerProvider.notifier).nextPage(),
+      child: Row(
+        children: [
+          AppPaginationFooter(
+            currentPage: state.currentPage,
+            lastPage: state.lastPage,
+            hasPreviousPage: state.hasPreviousPage,
+            hasNextPage: state.hasNextPage,
+            onPrevious: () => ref
+                .read(adminDokumentasiControllerProvider.notifier)
+                .previousPage(),
+            onNext: () => ref
+                .read(adminDokumentasiControllerProvider.notifier)
+                .nextPage(),
+          ),
+          const Spacer(),
+          _buildAddButton(state.mode, role),
+        ],
       ),
+    );
+  }
+
+  Widget _buildEmptyFooter(DokumentasiMode mode, UserRole role) {
+    if (!_canAdd(mode, role)) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      child: Row(children: [const Spacer(), _buildAddButton(mode, role)]),
     );
   }
 
@@ -225,24 +238,33 @@ class _DokumentasiListScreenState extends ConsumerState<DokumentasiListScreen> {
     BuildContext context,
     AdminDokumentasiState state,
     bool isAdmin,
+    UserRole role,
   ) {
     final items = state.currentItems;
 
     if (items.isEmpty) {
-      return _buildScrollableState(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: AppEmptyState(
-              icon: Icons.folder_open_rounded,
-              title: state.mode == DokumentasiMode.kegiatan
-                  ? 'Belum ada kegiatan.'
-                  : 'Belum ada pembinaan.',
-              message:
-                  'Tekan tombol di atas untuk menambahkan dokumentasi baru.',
+      return Column(
+        children: [
+          Expanded(
+            child: _buildScrollableState(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: AppEmptyState(
+                    icon: Icons.folder_open_rounded,
+                    title: state.mode == DokumentasiMode.kegiatan
+                        ? 'Belum ada kegiatan.'
+                        : 'Belum ada pembinaan.',
+                    message: _canAdd(state.mode, role)
+                        ? 'Tekan tombol tambah untuk menambahkan dokumentasi baru.'
+                        : 'Dokumentasi baru belum tersedia.',
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
+          _buildEmptyFooter(state.mode, role),
+        ],
       );
     }
 
@@ -286,7 +308,7 @@ class _DokumentasiListScreenState extends ConsumerState<DokumentasiListScreen> {
             },
           ),
         ),
-        _buildPaginationFooter(state),
+        _buildPaginationFooter(state, role),
       ],
     );
   }

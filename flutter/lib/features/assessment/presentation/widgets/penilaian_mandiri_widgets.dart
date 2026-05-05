@@ -7,6 +7,7 @@ class _BuatFormulirView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return _FormulirListView(
       emptyMessage: 'Formulir yang tersedia akan muncul di halaman ini.',
+      onAdd: () => _openAddFormulir(context),
       itemBuilder: (activity) => _FormulirCard(
         activity: activity,
         actionLabel: 'KELOLA FORMULIR',
@@ -15,6 +16,11 @@ class _BuatFormulirView extends ConsumerWidget {
         onDelete: () => _deleteFormulir(context, ref, activity),
       ),
     );
+  }
+
+  void _openAddFormulir(BuildContext context) {
+    HapticFeedback.lightImpact();
+    context.push(RouteConstants.assessmentTambah);
   }
 
   void _openFormulirDetail(BuildContext context, AssessmentFormModel activity) {
@@ -117,10 +123,12 @@ class _FormulirListView extends ConsumerWidget {
   const _FormulirListView({
     required this.emptyMessage,
     required this.itemBuilder,
+    this.onAdd,
   });
 
   final String emptyMessage;
   final Widget Function(AssessmentFormModel activity) itemBuilder;
+  final VoidCallback? onAdd;
 
   Future<void> _handleRefresh(WidgetRef ref) async {
     await HapticFeedback.mediumImpact();
@@ -139,19 +147,31 @@ class _FormulirListView extends ConsumerWidget {
         return RefreshIndicator(
           onRefresh: () => _handleRefresh(ref),
           child: activities.isEmpty
-              ? _buildAlwaysScrollableState(
-                  child: Padding(
-                    padding: AppSpacing.pAll16,
-                    child: AppEmptyState(
-                      icon: Icons.assignment_outlined,
-                      title: 'Belum ada formulir penilaian.',
-                      message: emptyMessage,
+              ? Column(
+                  children: [
+                    Expanded(
+                      child: _buildAlwaysScrollableState(
+                        child: Padding(
+                          padding: AppSpacing.pAll16,
+                          child: AppEmptyState(
+                            icon: Icons.assignment_outlined,
+                            title: 'Belum ada formulir penilaian.',
+                            message: emptyMessage,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    if (onAdd != null)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                        child: _FormulirFooter(onAdd: onAdd),
+                      ),
+                  ],
                 )
               : _FormulirPageList(
                   page: page,
                   itemBuilder: itemBuilder,
+                  onAdd: onAdd,
                   onPreviousPage: () => ref
                       .read(assessmentListControllerProvider.notifier)
                       .previousPage(),
@@ -184,12 +204,14 @@ class _FormulirPageList extends StatelessWidget {
     required this.itemBuilder,
     required this.onPreviousPage,
     required this.onNextPage,
+    this.onAdd,
   });
 
   final PaginatedResponse<AssessmentFormModel> page;
   final Widget Function(AssessmentFormModel activity) itemBuilder;
   final VoidCallback onPreviousPage;
   final VoidCallback onNextPage;
+  final VoidCallback? onAdd;
 
   @override
   Widget build(BuildContext context) {
@@ -206,15 +228,37 @@ class _FormulirPageList extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-          child: AppPaginationFooter(
-            currentPage: page.meta.currentPage,
-            lastPage: page.meta.lastPage,
-            hasPreviousPage: page.hasPreviousPage,
-            hasNextPage: page.hasNextPage,
-            onPrevious: onPreviousPage,
-            onNext: onNextPage,
+          child: _FormulirFooter(
+            pagination: AppPaginationFooter(
+              currentPage: page.meta.currentPage,
+              lastPage: page.meta.lastPage,
+              hasPreviousPage: page.hasPreviousPage,
+              hasNextPage: page.hasNextPage,
+              onPrevious: onPreviousPage,
+              onNext: onNextPage,
+            ),
+            onAdd: onAdd,
           ),
         ),
+      ],
+    );
+  }
+}
+
+class _FormulirFooter extends StatelessWidget {
+  const _FormulirFooter({this.pagination, this.onAdd});
+
+  final Widget? pagination;
+  final VoidCallback? onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        ?pagination,
+        const Spacer(),
+        if (onAdd != null)
+          AppAddIconButton(onPressed: onAdd, tooltip: 'Tambah formulir'),
       ],
     );
   }

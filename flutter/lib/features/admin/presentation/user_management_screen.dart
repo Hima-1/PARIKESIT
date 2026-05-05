@@ -6,8 +6,8 @@ import 'package:parikesit/core/auth/app_user.dart';
 import 'package:parikesit/core/network/paginated_response.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
+import 'package:parikesit/core/widgets/app_add_icon_button.dart';
 import 'package:parikesit/core/widgets/app_sort_dropdown_field.dart';
-import 'package:parikesit/core/widgets/ethno_button.dart';
 import 'package:parikesit/core/widgets/ethno_card.dart';
 
 import '../../../core/widgets/app_empty_state.dart';
@@ -59,8 +59,6 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
               AppSpacing.gapH16,
               _buildSortControls(query),
               AppSpacing.gapH16,
-              _buildAddButton(),
-              AppSpacing.gapH16,
               Expanded(
                 child: userState.when(
                   data: _buildContent,
@@ -101,16 +99,6 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildAddButton() {
-    return EthnoButton(
-      key: const Key('admin-user-add'),
-      onPressed: _showUserForm,
-      icon: Icons.person_add_alt_1_rounded,
-      label: 'TAMBAH USER BARU',
-      isFullWidth: true,
     );
   }
 
@@ -162,16 +150,24 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
     final users = page.items;
     if (users.isEmpty) {
       final isSearching = _searchController.text.trim().isNotEmpty;
-      return AppEmptyState(
-        icon: isSearching
-            ? Icons.search_off_rounded
-            : Icons.people_alt_outlined,
-        title: isSearching
-            ? 'Tidak ada user yang cocok.'
-            : 'Belum ada pengguna.',
-        message: isSearching
-            ? 'Coba ubah kata kunci pencarian untuk menemukan pengguna.'
-            : 'Tambahkan akun baru untuk Admin, Walidata, atau OPD.',
+      return Column(
+        children: [
+          Expanded(
+            child: AppEmptyState(
+              icon: isSearching
+                  ? Icons.search_off_rounded
+                  : Icons.people_alt_outlined,
+              title: isSearching
+                  ? 'Tidak ada user yang cocok.'
+                  : 'Belum ada pengguna.',
+              message: isSearching
+                  ? 'Coba ubah kata kunci pencarian untuk menemukan pengguna.'
+                  : 'Tambahkan akun baru untuk Admin, Walidata, atau OPD.',
+            ),
+          ),
+          _buildFooter(),
+          AppSpacing.gapH8,
+        ],
       );
     }
 
@@ -202,19 +198,35 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
             ),
           ),
         ),
-        AppPaginationFooter(
-          currentPage: page.meta.currentPage,
-          lastPage: page.meta.lastPage,
-          hasPreviousPage: page.hasPreviousPage,
-          hasNextPage: page.hasNextPage,
-          onPrevious: () {
-            ref.read(userAdminControllerProvider.notifier).previousPage();
-          },
-          onNext: () {
-            ref.read(userAdminControllerProvider.notifier).nextPage();
-          },
+        _buildFooter(
+          pagination: AppPaginationFooter(
+            currentPage: page.meta.currentPage,
+            lastPage: page.meta.lastPage,
+            hasPreviousPage: page.hasPreviousPage,
+            hasNextPage: page.hasNextPage,
+            onPrevious: () {
+              ref.read(userAdminControllerProvider.notifier).previousPage();
+            },
+            onNext: () {
+              ref.read(userAdminControllerProvider.notifier).nextPage();
+            },
+          ),
         ),
         AppSpacing.gapH8,
+      ],
+    );
+  }
+
+  Widget _buildFooter({Widget? pagination}) {
+    return Row(
+      children: [
+        ?pagination,
+        const Spacer(),
+        AppAddIconButton(
+          key: const Key('admin-user-add'),
+          onPressed: _showUserForm,
+          tooltip: 'Tambah user',
+        ),
       ],
     );
   }
