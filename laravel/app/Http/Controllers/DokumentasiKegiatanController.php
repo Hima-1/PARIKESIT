@@ -35,7 +35,7 @@ class DokumentasiKegiatanController extends Controller
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
-        $dokumentasis = $query->get();
+        $dokumentasis = $query->paginate(10)->withQueryString();
 
         return view('dashboard.dokumentasi.dokumentasi-index', compact('dokumentasis'));
     }

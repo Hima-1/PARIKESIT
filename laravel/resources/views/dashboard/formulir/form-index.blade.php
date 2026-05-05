@@ -72,6 +72,11 @@
             @endforeach
         </div>
 
+        @if(method_exists($formulirs, 'links'))
+            <div class="mt-6">
+                {{ $formulirs->links() }}
+            </div>
+        @endif
 
     </div>
 @endsection

@@ -135,6 +135,11 @@
                 </div>
             @endforeach
         </div>
+        @if(method_exists($dokumentasis, 'links'))
+            <div class="mt-6">
+                {{ $dokumentasis->links() }}
+            </div>
+        @endif
     </div>
 
     @push('scripts')

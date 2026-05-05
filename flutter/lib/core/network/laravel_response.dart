@@ -67,6 +67,23 @@ Map<String, dynamic> _normalizeLaravelPaginatedPayload(
     return root;
   }
 
+  if (hasNestedMeta) {
+    final meta = (root['meta'] as Map).cast<String, dynamic>();
+    return <String, dynamic>{
+      'data': root['data'] ?? const <dynamic>[],
+      'meta': <String, dynamic>{
+        'current_page': meta['current_page'] ?? 1,
+        'last_page': meta['last_page'] ?? 1,
+        'per_page': meta['per_page'] ?? 10,
+        'total': meta['total'] ?? 0,
+        'from': meta['from'],
+        'to': meta['to'],
+        'path': meta['path'] ?? '',
+      },
+      'links': const <String, dynamic>{'first': '', 'last': ''},
+    };
+  }
+
   return <String, dynamic>{
     'data': root['data'] ?? const <dynamic>[],
     'meta': <String, dynamic>{

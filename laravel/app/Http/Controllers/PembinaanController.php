@@ -29,7 +29,7 @@ class PembinaanController extends Controller
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
-        $pembinaans = $query->get();
+        $pembinaans = $query->paginate(10)->withQueryString();
 
         return view('dashboard.pembinaan.pembinaan-index', compact('pembinaans'));
     }

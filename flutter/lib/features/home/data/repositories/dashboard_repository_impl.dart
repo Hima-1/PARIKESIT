@@ -1,5 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/network/laravel_response.dart';
+import '../../../../core/network/paginated_response.dart';
 import '../../../../core/network/providers/dio_provider.dart';
 import '../../domain/dashboard_stats.dart';
 import '../../domain/opd_dashboard_progress.dart';
@@ -9,8 +12,9 @@ import '../../domain/walidata_dashboard_progress.dart';
 import '../data_sources/dashboard_remote_data_source.dart';
 
 class DashboardRepositoryImpl implements IDashboardRepository {
-  DashboardRepositoryImpl(this._dataSource);
+  DashboardRepositoryImpl(this._dataSource, this._dio);
   final DashboardRemoteDataSource _dataSource;
+  final Dio _dio;
 
   @override
   Future<DashboardStats> getDashboardStats() async {
@@ -73,29 +77,25 @@ class DashboardRepositoryImpl implements IDashboardRepository {
 
   @override
   Future<List<OpdDashboardProgress>> getOpdProgressData() async {
-    final response = await _dataSource.getDashboardStats();
-    final dynamic rawData = response.data;
+    final page = await getOpdProgressPage();
+    return page.items;
+  }
 
-    // The data might be inside 'data' or directly in the response
-    Map<String, dynamic> dataMap = {};
-    if (rawData is Map<String, dynamic>) {
-      if (rawData['data'] is Map<String, dynamic>) {
-        dataMap = rawData['data'] as Map<String, dynamic>;
-      } else {
-        dataMap = rawData;
-      }
-    }
+  @override
+  Future<PaginatedResponse<OpdDashboardProgress>> getOpdProgressPage({
+    int page = 1,
+    int perPage = 10,
+  }) async {
+    final response = await _dio.get<dynamic>(
+      '/dashboard/progress-penilaian',
+      queryParameters: <String, dynamic>{'page': page, 'per_page': perPage},
+    );
 
-    final dynamic progressData = dataMap['progress_data'];
-
-    final List<dynamic> list = (progressData is List) ? progressData : [];
-
-    return list.map((e) {
-      if (e is Map<String, dynamic>) {
-        return OpdDashboardProgress.fromJson(e);
-      }
-      throw const FormatException('Invalid progress data format');
-    }).toList();
+    return parseLaravelPaginatedResponse(
+      response.data,
+      OpdDashboardProgress.fromJson,
+      label: 'getOpdProgressPage',
+    );
   }
 
   @override
@@ -135,5 +135,6 @@ final dashboardRemoteDataSourceProvider = Provider<DashboardRemoteDataSource>((
 
 final dashboardRepositoryProvider = Provider<IDashboardRepository>((ref) {
   final dataSource = ref.watch(dashboardRemoteDataSourceProvider);
-  return DashboardRepositoryImpl(dataSource);
+  final dio = ref.watch(dioProvider);
+  return DashboardRepositoryImpl(dataSource, dio);
 });

@@ -98,6 +98,11 @@
                 </div>
             @endforelse
         </div>
+        @if(method_exists($pembinaans, 'links'))
+            <div class="mt-6">
+                {{ $pembinaans->links() }}
+            </div>
+        @endif
     </div>
 @endsection
 

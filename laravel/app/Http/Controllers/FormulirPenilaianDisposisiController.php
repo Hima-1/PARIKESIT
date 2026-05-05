@@ -41,14 +41,15 @@ class FormulirPenilaianDisposisiController extends Controller
                 ->whereHas('penilaians.user', function ($query) {
                     $query->where('role', 'opd');
                 })
-                ->get();
+                ->paginate(10)
+                ->withQueryString();
         }
         // Jika role adalah OPD, tampilkan hanya formulir yang dibuat atau dinilai oleh OPD tersebut
         else if ($user->role === 'opd') {
             $penilaianSelesai = Formulir::operational()->with('creator')->whereHas('penilaians', function ($query) use ($user) {
                 $query->where('user_id', $user->id)
                       ->orWhere('created_by_id', $user->id);
-            })->get();
+            })->paginate(10)->withQueryString();
 
             // Jika tidak ada kegiatan penilaian, kembalikan dengan pesan
             if ($penilaianSelesai->isEmpty()) {
@@ -82,7 +83,7 @@ class FormulirPenilaianDisposisiController extends Controller
                 ->where('role', 'opd')
                 ->whereHas('penilaians', function ($query) use ($formulir) {
                     $query->where('formulir_id', $formulir->id);
-                })->get()->map(function ($opd) use ($formulir) {
+                })->paginate(10)->withQueryString()->through(function ($opd) use ($formulir) {
                     return [
                         'opd' => $opd,
                         'domains' => $opd->penilaians->where('formulir_id', $formulir->id)->map(function ($penilaian) {
@@ -114,7 +115,7 @@ class FormulirPenilaianDisposisiController extends Controller
                 ->whereHas('penilaians', function ($query) use ($formulir, $user) {
                     $query->where('formulir_id', $formulir->id)
                           ->where('user_id', $user->id);
-                })->get()->map(function ($opd) use ($formulir) {
+                })->paginate(10)->withQueryString()->through(function ($opd) use ($formulir) {
                     return [
                         'opd' => $opd,
                         'domains' => $opd->penilaians->where('formulir_id', $formulir->id)->map(function ($penilaian) {

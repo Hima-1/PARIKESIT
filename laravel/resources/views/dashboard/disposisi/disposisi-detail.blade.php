@@ -313,7 +313,11 @@
                         </div>
                     @endforeach
 
-
+                    @if(method_exists($opdsMenilai, 'links'))
+                        <div class="mt-6">
+                            {{ $opdsMenilai->links() }}
+                        </div>
+                    @endif
 
                 </div>
             </div>

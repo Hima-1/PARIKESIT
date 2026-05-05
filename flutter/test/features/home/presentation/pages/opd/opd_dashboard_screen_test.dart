@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:parikesit/core/auth/app_user.dart';
+import 'package:parikesit/core/network/paginated_response.dart';
 import 'package:parikesit/features/home/domain/opd_dashboard_progress.dart';
 import 'package:parikesit/features/home/presentation/pages/opd/controller/opd_dashboard_controller.dart';
 import 'package:parikesit/features/home/presentation/pages/opd/opd_dashboard_screen.dart';
@@ -115,12 +116,23 @@ class _FakeOpdDashboardController extends OpdDashboardController {
   final List<OpdDashboardProgress> _value;
 
   @override
-  Future<List<OpdDashboardProgress>> build() async => _value;
+  Future<PaginatedResponse<OpdDashboardProgress>> build() async =>
+      PaginatedResponse<OpdDashboardProgress>(
+        data: _value,
+        meta: PaginationMeta(
+          currentPage: 1,
+          lastPage: 1,
+          perPage: _value.length,
+          total: _value.length,
+          path: '/dashboard/progress-penilaian',
+        ),
+        links: const PaginationLinks(first: '', last: ''),
+      );
 }
 
 class _ThrowingOpdDashboardController extends OpdDashboardController {
   @override
-  Future<List<OpdDashboardProgress>> build() async {
+  Future<PaginatedResponse<OpdDashboardProgress>> build() async {
     throw Exception('dashboard gagal dimuat');
   }
 }

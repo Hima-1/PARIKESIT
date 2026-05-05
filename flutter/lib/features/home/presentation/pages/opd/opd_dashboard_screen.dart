@@ -5,12 +5,14 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../../core/auth/app_user.dart';
+import '../../../../../core/network/paginated_response.dart';
 import '../../../../../core/router/route_constants.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/utils/app_error_mapper.dart';
 import '../../../../../core/widgets/app_empty_state.dart';
 import '../../../../../core/widgets/app_error_state.dart';
+import '../../../../../core/widgets/app_pagination_footer.dart';
 import '../../../../../core/widgets/ethno_button.dart';
 import '../../../../../core/widgets/ethno_card.dart';
 import '../../../../../core/widgets/ethno_donut_chart.dart';
@@ -27,6 +29,9 @@ class OpdDashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
     final opdProgressAsync = ref.watch(opdDashboardControllerProvider);
+    final opdProgressNotifier = ref.read(
+      opdDashboardControllerProvider.notifier,
+    );
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -45,7 +50,8 @@ class OpdDashboardScreen extends ConsumerWidget {
             ),
             AppSpacing.gapH24,
             opdProgressAsync.when(
-              data: (progressList) {
+              data: (progressPage) {
+                final progressList = progressPage.items;
                 if (progressList.isEmpty) {
                   return const Padding(
                     padding: EdgeInsets.symmetric(vertical: 8),
@@ -99,6 +105,14 @@ class OpdDashboardScreen extends ConsumerWidget {
                               (p.progressPerIndikator.terisi ?? 0),
                         ),
                       ),
+                    ),
+                    AppPaginationFooter(
+                      currentPage: progressPage.meta.currentPage,
+                      lastPage: progressPage.meta.lastPage,
+                      hasPreviousPage: progressPage.hasPreviousPage,
+                      hasNextPage: progressPage.hasNextPage,
+                      onPrevious: opdProgressNotifier.previousPage,
+                      onNext: opdProgressNotifier.nextPage,
                     ),
                   ],
                 );

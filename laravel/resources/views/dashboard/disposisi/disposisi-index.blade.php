@@ -124,7 +124,11 @@
                 </div>
             @endforeach
 
-
+            @if(method_exists($penilaianSelesai, 'links'))
+                <div class="mt-6">
+                    {{ $penilaianSelesai->links() }}
+                </div>
+            @endif
 
             {{-- <table class="table-auto table-bordered w-full ">
                 <thead>

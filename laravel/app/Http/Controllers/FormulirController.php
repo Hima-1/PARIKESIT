@@ -32,7 +32,8 @@ class FormulirController extends Controller
         $formulirs = Formulir::where('created_by_id', $user->id)
             ->with('domains')
             ->latest()
-            ->get();
+            ->paginate(15)
+            ->withQueryString();
 
         return view('dashboard.formulir.form-index', compact('formulirs'));
     }

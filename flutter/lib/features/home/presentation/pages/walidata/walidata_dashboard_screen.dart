@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,12 +7,14 @@ import 'package:go_router/go_router.dart';
 import 'package:parikesit/features/assessment/presentation/controller/assessment_list_controller.dart';
 import 'package:parikesit/features/auth/presentation/controller/auth_provider.dart';
 
+import '../../../../../core/network/paginated_response.dart';
 import '../../../../../core/router/route_constants.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/utils/app_error_mapper.dart';
 import '../../../../../core/widgets/app_empty_state.dart';
 import '../../../../../core/widgets/app_error_state.dart';
+import '../../../../../core/widgets/app_pagination_footer.dart';
 import '../../../../../core/widgets/section_header.dart';
 import '../../../../assessment/domain/assessment_models.dart';
 import '../../widgets/common/welcome_profile_card.dart';
@@ -29,11 +33,12 @@ class WalidataDashboardScreen extends ConsumerStatefulWidget {
 class _WalidataDashboardScreenState
     extends ConsumerState<WalidataDashboardScreen> {
   final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
+  Timer? _searchDebounce;
   _FilterStatus _filter = _FilterStatus.all;
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _searchController.dispose();
     super.dispose();
   }
@@ -41,6 +46,7 @@ class _WalidataDashboardScreenState
   @override
   Widget build(BuildContext context) {
     final activitiesAsync = ref.watch(completedActivitiesProvider);
+    final activitiesNotifier = ref.read(completedActivitiesProvider.notifier);
     final authState = ref.watch(authNotifierProvider);
     final user = authState.user;
 
@@ -48,7 +54,7 @@ class _WalidataDashboardScreenState
       body: RefreshIndicator(
         onRefresh: () async {
           await HapticFeedback.mediumImpact();
-          ref.invalidate(completedActivitiesProvider);
+          await activitiesNotifier.refreshCompletedActivities();
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -78,18 +84,12 @@ class _WalidataDashboardScreenState
                           : IconButton(
                               onPressed: () {
                                 _searchController.clear();
-                                setState(() {
-                                  _searchQuery = '';
-                                });
+                                _onSearchChanged('');
                               },
                               icon: const Icon(Icons.close_rounded),
                             ),
                     ),
-                    onChanged: (nextValue) {
-                      setState(() {
-                        _searchQuery = nextValue.trim().toLowerCase();
-                      });
-                    },
+                    onChanged: _onSearchChanged,
                   );
                 },
               ),
@@ -98,7 +98,7 @@ class _WalidataDashboardScreenState
               AppSpacing.gapH16,
               activitiesAsync.when(
                 data: (activities) {
-                  final filteredActivities = activities.data
+                  final filteredActivities = activities.items
                       .where((activity) {
                         final progress =
                             activity.reviewProgress ??
@@ -109,14 +109,6 @@ class _WalidataDashboardScreenState
                               pendingIndicatorPreview:
                                   <PendingIndicatorPreview>[],
                             );
-                        final bool matchesSearch =
-                            _searchQuery.isEmpty ||
-                            activity.title.toLowerCase().contains(_searchQuery);
-
-                        if (!matchesSearch) {
-                          return false;
-                        }
-
                         return switch (_filter) {
                           _FilterStatus.all => true,
                           _FilterStatus.pending => progress.correctedCount == 0,
@@ -140,42 +132,53 @@ class _WalidataDashboardScreenState
                     );
                   }
 
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: filteredActivities.length,
-                    itemBuilder: (context, index) {
-                      final activity = filteredActivities[index];
-                      final progress =
-                          activity.reviewProgress ??
-                          const ReviewProgressSummary(
-                            totalIndicators: 0,
-                            correctedCount: 0,
-                            percentage: 0,
-                            pendingIndicatorPreview:
-                                <PendingIndicatorPreview>[],
-                          );
+                  return Column(
+                    children: [
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: filteredActivities.length,
+                        itemBuilder: (context, index) {
+                          final activity = filteredActivities[index];
+                          final progress =
+                              activity.reviewProgress ??
+                              const ReviewProgressSummary(
+                                totalIndicators: 0,
+                                correctedCount: 0,
+                                percentage: 0,
+                                pendingIndicatorPreview:
+                                    <PendingIndicatorPreview>[],
+                              );
 
-                      return WalidataActivityCard(
-                        title: activity.title,
-                        date: activity.date,
-                        correctedCount: progress.correctedCount,
-                        totalCount: progress.totalIndicators,
-                        percentage: progress.percentage,
-                        pendingIndicators: progress.pendingIndicatorPreview,
-                        finalCorrectionScore: progress.finalCorrectionScore,
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-                          context.push(
-                            RouteConstants.assessmentOpdSelection.replaceFirst(
-                              ':activityId',
-                              activity.id,
-                            ),
-                            extra: activity,
+                          return WalidataActivityCard(
+                            title: activity.title,
+                            date: activity.date,
+                            correctedCount: progress.correctedCount,
+                            totalCount: progress.totalIndicators,
+                            percentage: progress.percentage,
+                            pendingIndicators: progress.pendingIndicatorPreview,
+                            finalCorrectionScore: progress.finalCorrectionScore,
+                            onTap: () {
+                              HapticFeedback.lightImpact();
+                              context.push(
+                                RouteConstants.assessmentOpdSelection
+                                    .replaceFirst(':activityId', activity.id),
+                                extra: activity,
+                              );
+                            },
                           );
                         },
-                      );
-                    },
+                      ),
+                      AppSpacing.gapH16,
+                      AppPaginationFooter(
+                        currentPage: activities.meta.currentPage,
+                        lastPage: activities.meta.lastPage,
+                        hasPreviousPage: activities.hasPreviousPage,
+                        hasNextPage: activities.hasNextPage,
+                        onPrevious: activitiesNotifier.previousPage,
+                        onNext: activitiesNotifier.nextPage,
+                      ),
+                    ],
                   );
                 },
                 loading: () => const Center(
@@ -198,6 +201,14 @@ class _WalidataDashboardScreenState
         ),
       ),
     );
+  }
+
+  void _onSearchChanged(String value) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 400), () {
+      ref.read(completedActivitiesProvider.notifier).setSearch(value.trim());
+    });
+    setState(() {});
   }
 
   Widget _buildFilterChips() {
