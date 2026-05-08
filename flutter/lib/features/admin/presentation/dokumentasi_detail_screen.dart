@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/auth/user_role.dart';
 import 'package:parikesit/core/config/app_config.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
@@ -238,13 +239,13 @@ class DokumentasiDetailScreen extends ConsumerWidget {
             children: [
               _buildMetadataItem(
                 context,
-                Icons.calendar_today_rounded,
+                LucideIcons.calendar,
                 DateFormat('dd MMMM yyyy', 'id_ID').format(detail.date),
               ),
               AppSpacing.gapH8,
               _buildMetadataItem(
                 context,
-                Icons.person_pin_rounded,
+                LucideIcons.userCheck,
                 detail.creatorName,
               ),
             ],
@@ -311,7 +312,7 @@ class DokumentasiDetailScreen extends ConsumerWidget {
         Expanded(
           child: EthnoButton(
             onPressed: () => _showEditForm(context, ref, id, isPembinaan, item),
-            icon: Icons.edit_note_rounded,
+            icon: LucideIcons.fileEdit,
             label: editLabel,
             style: EthnoButtonStyle.outlined,
             size: EthnoButtonSize.small,
@@ -321,7 +322,7 @@ class DokumentasiDetailScreen extends ConsumerWidget {
         Expanded(
           child: EthnoButton(
             onPressed: () => _confirmDelete(context, ref, id, isPembinaan),
-            icon: Icons.delete_sweep_rounded,
+            icon: LucideIcons.trash,
             label: deleteLabel,
             style: EthnoButtonStyle.danger,
             size: EthnoButtonSize.small,
@@ -466,7 +467,7 @@ class DokumentasiDetailScreen extends ConsumerWidget {
                 shape: BoxShape.circle,
               ),
               child: const Icon(
-                Icons.perm_media_rounded,
+                LucideIcons.image,
                 size: 18,
                 color: AppTheme.sogan,
               ),
@@ -486,10 +487,10 @@ class DokumentasiDetailScreen extends ConsumerWidget {
             trailing: IconButton(
               icon: Icon(
                 isImage
-                    ? Icons.visibility_rounded
+                    ? LucideIcons.eye
                     : (isVideo
-                          ? Icons.play_circle_outline_rounded
-                          : Icons.open_in_new_rounded),
+                          ? LucideIcons.playCircle
+                          : LucideIcons.externalLink),
                 color: AppTheme.gold,
                 size: 24,
               ),
@@ -605,7 +606,7 @@ class DokumentasiDetailScreen extends ConsumerWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        Icons.broken_image_rounded,
+                        LucideIcons.imageOff,
                         color: Colors.white54,
                         size: 64,
                       ),
@@ -625,7 +626,7 @@ class DokumentasiDetailScreen extends ConsumerWidget {
               child: CircleAvatar(
                 backgroundColor: Colors.black54,
                 child: IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white),
+                  icon: const Icon(LucideIcons.x, color: Colors.white),
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
@@ -673,7 +674,7 @@ class DokumentasiDetailScreen extends ConsumerWidget {
               : () => ref
                     .read(adminDokumentasiControllerProvider.notifier)
                     .downloadAll(id, isPembinaan),
-          icon: Icons.archive_rounded,
+          icon: LucideIcons.archive,
           label: downloadLabel,
           isLoading: controllerState.isDownloading,
           isFullWidth: true,

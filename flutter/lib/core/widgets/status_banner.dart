@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
 
@@ -36,13 +37,13 @@ class StatusBanner extends StatelessWidget {
   IconData _getDefaultIcon() {
     switch (type) {
       case StatusBannerType.success:
-        return Icons.check_circle_outline_rounded;
+        return LucideIcons.checkCircle2;
       case StatusBannerType.error:
-        return Icons.error_outline_rounded;
+        return LucideIcons.alertCircle;
       case StatusBannerType.warning:
-        return Icons.warning_amber_rounded;
+        return LucideIcons.alertTriangle;
       case StatusBannerType.info:
-        return Icons.info_outline_rounded;
+        return LucideIcons.info;
     }
   }
 

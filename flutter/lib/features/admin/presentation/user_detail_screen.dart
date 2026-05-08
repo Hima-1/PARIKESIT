@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/auth/app_user.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
@@ -26,11 +27,7 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Detail Pengguna'),
-        backgroundColor: AppTheme.sogan,
-        foregroundColor: AppTheme.gold,
-      ),
+      appBar: AppBar(title: const Text('Detail Pengguna')),
       body: SingleChildScrollView(
         padding: AppSpacing.pPage,
         child: Column(
@@ -102,22 +99,22 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            _buildInfoRow(Icons.email_outlined, 'Email', widget.user.email),
+            _buildInfoRow(LucideIcons.mail, 'Email', widget.user.email),
             const Divider(),
             _buildInfoRow(
-              Icons.phone_outlined,
+              LucideIcons.phone,
               'Nomor Telepon',
               widget.user.nomorTelepon ?? '-',
             ),
             const Divider(),
             _buildInfoRow(
-              Icons.location_on_outlined,
+              LucideIcons.mapPin,
               'Alamat',
               widget.user.alamat ?? '-',
             ),
             const Divider(),
             _buildInfoRow(
-              Icons.calendar_today_outlined,
+              LucideIcons.calendar,
               'Tanggal Dibuat',
               widget.user.createdAt != null
                   ? DateFormat(
@@ -179,7 +176,7 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
             if (isCompact) ...[
               EthnoButton(
                 onPressed: () => Navigator.pop(context),
-                icon: Icons.arrow_back,
+                icon: LucideIcons.arrowLeft,
                 label: 'Kembali',
                 style: EthnoButtonStyle.outlined,
                 isFullWidth: true,
@@ -187,7 +184,7 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
               AppSpacing.gapH16,
               EthnoButton(
                 onPressed: () => _showUserForm(isReset: false),
-                icon: Icons.edit_outlined,
+                icon: LucideIcons.pencil,
                 label: 'Edit',
                 style: EthnoButtonStyle.primary,
                 isFullWidth: true,
@@ -195,7 +192,7 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
               AppSpacing.gapH16,
               EthnoButton(
                 onPressed: () => _showUserForm(isReset: true),
-                icon: Icons.lock_reset_outlined,
+                icon: LucideIcons.keyRound,
                 label: 'Reset Password',
                 style: EthnoButtonStyle.secondary,
                 isFullWidth: true,
@@ -204,7 +201,7 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
                 AppSpacing.gapH16,
                 EthnoButton(
                   onPressed: _isTriggeringReminder ? null : _triggerReminder,
-                  icon: Icons.notifications_active_outlined,
+                  icon: LucideIcons.bellRing,
                   label: _isTriggeringReminder
                       ? 'Mengirim Reminder...'
                       : 'Kirim Reminder',
@@ -215,7 +212,7 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
               AppSpacing.gapH16,
               EthnoButton(
                 onPressed: _confirmDelete,
-                icon: Icons.delete_outline,
+                icon: LucideIcons.trash2,
                 label: 'Hapus',
                 style: EthnoButtonStyle.danger,
                 isFullWidth: true,
@@ -226,7 +223,7 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
                   Expanded(
                     child: EthnoButton(
                       onPressed: () => Navigator.pop(context),
-                      icon: Icons.arrow_back,
+                      icon: LucideIcons.arrowLeft,
                       label: 'Kembali',
                       style: EthnoButtonStyle.outlined,
                       isFullWidth: true,
@@ -236,7 +233,7 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
                   Expanded(
                     child: EthnoButton(
                       onPressed: () => _showUserForm(isReset: false),
-                      icon: Icons.edit_outlined,
+                      icon: LucideIcons.pencil,
                       label: 'Edit',
                       style: EthnoButtonStyle.primary,
                       isFullWidth: true,
@@ -250,7 +247,7 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
                   Expanded(
                     child: EthnoButton(
                       onPressed: () => _showUserForm(isReset: true),
-                      icon: Icons.lock_reset_outlined,
+                      icon: LucideIcons.keyRound,
                       label: 'Reset Password',
                       style: EthnoButtonStyle.secondary,
                       isFullWidth: true,
@@ -260,7 +257,7 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
                   Expanded(
                     child: EthnoButton(
                       onPressed: _confirmDelete,
-                      icon: Icons.delete_outline,
+                      icon: LucideIcons.trash2,
                       label: 'Hapus',
                       style: EthnoButtonStyle.danger,
                       isFullWidth: true,

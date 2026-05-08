@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import 'package:parikesit/core/auth/user_role.dart';
 import 'package:parikesit/core/network/paginated_response.dart';
@@ -56,7 +57,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(RefreshIndicator), findsOneWidget);
-    expect(find.text('KEGIATAN'), findsOneWidget);
+    expect(find.text('Kegiatan'), findsOneWidget);
     expect(find.text('Dokumentasi Kegiatan'), findsOneWidget);
   });
 
@@ -87,7 +88,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(RefreshIndicator), findsOneWidget);
-    expect(find.text('PEMBINAAN'), findsOneWidget);
+    expect(find.text('Pembinaan'), findsOneWidget);
     expect(find.text('Dokumentasi Pembinaan'), findsOneWidget);
   });
 
@@ -119,7 +120,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('photo.jpg'), findsOneWidget);
-      expect(find.byIcon(Icons.download_for_offline_rounded), findsNothing);
+      expect(find.byIcon(LucideIcons.downloadCloud), findsNothing);
 
       await tester.ensureVisible(find.text('photo.jpg'));
       await tester.tap(
@@ -133,7 +134,7 @@ void main() {
 
       expect(find.byType(Dialog), findsOneWidget);
       expect(find.byType(InteractiveViewer), findsOneWidget);
-      expect(find.byIcon(Icons.close), findsOneWidget);
+      expect(find.byIcon(LucideIcons.x), findsOneWidget);
       expect(find.text('photo.jpg'), findsWidgets);
     });
   });

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 
 import '../theme/app_theme.dart';
@@ -9,7 +10,7 @@ class AppEmptyState extends StatelessWidget {
     super.key,
     required this.title,
     required this.message,
-    this.icon = Icons.inbox_outlined,
+    this.icon = LucideIcons.inbox,
     this.onAction,
     this.actionLabel,
     this.actionIcon,
@@ -30,16 +31,9 @@ class AppEmptyState extends StatelessWidget {
         width: double.infinity,
         padding: AppSpacing.pAll24,
         decoration: BoxDecoration(
-          color: AppTheme.shellSurface,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppTheme.sogan.withValues(alpha: 0.08)),
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.sogan.withValues(alpha: 0.06),
-              blurRadius: 24,
-              offset: const Offset(0, 10),
-            ),
-          ],
+          color: AppTheme.surface,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          border: AppTheme.hairlineBorder,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

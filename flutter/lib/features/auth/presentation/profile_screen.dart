@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
 import 'package:parikesit/core/widgets/ethno_card.dart';
@@ -56,16 +57,16 @@ class ProfileScreen extends ConsumerWidget {
             children: [
               _buildInfoRow(
                 context,
-                Icons.badge_outlined,
+                LucideIcons.badge,
                 'Nama Lengkap',
                 user.name,
               ),
               const Divider(height: 32),
-              _buildInfoRow(context, Icons.email_outlined, 'Email', user.email),
+              _buildInfoRow(context, LucideIcons.mail, 'Email', user.email),
               const Divider(height: 32),
               _buildInfoRow(
                 context,
-                Icons.verified_user_outlined,
+                LucideIcons.shieldCheck,
                 'Peran',
                 user.role.toUpperCase(),
               ),
@@ -89,7 +90,7 @@ class ProfileScreen extends ConsumerWidget {
             shape: BoxShape.circle,
             border: Border.all(color: AppTheme.gold, width: 2),
           ),
-          child: const Icon(Icons.person, size: 60, color: AppTheme.sogan),
+          child: const Icon(LucideIcons.user, size: 60, color: AppTheme.sogan),
         ),
       ],
     );
@@ -137,21 +138,21 @@ class ProfileScreen extends ConsumerWidget {
         children: [
           _buildActionTile(
             context,
-            Icons.lock_reset_outlined,
+            LucideIcons.keyRound,
             'Ubah Password',
             () => context.push(RouteConstants.changePassword),
           ),
           const Divider(height: 1),
           _buildActionTile(
             context,
-            Icons.person_outline,
+            LucideIcons.user,
             'Edit Profil',
             () => context.push(RouteConstants.editProfile),
           ),
           const Divider(height: 1),
           _buildActionTile(
             context,
-            Icons.logout,
+            LucideIcons.logOut,
             'Logout',
             () => _showLogoutDialog(context, ref),
             color: AppTheme.sogaRed,
@@ -181,7 +182,7 @@ class ProfileScreen extends ConsumerWidget {
           color: tileColor,
         ),
       ),
-      trailing: Icon(Icons.chevron_right, size: 20, color: tileColor),
+      trailing: Icon(LucideIcons.chevronRight, size: 20, color: tileColor),
       onTap: onTap,
       shape: isLast
           ? const RoundedRectangleBorder(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/router/route_constants.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
@@ -77,7 +78,7 @@ class KegiatanPenilaianScreen extends ConsumerWidget {
                 padding: AppSpacing.pAll16,
                 children: const [
                   AppEmptyState(
-                    icon: Icons.assignment_late_outlined,
+                    icon: LucideIcons.clipboardX,
                     title: 'Belum ada domain tersedia.',
                     message:
                         'Domain penilaian akan muncul di halaman ini setelah formulir dilengkapi.',
@@ -143,7 +144,7 @@ class KegiatanPenilaianScreen extends ConsumerWidget {
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
-                              Icons.layers_outlined,
+                              LucideIcons.layers,
                               color: AppTheme.gold,
                               size: 20,
                             ),
@@ -253,7 +254,7 @@ class KegiatanPenilaianScreen extends ConsumerWidget {
                                         ),
                                         trailing: Icon(
                                           isFilled
-                                              ? Icons.check_circle_rounded
+                                              ? LucideIcons.checkCircle2
                                               : Icons
                                                     .radio_button_unchecked_rounded,
                                           size: 18,

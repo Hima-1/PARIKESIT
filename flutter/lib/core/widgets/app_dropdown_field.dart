@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import '../theme/app_theme.dart';
 
 class AppDropdownField<T> extends StatelessWidget {
@@ -31,7 +32,7 @@ class AppDropdownField<T> extends StatelessWidget {
         color: AppTheme.sogan,
       ),
       icon: Icon(
-        Icons.keyboard_arrow_down,
+        LucideIcons.chevronDown,
         color: AppTheme.sogan.withValues(alpha: 0.5),
       ),
       decoration: InputDecoration(labelText: label, prefixIcon: prefixIcon),

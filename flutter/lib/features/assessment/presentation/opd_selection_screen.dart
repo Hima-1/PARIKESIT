@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/auth/user_role.dart';
 import 'package:parikesit/core/network/paginated_response.dart';
 import 'package:parikesit/core/router/route_constants.dart';
@@ -130,7 +131,7 @@ class OpdSelectionScreen extends ConsumerWidget {
       padding: AppSpacing.pAll16,
       children: [
         AppEmptyState(
-          icon: Icons.business_outlined,
+          icon: LucideIcons.building2,
           title: config.emptyTitle,
           message: config.emptyMessage,
         ),
@@ -369,7 +370,7 @@ class _OpdSelectionHero extends StatelessWidget {
               width: double.infinity,
               child: FilledButton.icon(
                 onPressed: onSummaryTap,
-                icon: const Icon(Icons.bar_chart_rounded),
+                icon: const Icon(LucideIcons.barChart3),
                 label: Text(summaryActionLabel!),
                 style: FilledButton.styleFrom(
                   backgroundColor: Colors.white,
@@ -448,7 +449,7 @@ class _OpdItemCard extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
-                  Icons.business_rounded,
+                  LucideIcons.building2,
                   color: AppTheme.sogan,
                   size: 22,
                 ),
@@ -466,20 +467,20 @@ class _OpdItemCard extends StatelessWidget {
                     AppSpacing.gapH8,
                     if (!isPublicReadOnly) ...[
                       _IdentityRow(
-                        icon: Icons.business_rounded,
+                        icon: LucideIcons.building2,
                         label: 'Nama OPD',
                         value: opd.name,
                       ),
                       AppSpacing.gapH4,
                     ],
                     _IdentityRow(
-                      icon: Icons.badge_outlined,
+                      icon: LucideIcons.badge,
                       label: 'Jabatan',
                       value: _identityValue(opd.role),
                     ),
                     AppSpacing.gapH4,
                     _IdentityRow(
-                      icon: Icons.phone_outlined,
+                      icon: LucideIcons.phone,
                       label: 'Kontak',
                       value: _identityValue(opd.nomorTelepon),
                     ),
@@ -494,7 +495,7 @@ class _OpdItemCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right_rounded, color: config.highlightColor),
+              Icon(LucideIcons.chevronRight, color: config.highlightColor),
             ],
           ),
           if (_hasScore(opd.opdScore)) ...[
@@ -541,7 +542,7 @@ class _OpdItemCard extends StatelessWidget {
                     ),
                   ),
                   Icon(
-                    Icons.chevron_right_rounded,
+                    LucideIcons.chevronRight,
                     color: config.highlightColor,
                   ),
                 ],

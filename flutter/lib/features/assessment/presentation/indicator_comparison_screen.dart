@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/auth/role_access.dart';
 import 'package:parikesit/core/auth/user_role.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
@@ -159,7 +160,7 @@ class IndicatorReviewerScreen extends ConsumerWidget {
               const StatusBanner(
                 message: missingReviewOpdContextMessage,
                 type: StatusBannerType.warning,
-                icon: Icons.link_off_rounded,
+                icon: LucideIcons.unlink,
               ),
               AppSpacing.gapH16,
             ] else if (isLocked) ...[
@@ -174,7 +175,7 @@ class IndicatorReviewerScreen extends ConsumerWidget {
                 message:
                     'Silakan menunggu penilaian dari Walidata terlebih dahulu.',
                 type: StatusBannerType.warning,
-                icon: Icons.hourglass_empty_rounded,
+                icon: LucideIcons.hourglass,
               ),
               AppSpacing.gapH16,
             ],

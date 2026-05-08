@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
 import 'package:parikesit/core/widgets/ethno_button.dart';
@@ -29,9 +30,12 @@ class AssessmentFormCard extends StatelessWidget {
     );
 
     return Card(
-      elevation: 2,
-      color: AppTheme.shellSurface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 0,
+      color: AppTheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        side: const BorderSide(color: AppTheme.borderColor),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -55,7 +59,7 @@ class AssessmentFormCard extends StatelessWidget {
                   children: [
                     IconButton(
                       icon: const Icon(
-                        Icons.edit,
+                        LucideIcons.pencil,
                         color: AppTheme.success,
                         size: 20,
                       ),
@@ -64,7 +68,7 @@ class AssessmentFormCard extends StatelessWidget {
                     ),
                     IconButton(
                       icon: const Icon(
-                        Icons.delete,
+                        LucideIcons.trash2,
                         color: AppTheme.error,
                         size: 20,
                       ),
@@ -84,7 +88,7 @@ class AssessmentFormCard extends StatelessWidget {
                 Row(
                   children: [
                     const Icon(
-                      Icons.calendar_today,
+                      LucideIcons.calendar,
                       size: 14,
                       color: AppTheme.neutral,
                     ),
@@ -129,11 +133,11 @@ class DomainSummaryCard extends StatelessWidget {
     );
 
     return Card(
-      elevation: 1,
-      color: AppTheme.shellSurface,
+      elevation: 0,
+      color: AppTheme.surface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: AppTheme.neutral),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        side: const BorderSide(color: AppTheme.borderColor),
       ),
       child: Padding(
         padding: AppSpacing.pAll16,

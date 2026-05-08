@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 
 import '../../../../core/theme/app_theme.dart';
@@ -17,16 +18,9 @@ class EvaluationNoteCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: AppTheme.shellSurface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.sogan.withValues(alpha: 0.08)),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.sogan.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        border: AppTheme.hairlineBorder,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,7 +37,7 @@ class EvaluationNoteCard extends StatelessWidget {
             child: Row(
               children: [
                 Icon(
-                  Icons.chat_bubble_outline_rounded,
+                  LucideIcons.messageCircle,
                   size: 14,
                   color: roleColor,
                 ),

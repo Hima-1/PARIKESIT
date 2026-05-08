@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
 import 'package:parikesit/core/widgets/ethno_card.dart';
@@ -116,7 +117,7 @@ class DomainCorrectionListScreen extends ConsumerWidget {
                   child: StatusBanner(
                     message: missingReviewOpdContextMessage,
                     type: StatusBannerType.warning,
-                    icon: Icons.link_off_rounded,
+                    icon: LucideIcons.unlink,
                   ),
                 ),
               _buildDomainHeader(
@@ -211,7 +212,7 @@ class DomainCorrectionListScreen extends ConsumerWidget {
         padding: AppSpacing.pAll16,
         children: [
           AppEmptyState(
-            icon: Icons.assignment_late_outlined,
+            icon: LucideIcons.clipboardX,
             title: 'Tidak ada data.',
             message: isPublicReadOnly
                 ? 'Belum ada indikator untuk domain publik ini.'
@@ -255,20 +256,14 @@ class DomainCorrectionListScreen extends ConsumerWidget {
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       padding: AppSpacing.pAll24,
       decoration: BoxDecoration(
-        color: AppTheme.sogan,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.sogan.withValues(alpha: 0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-        gradient: LinearGradient(
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        gradient: const LinearGradient(
           colors: <Color>[
-            AppTheme.sogan,
-            AppTheme.sogan.withValues(alpha: 0.85),
+            AppTheme.soganDeep,
+            AppTheme.soganBrown,
+            AppTheme.terracotta,
           ],
+          stops: [0.0, 0.55, 1.0],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -434,7 +429,7 @@ class _IndicatorComparisonListItem extends StatelessWidget {
             ),
             AppSpacing.gapW8,
             Icon(
-              Icons.arrow_forward_ios_rounded,
+              LucideIcons.chevronRight,
               color: canNavigate ? AppTheme.gold : AppTheme.neutral,
               size: 16,
             ),

@@ -18,13 +18,13 @@ class SkeletonLoader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
+      baseColor: AppTheme.borderColor,
+      highlightColor: AppTheme.cream,
       child: Container(
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppTheme.surface,
           borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),
@@ -42,7 +42,7 @@ class ActivityCardSkeleton extends StatelessWidget {
       margin: AppSpacing.pV8,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppTheme.borderRadius),
-        side: BorderSide(color: Colors.grey[200]!),
+        side: const BorderSide(color: AppTheme.borderColor),
       ),
       child: const Padding(
         padding: AppSpacing.pAll16,
@@ -90,9 +90,9 @@ class StatsCardSkeleton extends StatelessWidget {
     return Container(
       padding: AppSpacing.pAll24,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.borderRadius),
-        border: Border.all(color: Colors.grey[200]!),
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        border: AppTheme.hairlineBorder,
       ),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,

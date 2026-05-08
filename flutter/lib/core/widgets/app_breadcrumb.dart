@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import '../theme/app_theme.dart';
 
 class BreadcrumbItem {
@@ -31,32 +32,28 @@ class AppBreadcrumb extends StatelessWidget {
                 GestureDetector(
                   onTap: item.onTap,
                   child: Text(
-                    item.label.toUpperCase(),
-                    style: textTheme.labelSmall?.copyWith(
-                      color: AppTheme.gold,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.1,
+                    item.label,
+                    style: textTheme.labelMedium?.copyWith(
+                      color: AppTheme.terracotta,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 )
               else
                 Text(
-                  item.label.toUpperCase(),
-                  style: textTheme.labelSmall?.copyWith(
-                    color: isLast
-                        ? AppTheme.neutral
-                        : AppTheme.neutral.withValues(alpha: 0.7),
-                    fontWeight: isLast ? FontWeight.w800 : FontWeight.w600,
-                    letterSpacing: 1.1,
+                  item.label,
+                  style: textTheme.labelMedium?.copyWith(
+                    color: isLast ? AppTheme.textStrong : AppTheme.textMuted,
+                    fontWeight: isLast ? FontWeight.w600 : FontWeight.w500,
                   ),
                 ),
               if (!isLast)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
                   child: Icon(
-                    Icons.chevron_right_rounded,
+                    LucideIcons.chevronRight,
                     size: 14,
-                    color: AppTheme.neutral.withValues(alpha: 0.5),
+                    color: AppTheme.textSubtle,
                   ),
                 ),
             ],

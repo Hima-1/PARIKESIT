@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -41,7 +42,7 @@ class DokumentasiListItem extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
-                  Icons.description_outlined,
+                  LucideIcons.fileText,
                   color: AppTheme.sogan,
                   size: 24,
                 ),
@@ -75,7 +76,7 @@ class DokumentasiListItem extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right_rounded, color: AppTheme.sogan),
+              const Icon(LucideIcons.chevronRight, color: AppTheme.sogan),
             ],
           ),
           AppSpacing.gapH16,

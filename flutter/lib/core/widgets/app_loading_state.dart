@@ -15,8 +15,8 @@ class AppLoadingState extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.sogan),
-            strokeWidth: 3,
+            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.terracotta),
+            strokeWidth: 2.5,
           ),
           if (message != null) ...[
             AppSpacing.gapH16,
@@ -24,8 +24,8 @@ class AppLoadingState extends StatelessWidget {
               message!,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppTheme.sogan,
-                fontWeight: FontWeight.w600,
+                color: AppTheme.textMuted,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],

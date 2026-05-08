@@ -4,7 +4,7 @@ import 'package:parikesit/core/theme/app_theme.dart';
 import 'package:parikesit/core/widgets/ethno_card.dart';
 
 void main() {
-  testWidgets('EthnoCard uses shell surface color instead of opaque white', (
+  testWidgets('EthnoCard renders flat shadcn surface with hairline border', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
@@ -16,7 +16,9 @@ void main() {
 
     final Card card = tester.widget<Card>(find.byType(Card));
 
-    expect(card.color, AppTheme.shellSurface);
-    expect(card.color, isNot(Colors.white));
+    expect(card.color, AppTheme.surface);
+    expect(card.elevation, 0);
+    final shape = card.shape as RoundedRectangleBorder;
+    expect(shape.side.color, AppTheme.borderColor);
   });
 }

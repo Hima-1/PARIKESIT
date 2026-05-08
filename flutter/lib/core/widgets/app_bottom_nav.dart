@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import '../auth/role_access.dart';
 import '../auth/user_role.dart';
 import '../router/route_constants.dart';
@@ -22,16 +23,10 @@ class AppBottomNav extends ConsumerWidget {
 
     final int currentIndex = _calculateSelectedIndex(location, items);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.sogan.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        color: AppTheme.surface,
+        border: Border(top: BorderSide(color: AppTheme.borderColor)),
       ),
       child: BottomNavigationBar(
         currentIndex: currentIndex,
@@ -47,24 +42,23 @@ class AppBottomNav extends ConsumerWidget {
         elevation: 0,
         backgroundColor: Colors.transparent,
         enableFeedback: true,
-        selectedItemColor: AppTheme.gold,
-        unselectedItemColor: AppTheme.sogan.withValues(alpha: 0.5),
+        selectedItemColor: AppTheme.terracotta,
+        unselectedItemColor: AppTheme.textMuted,
         selectedLabelStyle: textTheme.labelSmall?.copyWith(
-          fontWeight: FontWeight.w900,
-          color: AppTheme.gold,
-          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          color: AppTheme.terracotta,
+          fontSize: 11,
         ),
         unselectedLabelStyle: textTheme.labelSmall?.copyWith(
-          fontWeight: FontWeight.w700,
-          color: AppTheme.sogan.withValues(alpha: 0.5),
-          fontSize: 10,
+          fontWeight: FontWeight.w500,
+          color: AppTheme.textMuted,
+          fontSize: 11,
         ),
         items: items.map((item) {
-          final isSelected = currentIndex == items.indexOf(item);
           return BottomNavigationBarItem(
             icon: Padding(
               padding: const EdgeInsets.only(bottom: 4),
-              child: Icon(isSelected ? item.selectedIcon : item.icon, size: 24),
+              child: Icon(item.icon, size: 20),
             ),
             label: item.label,
           );
@@ -78,72 +72,61 @@ class AppBottomNav extends ConsumerWidget {
       UserRole.admin => [
         _BottomNavItem(
           label: 'BERANDA',
-          icon: Icons.dashboard_outlined,
-          selectedIcon: Icons.dashboard,
+          icon: LucideIcons.layoutDashboard,
           route: RouteConstants.home,
         ),
         _BottomNavItem(
           label: 'USER',
-          icon: Icons.people_outline,
-          selectedIcon: Icons.people,
+          icon: LucideIcons.users,
           route: RouteConstants.adminUsers,
         ),
         _BottomNavItem(
           label: 'PENILAIAN',
-          icon: Icons.task_alt_outlined,
-          selectedIcon: Icons.task_alt,
+          icon: LucideIcons.checkCircle2,
           route: RouteConstants.assessmentSelesai,
         ),
         _BottomNavItem(
           label: 'DOKUMENTASI',
-          icon: Icons.folder_outlined,
-          selectedIcon: Icons.folder,
+          icon: LucideIcons.folder,
           route: RouteConstants.adminDokumentasi,
         ),
       ],
       UserRole.opd => [
         _BottomNavItem(
           label: 'BERANDA',
-          icon: Icons.dashboard_outlined,
-          selectedIcon: Icons.dashboard,
+          icon: LucideIcons.layoutDashboard,
           route: RouteConstants.home,
         ),
         _BottomNavItem(
           label: 'FORMULIR',
-          icon: Icons.assignment_outlined,
-          selectedIcon: Icons.assignment,
+          icon: LucideIcons.clipboardList,
           route: RouteConstants.assessmentMandiri,
         ),
         _BottomNavItem(
           label: 'PENILAIAN',
-          icon: Icons.task_alt_outlined,
-          selectedIcon: Icons.task_alt,
+          icon: LucideIcons.checkCircle2,
           route: RouteConstants.assessmentSelesai,
         ),
         _BottomNavItem(
           label: 'KEGIATAN',
-          icon: Icons.folder_outlined,
-          selectedIcon: Icons.folder,
+          icon: LucideIcons.folder,
           route: RouteConstants.dokumentasiKegiatan,
         ),
       ],
       UserRole.walidata => [
         _BottomNavItem(
           label: 'BERANDA',
-          icon: Icons.dashboard_outlined,
-          selectedIcon: Icons.dashboard,
+          icon: LucideIcons.layoutDashboard,
           route: RouteConstants.home,
         ),
         _BottomNavItem(
           label: 'PENILAIAN',
-          icon: Icons.task_alt_outlined,
-          selectedIcon: Icons.task_alt,
+          icon: LucideIcons.checkCircle2,
           route: RouteConstants.assessmentSelesai,
         ),
         _BottomNavItem(
           label: 'KEGIATAN',
-          icon: Icons.folder_outlined,
-          selectedIcon: Icons.folder,
+          icon: LucideIcons.folder,
           route: RouteConstants.dokumentasiKegiatan,
         ),
       ],
@@ -170,12 +153,10 @@ class _BottomNavItem {
   _BottomNavItem({
     required this.label,
     required this.icon,
-    required this.selectedIcon,
     required this.route,
   });
 
   final String label;
   final IconData icon;
-  final IconData selectedIcon;
   final String route;
 }

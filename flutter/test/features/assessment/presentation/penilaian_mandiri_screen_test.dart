@@ -53,7 +53,7 @@ void main() {
       addTearDown(container.dispose);
       await pumpScreen(tester, container);
 
-      expect(find.text('Tambah Formulir'), findsOneWidget);
+      expect(find.byTooltip('Tambah formulir'), findsOneWidget);
       expect(find.text('Pilih formulir terlebih dahulu.'), findsNothing);
     });
 

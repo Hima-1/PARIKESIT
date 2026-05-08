@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
 import 'package:parikesit/core/utils/app_error_mapper.dart';
@@ -40,7 +41,7 @@ class _AddMediaButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return EthnoButton(
       onPressed: onTap,
-      icon: Icons.add_photo_alternate_rounded,
+      icon: LucideIcons.imagePlus,
       label: 'TAMBAH LAMPIRAN MEDIA',
       style: EthnoButtonStyle.outlined,
       size: EthnoButtonSize.small,
@@ -243,16 +244,10 @@ class _DokumentasiFormState extends ConsumerState<DokumentasiForm> {
 
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
-      decoration: BoxDecoration(
-        color: AppTheme.shellSurface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.sogan.withValues(alpha: 0.2),
-            blurRadius: 20,
-            offset: const Offset(0, -10),
-          ),
-        ],
+      decoration: const BoxDecoration(
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppTheme.radiusLg)),
+        border: Border(top: BorderSide(color: AppTheme.borderColor)),
       ),
       child: AnimatedPadding(
         duration: const Duration(milliseconds: 180),
@@ -287,7 +282,7 @@ class _DokumentasiFormState extends ConsumerState<DokumentasiForm> {
                     child: IconButton(
                       onPressed: () => Navigator.pop(context),
                       icon: const Icon(
-                        Icons.close_rounded,
+                        LucideIcons.x,
                         color: AppTheme.sogan,
                       ),
                     ),
@@ -299,7 +294,7 @@ class _DokumentasiFormState extends ConsumerState<DokumentasiForm> {
                 controller: _judulController,
                 label: 'Judul ${widget.isPembinaan ? 'Pembinaan' : 'Kegiatan'}',
                 hint: 'Contoh: Rapat Koordinasi SDI',
-                prefixIcon: const Icon(Icons.title_rounded),
+                prefixIcon: const Icon(LucideIcons.type),
               ),
               AppSpacing.gapH32,
               _buildSectionHeader(context, 'DOKUMEN UTAMA (PDF)'),
@@ -354,7 +349,7 @@ class _DokumentasiFormState extends ConsumerState<DokumentasiForm> {
                       child: Row(
                         children: [
                           const Icon(
-                            Icons.image_rounded,
+                            LucideIcons.image,
                             size: 18,
                             color: AppTheme.sogan,
                           ),
@@ -371,7 +366,7 @@ class _DokumentasiFormState extends ConsumerState<DokumentasiForm> {
                             ),
                           ),
                           const Icon(
-                            Icons.check_circle_rounded,
+                            LucideIcons.checkCircle2,
                             color: AppTheme.success,
                             size: 18,
                           ),

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/storage/token_storage.dart';
 import 'package:parikesit/features/auth/data/auth_api_client.dart';
 import 'package:parikesit/features/auth/data/auth_repository.dart';
@@ -23,8 +24,8 @@ void main() {
 
         expect(find.text('Logout'), findsOneWidget);
         expect(find.text('Tentang Aplikasi'), findsNothing);
-        expect(find.byIcon(Icons.logout), findsOneWidget);
-        expect(find.byIcon(Icons.info_outline), findsNothing);
+        expect(find.byIcon(LucideIcons.logOut), findsOneWidget);
+        expect(find.byIcon(LucideIcons.info), findsNothing);
         expect(find.text('Profil Pengguna'), findsOneWidget);
       },
     );

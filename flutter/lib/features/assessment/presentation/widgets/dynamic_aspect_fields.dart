@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
 import 'package:parikesit/core/widgets/ethno_button.dart';
@@ -32,7 +33,7 @@ class DynamicAspectFields extends StatelessWidget {
         AppSpacing.gapH8,
         EthnoButton(
           onPressed: onAdd,
-          icon: Icons.add,
+          icon: LucideIcons.plus,
           label: 'Tambah Aspek',
           style: EthnoButtonStyle.outlined,
         ),
@@ -85,7 +86,7 @@ class _AspectFieldRow extends StatelessWidget {
           if (canRemove)
             IconButton(
               icon: const Icon(
-                Icons.remove_circle_outline,
+                LucideIcons.minusCircle,
                 color: AppTheme.error,
               ),
               onPressed: onRemove,

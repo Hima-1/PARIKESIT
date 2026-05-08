@@ -12,10 +12,28 @@ class _PublicAboutTab extends StatelessWidget {
   Widget _withStagger({required int index, required Widget child}) {
     return PublicStaggeredReveal(
       key: ValueKey<String>('public_about_stagger_$index'),
-      delay: Duration(milliseconds: 80 + (index * 80)),
+      delay: Duration(milliseconds: 80 + (index * 70)),
       child: child,
     );
   }
+
+  Widget _sectionTitle(BuildContext context, String text) => Text(
+    text,
+    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+      color: AppTheme.textStrong,
+      fontWeight: FontWeight.w700,
+    ),
+  );
+
+  Widget _sectionSubtitle(BuildContext context, String text) => Padding(
+    padding: const EdgeInsets.only(top: 4),
+    child: Text(
+      text,
+      style: Theme.of(
+        context,
+      ).textTheme.bodyMedium?.copyWith(color: AppTheme.textSubtle),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -37,86 +55,74 @@ class _PublicAboutTab extends StatelessWidget {
                   description:
                       'PARIKESIT merangkum Evaluasi Penyelenggaraan Statistik Sektoral agar pengunjung bisa langsung melihat alur, hasil, dan akses login.',
                   chips: const ['EPSS', 'Publik', 'Hasil Akhir'],
-                  actionsAlignment: WrapAlignment.center,
-                  primaryAction: FilledButton(
+                  actionsAlignment: WrapAlignment.start,
+                  primaryAction: FilledButton.icon(
                     onPressed: onOpenResults,
                     style: FilledButton.styleFrom(
-                      backgroundColor: AppTheme.gold,
-                      foregroundColor: AppTheme.sogan,
+                      backgroundColor: Colors.white,
+                      foregroundColor: AppTheme.soganDeep,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 20,
-                        vertical: 16,
+                        vertical: 14,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          AppTheme.borderRadius,
-                        ),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                       ),
                     ),
-                    child: const Text(
-                      'LIHAT HASIL PUBLIK',
-                      style: TextStyle(fontWeight: FontWeight.w900),
-                    ),
+                    icon: const Icon(LucideIcons.arrowRight, size: 16),
+                    label: const Text('Lihat hasil publik'),
                   ),
-                  secondaryAction: OutlinedButton(
+                  secondaryAction: OutlinedButton.icon(
                     onPressed: onOpenLogin,
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: AppTheme.merang,
-                      backgroundColor: AppTheme.merang.withValues(alpha: 0.08),
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.white.withValues(alpha: 0.06),
                       side: BorderSide(
-                        color: AppTheme.gold.withValues(alpha: 0.28),
+                        color: Colors.white.withValues(alpha: 0.32),
                       ),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 20,
-                        vertical: 16,
+                        vertical: 14,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          AppTheme.borderRadius,
-                        ),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                       ),
                     ),
-                    child: const Text(
-                      'BUKA LOGIN',
-                      style: TextStyle(fontWeight: FontWeight.w800),
-                    ),
+                    icon: const Icon(LucideIcons.logIn, size: 16),
+                    label: const Text('Buka login'),
                   ),
                 ),
               ),
-              AppSpacing.gapH16,
+              AppSpacing.gapH24,
               _withStagger(
                 index: 1,
                 child: PublicSectionShell(
-                  borderRadius: 24,
-                  padding: const EdgeInsets.all(20),
-                  backgroundColor: Colors.white.withValues(alpha: 0.9),
+                  padding: const EdgeInsets.all(24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Ringkasan cepat',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: AppTheme.sogan,
-                          fontWeight: FontWeight.w900,
-                        ),
+                      _sectionTitle(context, 'Ringkasan cepat'),
+                      _sectionSubtitle(
+                        context,
+                        'Inti dari PARIKESIT dalam tiga poin.',
                       ),
-                      AppSpacing.gapH8,
+                      AppSpacing.gapH16,
                       const _AboutPoint(
-                        icon: Icons.fact_check_outlined,
+                        icon: LucideIcons.fileCheck2,
                         title: 'Apa itu EPSS',
                         description:
                             'Evaluasi untuk menilai kematangan penyelenggaraan statistik sektoral.',
                       ),
-                      AppSpacing.gapH12,
+                      const _AboutDivider(),
                       const _AboutPoint(
-                        icon: Icons.track_changes_outlined,
+                        icon: LucideIcons.target,
                         title: 'Tujuan utama',
                         description:
                             'Mendorong kualitas data, tata kelola, dan layanan statistik publik.',
                       ),
-                      AppSpacing.gapH12,
+                      const _AboutDivider(),
                       const _AboutPoint(
-                        icon: Icons.bar_chart_outlined,
+                        icon: LucideIcons.barChart3,
                         title: 'Output',
                         description:
                             'Hasil evaluasi ditampilkan sebagai indeks aspek, domain, dan IPS.',
@@ -129,43 +135,39 @@ class _PublicAboutTab extends StatelessWidget {
               _withStagger(
                 index: 2,
                 child: PublicSectionShell(
-                  borderRadius: 24,
-                  padding: const EdgeInsets.all(20),
-                  backgroundColor: Colors.white.withValues(alpha: 0.92),
+                  padding: const EdgeInsets.all(24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Aturan EPSS untuk publik',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: AppTheme.sogan,
-                          fontWeight: FontWeight.w900,
-                        ),
+                      _sectionTitle(context, 'Aturan EPSS untuk publik'),
+                      _sectionSubtitle(
+                        context,
+                        'Dasar regulasi, tujuan, dan cakupan evaluasi.',
                       ),
-                      AppSpacing.gapH8,
+                      AppSpacing.gapH16,
                       const _AboutPoint(
-                        icon: Icons.balance_rounded,
+                        icon: LucideIcons.scale,
                         title: 'Dasar hukum',
                         description:
                             'Peraturan Badan Pusat Statistik Nomor 3 Tahun 2022 tentang Evaluasi Penyelenggaraan Statistik Sektoral.',
                       ),
-                      AppSpacing.gapH12,
+                      const _AboutDivider(),
                       const _AboutPoint(
-                        icon: Icons.track_changes_outlined,
+                        icon: LucideIcons.target,
                         title: 'Tujuan evaluasi',
                         description:
                             'Mengukur capaian penyelenggaraan statistik sektoral serta mendorong peningkatan kualitas layanan publik statistik.',
                       ),
-                      AppSpacing.gapH12,
+                      const _AboutDivider(),
                       const _AboutPoint(
-                        icon: Icons.apartment_rounded,
+                        icon: LucideIcons.building2,
                         title: 'Cakupan penilaian',
                         description:
                             'Dilaksanakan pada instansi pusat dan pemerintahan daerah provinsi serta kabupaten/kota.',
                       ),
-                      AppSpacing.gapH12,
+                      const _AboutDivider(),
                       const _AboutPoint(
-                        icon: Icons.event_repeat_rounded,
+                        icon: LucideIcons.calendarClock,
                         title: 'Frekuensi pelaksanaan',
                         description:
                             'Evaluasi dilaksanakan setiap 2 tahun sekali atau sewaktu-waktu sesuai kebutuhan.',
@@ -178,36 +180,35 @@ class _PublicAboutTab extends StatelessWidget {
               _withStagger(
                 index: 3,
                 child: PublicSectionShell(
-                  borderRadius: 24,
-                  padding: const EdgeInsets.all(20),
-                  backgroundColor: Colors.white.withValues(alpha: 0.9),
+                  padding: const EdgeInsets.all(24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Tahapan evaluasi',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: AppTheme.sogan,
-                          fontWeight: FontWeight.w900,
-                        ),
+                      _sectionTitle(context, 'Tahapan evaluasi'),
+                      _sectionSubtitle(
+                        context,
+                        'Tiga langkah utama dari pengisian sampai validasi.',
                       ),
-                      AppSpacing.gapH8,
+                      AppSpacing.gapH16,
                       const _AboutPoint(
-                        icon: Icons.looks_one_rounded,
+                        icon: LucideIcons.clipboardEdit,
+                        index: '01',
                         title: 'Penilaian mandiri',
                         description:
                             'Tim internal mengisi indikator dan melampirkan bukti dukung.',
                       ),
-                      AppSpacing.gapH12,
+                      const _AboutDivider(),
                       const _AboutPoint(
-                        icon: Icons.looks_two_rounded,
+                        icon: LucideIcons.fileSearch,
+                        index: '02',
                         title: 'Verifikasi dokumen',
                         description:
                             'Tim Badan memeriksa kesesuaian dokumen dan nilai yang diajukan.',
                       ),
-                      AppSpacing.gapH12,
+                      const _AboutDivider(),
                       const _AboutPoint(
-                        icon: Icons.looks_3_rounded,
+                        icon: LucideIcons.messagesSquare,
+                        index: '03',
                         title: 'Interviu atau visitasi',
                         description:
                             'Dilakukan jika perlu klarifikasi untuk memastikan validitas hasil.',
@@ -220,29 +221,25 @@ class _PublicAboutTab extends StatelessWidget {
               _withStagger(
                 index: 4,
                 child: PublicSectionShell(
-                  borderRadius: 24,
-                  padding: const EdgeInsets.all(20),
-                  backgroundColor: Colors.white.withValues(alpha: 0.9),
+                  padding: const EdgeInsets.all(24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Hasil evaluasi dan pemanfaatan',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: AppTheme.sogan,
-                          fontWeight: FontWeight.w900,
-                        ),
+                      _sectionTitle(context, 'Hasil evaluasi dan pemanfaatan'),
+                      _sectionSubtitle(
+                        context,
+                        'Bagaimana hasil dipublikasikan dan dimanfaatkan.',
                       ),
-                      AppSpacing.gapH8,
+                      AppSpacing.gapH16,
                       const _AboutPoint(
-                        icon: Icons.analytics_outlined,
+                        icon: LucideIcons.lineChart,
                         title: 'Bentuk hasil',
                         description:
                             'Hasil evaluasi ditetapkan dalam indeks aspek, indeks domain, dan Indeks Pembangunan Statistik (IPS).',
                       ),
-                      AppSpacing.gapH12,
+                      const _AboutDivider(),
                       const _AboutPoint(
-                        icon: Icons.insights_outlined,
+                        icon: LucideIcons.lightbulb,
                         title: 'Pemanfaatan hasil',
                         description:
                             'Menjadi acuan perencanaan, monitoring, dan perbaikan berkelanjutan penyelenggaraan statistik sektoral.',
@@ -251,11 +248,23 @@ class _PublicAboutTab extends StatelessWidget {
                   ),
                 ),
               ),
-              AppSpacing.gapH24,
+              AppSpacing.gapH32,
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class _AboutDivider extends StatelessWidget {
+  const _AboutDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 16),
+      child: Divider(height: 1),
     );
   }
 }
@@ -265,47 +274,60 @@ class _AboutPoint extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.description,
+    this.index,
   });
 
   final IconData icon;
   final String title;
   final String description;
+  final String? index;
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: 24,
-          height: 24,
-          margin: const EdgeInsets.only(top: 2),
+          width: 36,
+          height: 36,
           decoration: BoxDecoration(
-            color: AppTheme.gold.withValues(alpha: 0.18),
-            borderRadius: BorderRadius.circular(999),
+            color: AppTheme.cream,
+            borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+            border: AppTheme.hairlineBorder,
           ),
-          child: Icon(icon, size: 16, color: AppTheme.sogan),
+          child: Icon(icon, size: 18, color: AppTheme.terracotta),
         ),
-        AppSpacing.gapW12,
+        AppSpacing.gapW16,
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: AppTheme.sogan,
-                  fontWeight: FontWeight.w900,
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: textTheme.titleSmall?.copyWith(
+                        color: AppTheme.textStrong,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  if (index != null)
+                    Text(
+                      index!,
+                      style: textTheme.labelSmall?.copyWith(
+                        color: AppTheme.soganSoft,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.6,
+                      ),
+                    ),
+                ],
               ),
               AppSpacing.gapH4,
-              Text(
-                description,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppTheme.pusaka.withValues(alpha: 0.82),
-                  height: 1.5,
-                ),
-              ),
+              Text(description, style: textTheme.bodyMedium),
             ],
           ),
         ),

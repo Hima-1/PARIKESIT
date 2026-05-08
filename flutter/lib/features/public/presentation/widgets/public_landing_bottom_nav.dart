@@ -9,6 +9,7 @@ class PublicLandingBottomNavItem {
   final IconData icon;
 }
 
+/// Flat bottom nav: hairline top divider, terracotta indicator, no shadow.
 class PublicLandingBottomNav extends StatelessWidget {
   const PublicLandingBottomNav({
     super.key,
@@ -23,16 +24,10 @@ class PublicLandingBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.sogan.withValues(alpha: 0.08),
-            blurRadius: 16,
-            offset: const Offset(0, -4),
-          ),
-        ],
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        color: AppTheme.surface,
+        border: Border(top: BorderSide(color: AppTheme.borderColor)),
       ),
       child: SafeArea(
         top: false,
@@ -40,6 +35,9 @@ class PublicLandingBottomNav extends StatelessWidget {
           children: List<Widget>.generate(items.length, (index) {
             final PublicLandingBottomNavItem item = items[index];
             final bool isSelected = index == currentIndex;
+            final Color tone = isSelected
+                ? AppTheme.terracotta
+                : AppTheme.textMuted;
 
             return Expanded(
               child: InkWell(
@@ -47,44 +45,36 @@ class PublicLandingBottomNav extends StatelessWidget {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 180),
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
+                    horizontal: 8,
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
                     border: Border(
                       top: BorderSide(
-                        color: isSelected ? AppTheme.gold : Colors.transparent,
-                        width: 3,
+                        color: isSelected
+                            ? AppTheme.terracotta
+                            : Colors.transparent,
+                        width: 2,
                       ),
                     ),
-                    color: isSelected
-                        ? AppTheme.gold.withValues(alpha: 0.08)
-                        : Colors.white,
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        item.icon,
-                        color: isSelected
-                            ? AppTheme.sogan
-                            : AppTheme.sogan.withValues(alpha: 0.5),
-                      ),
-                      const SizedBox(height: 6),
+                      Icon(item.icon, size: 20, color: tone),
+                      const SizedBox(height: 4),
                       Text(
                         item.label,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.labelMedium
-                            ?.copyWith(
-                              color: isSelected
-                                  ? AppTheme.sogan
-                                  : AppTheme.sogan.withValues(alpha: 0.5),
-                              fontWeight: isSelected
-                                  ? FontWeight.w900
-                                  : FontWeight.w700,
-                            ),
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: tone,
+                          fontWeight: isSelected
+                              ? FontWeight.w700
+                              : FontWeight.w500,
+                          letterSpacing: 0.4,
+                        ),
                       ),
                     ],
                   ),

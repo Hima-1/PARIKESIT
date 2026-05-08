@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/auth/user_role.dart';
 import 'package:parikesit/core/router/route_constants.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
@@ -251,7 +252,7 @@ class _DokumentasiListScreenState extends ConsumerState<DokumentasiListScreen> {
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: AppEmptyState(
-                    icon: Icons.folder_open_rounded,
+                    icon: LucideIcons.folderOpen,
                     title: state.mode == DokumentasiMode.kegiatan
                         ? 'Belum ada kegiatan.'
                         : 'Belum ada pembinaan.',
@@ -334,17 +335,11 @@ class _ToggleItem extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 9),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.sogan : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppTheme.sogan.withValues(alpha: 0.2),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : null,
+          color: isSelected ? AppTheme.soganBrown : AppTheme.surface,
+          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+          border: Border.all(
+            color: isSelected ? AppTheme.soganBrown : AppTheme.borderColor,
+          ),
         ),
         child: Text(
           label,

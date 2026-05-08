@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
-
 import 'package:parikesit/core/theme/app_theme.dart';
 import 'package:parikesit/core/widgets/ethno_card.dart';
+
 import '../domain/notification_model.dart';
 import 'notification_controller.dart';
 import 'notification_inbox_state.dart';
@@ -141,7 +142,7 @@ class _NotificationListScreenState
         title: const Text('Notifikasi'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.done_all),
+            icon: const Icon(LucideIcons.checkCheck),
             onPressed: () => _runAction(
               context,
               () => ref
@@ -152,6 +153,7 @@ class _NotificationListScreenState
             tooltip: 'Tandai semua sudah dibaca',
           ),
           PopupMenuButton<String>(
+            icon: const Icon(LucideIcons.moreVertical, size: 20),
             onSelected: (value) {
               if (value != 'delete_read') {
                 return;
@@ -253,7 +255,7 @@ class _NotificationListScreenState
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    Icons.notifications_off_outlined,
+                    LucideIcons.bellOff,
                     size: 64,
                     color: AppTheme.sogan.withValues(alpha: 0.2),
                   ),
@@ -303,7 +305,7 @@ class _NotificationListScreenState
         ),
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: const Icon(Icons.delete_outline, color: Colors.white),
+        child: const Icon(LucideIcons.trash2, color: Colors.white),
       ),
       child: EthnoCard(
         isFlat: true,
@@ -339,8 +341,8 @@ class _NotificationListScreenState
                   ),
                   child: Icon(
                     notification.isRead
-                        ? Icons.notifications_none_rounded
-                        : Icons.notifications_active_rounded,
+                        ? LucideIcons.bell
+                        : LucideIcons.bellRing,
                     color: notification.isRead
                         ? AppTheme.sogan.withValues(alpha: 0.5)
                         : AppTheme.sogan,
@@ -387,7 +389,7 @@ class _NotificationListScreenState
                 Row(
                   children: [
                     Icon(
-                      Icons.access_time_rounded,
+                      LucideIcons.clock,
                       size: 12,
                       color: AppTheme.sogan.withValues(alpha: 0.4),
                     ),

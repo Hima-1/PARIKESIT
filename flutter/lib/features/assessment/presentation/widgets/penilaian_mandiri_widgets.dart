@@ -154,7 +154,7 @@ class _FormulirListView extends ConsumerWidget {
                         child: Padding(
                           padding: AppSpacing.pAll16,
                           child: AppEmptyState(
-                            icon: Icons.assignment_outlined,
+                            icon: LucideIcons.clipboardList,
                             title: 'Belum ada formulir penilaian.',
                             message: emptyMessage,
                           ),
@@ -300,7 +300,7 @@ class _FormulirCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
-                  Icons.assignment_outlined,
+                  LucideIcons.clipboardList,
                   color: AppTheme.sogan,
                   size: 24,
                 ),
@@ -333,7 +333,7 @@ class _FormulirCard extends StatelessWidget {
               if (onEdit != null || onDelete != null)
                 PopupMenuButton<_FormulirCardAction>(
                   icon: const Icon(
-                    Icons.more_vert_rounded,
+                    LucideIcons.moreVertical,
                     color: AppTheme.sogan,
                   ),
                   onSelected: (action) {
@@ -353,7 +353,7 @@ class _FormulirCard extends StatelessWidget {
                           child: ListTile(
                             dense: true,
                             contentPadding: EdgeInsets.zero,
-                            leading: Icon(Icons.edit_outlined),
+                            leading: Icon(LucideIcons.pencil),
                             title: Text('Edit nama'),
                           ),
                         ),
@@ -363,7 +363,7 @@ class _FormulirCard extends StatelessWidget {
                             dense: true,
                             contentPadding: EdgeInsets.zero,
                             leading: Icon(
-                              Icons.delete_outline,
+                              LucideIcons.trash2,
                               color: AppTheme.error,
                             ),
                             title: Text('Hapus'),
@@ -372,7 +372,7 @@ class _FormulirCard extends StatelessWidget {
                       ],
                 )
               else
-                const Icon(Icons.chevron_right_rounded, color: AppTheme.sogan),
+                const Icon(LucideIcons.chevronRight, color: AppTheme.sogan),
             ],
           ),
           AppSpacing.gapH16,
@@ -381,7 +381,7 @@ class _FormulirCard extends StatelessWidget {
           Row(
             children: [
               const Icon(
-                Icons.calendar_today_rounded,
+                LucideIcons.calendar,
                 size: 14,
                 color: AppTheme.gold,
               ),
@@ -486,7 +486,7 @@ class _PenilaianViewState extends ConsumerState<_PenilaianView> {
               child: const Padding(
                 padding: AppSpacing.pAll16,
                 child: AppEmptyState(
-                  icon: Icons.assignment_late_outlined,
+                  icon: LucideIcons.clipboardX,
                   title: 'Belum ada domain tersedia.',
                   message:
                       'Domain penilaian akan muncul di halaman ini setelah formulir dilengkapi.',
@@ -524,10 +524,10 @@ class _PenilaianViewState extends ConsumerState<_PenilaianView> {
                       controller: _searchController,
                       decoration: InputDecoration(
                         hintText: 'Cari indikator...',
-                        prefixIcon: const Icon(Icons.search_rounded),
+                        prefixIcon: const Icon(LucideIcons.search),
                         suffixIcon: value.text.isNotEmpty
                             ? IconButton(
-                                icon: const Icon(Icons.close_rounded),
+                                icon: const Icon(LucideIcons.x),
                                 onPressed: () {
                                   _searchController.clear();
                                   setState(() {
@@ -580,7 +580,7 @@ class _PenilaianViewState extends ConsumerState<_PenilaianView> {
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
                                                   const Icon(
-                                                    Icons.touch_app_outlined,
+                                                    LucideIcons.mousePointer2,
                                                     size: 48,
                                                     color: AppTheme.neutral,
                                                   ),
@@ -664,7 +664,7 @@ class _PenilaianViewState extends ConsumerState<_PenilaianView> {
       return const Padding(
         padding: EdgeInsets.symmetric(horizontal: 16),
         child: AppEmptyState(
-          icon: Icons.search_off_rounded,
+          icon: LucideIcons.searchX,
           title: 'Indikator tidak ditemukan.',
           message:
               'Coba gunakan kata kunci lain untuk menemukan indikator yang dicari.',
@@ -840,7 +840,7 @@ class _PenilaianViewState extends ConsumerState<_PenilaianView> {
                           ),
                         ),
                         AppSpacing.gapW8,
-                        const Icon(Icons.expand_more_rounded, size: 20),
+                        const Icon(LucideIcons.chevronDown, size: 20),
                       ],
                     ),
                     children: formulirId != null

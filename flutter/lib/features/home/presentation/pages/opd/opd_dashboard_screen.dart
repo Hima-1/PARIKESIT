@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../../core/auth/app_user.dart';
 import '../../../../../core/network/paginated_response.dart';
@@ -56,7 +57,7 @@ class OpdDashboardScreen extends ConsumerWidget {
                   return const Padding(
                     padding: EdgeInsets.symmetric(vertical: 8),
                     child: AppEmptyState(
-                      icon: Icons.assignment_outlined,
+                      icon: LucideIcons.clipboardList,
                       title: 'Belum ada data penilaian aktif.',
                       message:
                           'Progress penilaian aktif akan tampil di halaman ini saat tersedia.',

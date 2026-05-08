@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/network/paginated_response.dart';
 import 'package:parikesit/core/router/route_constants.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
@@ -45,15 +46,9 @@ class _LandingPublicScreenState extends ConsumerState<LandingPublicScreen> {
   @override
   Widget build(BuildContext context) {
     const List<PublicLandingBottomNavItem> items = [
-      PublicLandingBottomNavItem(
-        label: 'ABOUT',
-        icon: Icons.info_outline_rounded,
-      ),
-      PublicLandingBottomNavItem(
-        label: 'HASIL',
-        icon: Icons.assessment_outlined,
-      ),
-      PublicLandingBottomNavItem(label: 'LOGIN', icon: Icons.login_rounded),
+      PublicLandingBottomNavItem(label: 'ABOUT', icon: LucideIcons.info),
+      PublicLandingBottomNavItem(label: 'HASIL', icon: LucideIcons.barChart3),
+      PublicLandingBottomNavItem(label: 'LOGIN', icon: LucideIcons.logIn),
     ];
 
     return Scaffold(
@@ -73,9 +68,9 @@ class _LandingPublicScreenState extends ConsumerState<LandingPublicScreen> {
       ),
       body: ColoredBox(
         key: LandingPublicScreen.backgroundKey,
-        color: AppTheme.merang,
+        color: AppTheme.cream,
         child: KawungBackground(
-          opacity: 0.03,
+          opacity: 0.025,
           child: SafeArea(
             bottom: false,
             child: IndexedStack(

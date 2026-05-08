@@ -50,7 +50,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(scaffoldBackgroundColor, Colors.transparent);
-      expect(cardColor, AppTheme.shellSurface);
+      expect(cardColor, AppTheme.surface);
     },
   );
 

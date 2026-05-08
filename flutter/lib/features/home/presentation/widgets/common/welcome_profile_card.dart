@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/app_theme.dart';
@@ -22,27 +23,20 @@ class WelcomeProfileCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppTheme.sogan,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.sogan.withValues(alpha: 0.35),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-        gradient: LinearGradient(
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppTheme.sogan,
-            AppTheme.sogan.withValues(alpha: 0.9),
-            AppTheme.sogan.withValues(alpha: 0.8),
+            AppTheme.soganDeep,
+            AppTheme.soganBrown,
+            AppTheme.terracotta,
           ],
+          stops: [0.0, 0.55, 1.0],
         ),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
         child: Stack(
           children: [
             Positioned(
@@ -95,7 +89,7 @@ class WelcomeProfileCard extends StatelessWidget {
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
-                          Icons.account_circle_outlined,
+                          LucideIcons.userCircle,
                           color: Colors.white,
                           size: 32,
                         ),
@@ -107,10 +101,10 @@ class WelcomeProfileCard extends StatelessWidget {
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      _buildInfoChip(context, Icons.email_outlined, email),
+                      _buildInfoChip(context, LucideIcons.mail, email),
                       _buildInfoChip(
                         context,
-                        Icons.phone_android_outlined,
+                        LucideIcons.smartphone,
                         phoneNumber ?? 'Aktif',
                       ),
                     ],
@@ -135,7 +129,7 @@ class WelcomeProfileCard extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: AppTheme.gold),
+          Icon(icon, size: 14, color: Colors.white.withValues(alpha: 0.9)),
           AppSpacing.gapW8,
           Text(
             label,

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/auth/user_role.dart';
 import 'package:parikesit/core/network/paginated_response.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
@@ -54,9 +55,9 @@ void main() {
 
       expect(find.byTooltip('Back'), findsNothing);
       expect(find.byType(BackButton), findsNothing);
-      expect(find.byIcon(Icons.refresh_rounded), findsNothing);
+      expect(find.byIcon(LucideIcons.refreshCw), findsNothing);
       expect(find.text('Kegiatan'), findsOneWidget);
-      expect(find.text('TAMBAH KEGIATAN'), findsOneWidget);
+      expect(find.byTooltip('Tambah kegiatan'), findsOneWidget);
       expect(find.text('Kegiatan Satu'), findsOneWidget);
       expect(find.text('Pembinaan Satu'), findsNothing);
       expect(find.byType(RefreshIndicator), findsOneWidget);
@@ -131,8 +132,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Pembinaan'), findsOneWidget);
-      expect(find.byIcon(Icons.refresh_rounded), findsNothing);
-      expect(find.text('TAMBAH PEMBINAAN'), findsOneWidget);
+      expect(find.byIcon(LucideIcons.refreshCw), findsNothing);
+      expect(find.byTooltip('Tambah pembinaan'), findsOneWidget);
       expect(find.text('Pembinaan Satu'), findsOneWidget);
       expect(find.text('Kegiatan Satu'), findsNothing);
     });

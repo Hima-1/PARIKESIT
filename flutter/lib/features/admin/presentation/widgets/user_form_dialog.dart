@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/auth/app_user.dart';
 import 'package:parikesit/core/auth/user_role.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
@@ -83,7 +84,7 @@ class _UserFormDialogState extends ConsumerState<UserFormDialog> {
                   child: IconButton(
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(
-                      Icons.close_rounded,
+                      LucideIcons.x,
                       color: AppTheme.sogan,
                       size: 20,
                     ),
@@ -109,7 +110,7 @@ class _UserFormDialogState extends ConsumerState<UserFormDialog> {
                 child: Row(
                   children: [
                     const Icon(
-                      Icons.warning_amber_rounded,
+                      LucideIcons.alertTriangle,
                       color: AppTheme.warning,
                     ),
                     AppSpacing.gapW12,
@@ -130,7 +131,7 @@ class _UserFormDialogState extends ConsumerState<UserFormDialog> {
                 key: const Key('admin-user-form-name'),
                 controller: _nameController,
                 label: 'Nama Lengkap',
-                prefixIcon: const Icon(Icons.person_pin_rounded),
+                prefixIcon: const Icon(LucideIcons.userCheck),
                 validator: (v) => _validateRequiredText(v, 'Nama wajib diisi'),
               ),
               AppSpacing.gapH16,
@@ -138,7 +139,7 @@ class _UserFormDialogState extends ConsumerState<UserFormDialog> {
                 key: const Key('admin-user-form-email'),
                 controller: _emailController,
                 label: 'Email Instansi / Pribadi',
-                prefixIcon: const Icon(Icons.alternate_email_rounded),
+                prefixIcon: const Icon(LucideIcons.atSign),
                 keyboardType: TextInputType.emailAddress,
                 validator: (v) {
                   final trimmed = v?.trim() ?? '';
@@ -154,7 +155,7 @@ class _UserFormDialogState extends ConsumerState<UserFormDialog> {
                   key: const Key('admin-user-form-password'),
                   controller: _passwordController,
                   label: 'Kata Sandi',
-                  prefixIcon: const Icon(Icons.key_rounded),
+                  prefixIcon: const Icon(LucideIcons.key),
                   obscureText: true,
                   validator: (v) {
                     if ((v?.trim().length ?? 0) < 8) {
@@ -168,7 +169,7 @@ class _UserFormDialogState extends ConsumerState<UserFormDialog> {
               AppDropdownField<UserRole>(
                 key: const Key('admin-user-form-role'),
                 label: 'Peran / Hak Akses',
-                prefixIcon: const Icon(Icons.security_rounded),
+                prefixIcon: const Icon(LucideIcons.shield),
                 value: _selectedRole,
                 items: _assignableRoles.map((role) {
                   return DropdownMenuItem(
@@ -185,7 +186,7 @@ class _UserFormDialogState extends ConsumerState<UserFormDialog> {
                 key: const Key('admin-user-form-phone'),
                 controller: _phoneController,
                 label: 'Nomor WhatsApp Aktif',
-                prefixIcon: const Icon(Icons.phone_rounded),
+                prefixIcon: const Icon(LucideIcons.phone),
                 keyboardType: TextInputType.phone,
                 validator: (v) =>
                     _validateRequiredText(v, 'Nomor telepon wajib diisi'),
@@ -195,7 +196,7 @@ class _UserFormDialogState extends ConsumerState<UserFormDialog> {
                 key: const Key('admin-user-form-address'),
                 controller: _addressController,
                 label: 'Alamat / Kantor',
-                prefixIcon: const Icon(Icons.map_rounded),
+                prefixIcon: const Icon(LucideIcons.map),
                 maxLines: 2,
                 validator: (v) =>
                     _validateRequiredText(v, 'Alamat wajib diisi'),
@@ -272,16 +273,10 @@ class _UserFormDialogState extends ConsumerState<UserFormDialog> {
     if (widget.useBottomSheetStyle && !_isEditing && !widget.isResetPassword) {
       return Container(
         padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
-        decoration: BoxDecoration(
-          color: AppTheme.shellSurface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.sogan.withValues(alpha: 0.2),
-              blurRadius: 20,
-              offset: const Offset(0, -10),
-            ),
-          ],
+        decoration: const BoxDecoration(
+          color: AppTheme.surface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppTheme.radiusLg)),
+          border: Border(top: BorderSide(color: AppTheme.borderColor)),
         ),
         child: AnimatedPadding(
           duration: const Duration(milliseconds: 180),
@@ -519,7 +514,7 @@ class _ResetPasswordResultDialog extends StatelessWidget {
             onCopy();
           },
           label: 'COPY',
-          icon: Icons.copy_rounded,
+          icon: LucideIcons.copy,
           style: EthnoButtonStyle.primary,
           size: EthnoButtonSize.small,
         ),

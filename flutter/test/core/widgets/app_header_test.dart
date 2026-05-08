@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/router/route_constants.dart';
 import 'package:parikesit/core/storage/token_storage.dart';
 import 'package:parikesit/core/widgets/app_header.dart';
@@ -23,7 +24,7 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.byIcon(Icons.notifications_outlined), findsOneWidget);
+    expect(find.byIcon(LucideIcons.bell), findsOneWidget);
     expect(find.text('O'), findsOneWidget);
   });
 
@@ -36,7 +37,7 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.byIcon(Icons.notifications_outlined), findsNothing);
+    expect(find.byIcon(LucideIcons.bell), findsNothing);
     expect(find.text('W'), findsOneWidget);
   });
 
@@ -49,7 +50,7 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.byIcon(Icons.notifications_outlined), findsNothing);
+    expect(find.byIcon(LucideIcons.bell), findsNothing);
     expect(find.text('A'), findsOneWidget);
   });
 }

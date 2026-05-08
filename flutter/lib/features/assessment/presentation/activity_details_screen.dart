@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/network/paginated_response.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
 import 'package:parikesit/core/widgets/app_empty_state.dart';
@@ -63,7 +64,7 @@ class ActivityDetailsScreen extends ConsumerWidget {
         backgroundColor: AppTheme.shellSurfaceSoft,
         surfaceTintColor: AppTheme.shellSurfaceSoft,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(LucideIcons.arrowLeft),
           color: AppTheme.sogan,
           onPressed: () => context.pop(),
         ),
@@ -134,7 +135,7 @@ class ActivityDetailsScreen extends ConsumerWidget {
           RouteConstants.assessmentTambahDomain.replaceFirst(':id', activityId),
         ),
         style: EthnoButtonStyle.primary,
-        icon: Icons.add,
+        icon: LucideIcons.plus,
         label: 'Tambah Domain',
         isFullWidth: true,
       ),
@@ -148,7 +149,7 @@ class ActivityDetailsScreen extends ConsumerWidget {
           const Padding(
             padding: EdgeInsets.fromLTRB(16, 6, 16, 16),
             child: AppEmptyState(
-              icon: Icons.domain_disabled_outlined,
+              icon: LucideIcons.building,
               title: 'Belum ada domain di formulir ini.',
               message: 'Tambahkan domain untuk mulai menyusun formulir.',
             ),

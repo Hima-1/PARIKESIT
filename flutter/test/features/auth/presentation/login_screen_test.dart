@@ -39,8 +39,8 @@ void main() {
       find.byKey(LoginScreen.backToPublicButtonKey),
     );
 
-    expect(backButton.style?.backgroundColor?.resolve({}), AppTheme.sogan);
-    expect(backButton.style?.foregroundColor?.resolve({}), AppTheme.gold);
+    expect(backButton.style?.backgroundColor?.resolve({}), AppTheme.surface);
+    expect(backButton.style?.foregroundColor?.resolve({}), AppTheme.textStrong);
 
     final image = tester.widget<Image>(find.byKey(LoginScreen.mascotImageKey));
 

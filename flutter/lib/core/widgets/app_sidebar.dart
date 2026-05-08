@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 
 import '../auth/role_access.dart';
@@ -45,113 +46,122 @@ class AppSidebar extends ConsumerWidget {
     final bool showAdminUsers =
         !isOpd && RoleAccess.canAccessRoute(role, RouteConstants.adminUsers);
 
-    return Container(
-      width: 280,
-      color: AppTheme.sogan,
-      child: Column(
-        children: [
-          _buildLogo(context),
-          const Divider(color: Colors.white10, height: 1),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              children: [
-                _buildSectionHeader(context, 'HOME'),
-                _buildMenuItem(
-                  context,
-                  title: 'Beranda',
-                  icon: Icons.dashboard_outlined,
-                  selectedIcon: Icons.dashboard,
-                  route: RouteConstants.home,
-                  currentRoute: location,
-                ),
-
-                if (showAdminUsers) ...[
-                  AppSpacing.gapH16,
-                  _buildSectionHeader(context, 'USER'),
-                  if (showAdminUsers)
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        color: AppTheme.surface,
+        border: Border(right: BorderSide(color: AppTheme.borderColor)),
+      ),
+      child: SizedBox(
+        width: 264,
+        child: Column(
+          children: [
+            _buildLogo(context),
+            const Divider(color: AppTheme.borderColor, height: 1),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                children: [
+                  _buildSectionHeader(context, 'HOME'),
+                  _buildMenuItem(
+                    context,
+                    title: 'Beranda',
+                    icon: LucideIcons.layoutDashboard,
+                    route: RouteConstants.home,
+                    currentRoute: location,
+                  ),
+                  if (showAdminUsers) ...[
+                    _buildSectionHeader(context, 'USER'),
                     _buildMenuItem(
                       context,
                       title: 'Manajemen User',
-                      icon: Icons.people_outline,
-                      selectedIcon: Icons.people,
+                      icon: LucideIcons.users,
                       route: RouteConstants.adminUsers,
                       currentRoute: location,
                     ),
+                  ],
+                  _buildSectionHeader(context, 'PENILAIAN'),
+                  if (showAssessmentKegiatan)
+                    _buildMenuItem(
+                      context,
+                      title: 'Kegiatan Penilaian',
+                      icon: LucideIcons.clipboardList,
+                      route: RouteConstants.assessmentKegiatan,
+                      currentRoute: location,
+                    ),
+                  if (showAssessmentMandiri)
+                    _buildMenuItem(
+                      context,
+                      title: isOpd ? 'Formulir' : 'Penilaian Mandiri',
+                      icon: LucideIcons.fileCheck2,
+                      route: RouteConstants.assessmentMandiri,
+                      currentRoute: location,
+                    ),
+                  if (showAssessmentSelesai)
+                    _buildMenuItem(
+                      context,
+                      title: 'Penilaian',
+                      icon: LucideIcons.checkCircle2,
+                      route: RouteConstants.assessmentSelesai,
+                      currentRoute: location,
+                    ),
+                  _buildSectionHeader(context, 'DOKUMENTASI'),
+                  if (isAdmin && showPembinaan)
+                    _buildMenuItem(
+                      context,
+                      title: 'Dokumentasi & Pembinaan',
+                      icon: LucideIcons.folder,
+                      route: RouteConstants.adminDokumentasi,
+                      currentRoute: location,
+                    ),
+                  if (!isAdmin && showDokumentasiKegiatan)
+                    _buildMenuItem(
+                      context,
+                      title: 'Kegiatan',
+                      icon: LucideIcons.folder,
+                      route: RouteConstants.dokumentasiKegiatan,
+                      currentRoute: location,
+                    ),
                 ],
-                AppSpacing.gapH16,
-                _buildSectionHeader(context, 'PENILAIAN'),
-                if (showAssessmentKegiatan)
-                  _buildMenuItem(
-                    context,
-                    title: 'Kegiatan Penilaian',
-                    icon: Icons.assignment_outlined,
-                    selectedIcon: Icons.assignment,
-                    route: RouteConstants.assessmentKegiatan,
-                    currentRoute: location,
-                  ),
-                if (showAssessmentMandiri)
-                  _buildMenuItem(
-                    context,
-                    title: isOpd ? 'Formulir' : 'Penilaian Mandiri',
-                    icon: Icons.fact_check_outlined,
-                    selectedIcon: Icons.fact_check,
-                    route: RouteConstants.assessmentMandiri,
-                    currentRoute: location,
-                  ),
-                if (showAssessmentSelesai)
-                  _buildMenuItem(
-                    context,
-                    title: 'Penilaian',
-                    icon: Icons.task_alt_outlined,
-                    selectedIcon: Icons.task_alt,
-                    route: RouteConstants.assessmentSelesai,
-                    currentRoute: location,
-                  ),
-                AppSpacing.gapH16,
-                _buildSectionHeader(context, 'DOKUMENTASI'),
-                if (isAdmin && showPembinaan)
-                  _buildMenuItem(
-                    context,
-                    title: 'Dokumentasi & Pembinaan',
-                    icon: Icons.folder_outlined,
-                    selectedIcon: Icons.folder,
-                    route: RouteConstants.adminDokumentasi,
-                    currentRoute: location,
-                  ),
-                if (!isAdmin && showDokumentasiKegiatan)
-                  _buildMenuItem(
-                    context,
-                    title: 'Kegiatan',
-                    icon: Icons.folder_outlined,
-                    selectedIcon: Icons.folder,
-                    route: RouteConstants.dokumentasiKegiatan,
-                    currentRoute: location,
-                  ),
-              ],
+              ),
             ),
-          ),
-          _buildFooter(context),
-        ],
+            _buildFooter(context),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildLogo(BuildContext context) {
     return Container(
-      height: 100,
-      alignment: Alignment.center,
+      height: 80,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      alignment: Alignment.centerLeft,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.query_stats, color: AppTheme.gold, size: 32),
-          AppSpacing.gapW12,
-          Text(
-            'PARIKESIT',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: AppTheme.terracotta,
+              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+            ),
+            alignment: Alignment.center,
+            child: const Icon(
+              LucideIcons.barChart3,
               color: Colors.white,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 2.0,
+              size: 16,
+            ),
+          ),
+          AppSpacing.gapW8,
+          Expanded(
+            child: Text(
+              'PARIKESIT',
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: AppTheme.textStrong,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.0,
+              ),
             ),
           ),
         ],
@@ -165,9 +175,9 @@ class AppSidebar extends ConsumerWidget {
       child: Text(
         title,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: Colors.white38,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1.5,
+          color: AppTheme.textSubtle,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1.2,
           fontSize: 11,
         ),
       ),
@@ -178,7 +188,6 @@ class AppSidebar extends ConsumerWidget {
     BuildContext context, {
     required String title,
     required IconData icon,
-    required IconData selectedIcon,
     required String route,
     required String currentRoute,
   }) {
@@ -186,28 +195,39 @@ class AppSidebar extends ConsumerWidget {
         currentRoute == route ||
         (route != '/' && currentRoute.startsWith(route));
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
-      decoration: BoxDecoration(
+    final Color tone = isSelected
+        ? AppTheme.terracotta
+        : AppTheme.textMuted;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 2, 12, 2),
+      child: Material(
         color: isSelected
-            ? AppTheme.gold.withValues(alpha: 0.15)
+            ? AppTheme.terracotta.withValues(alpha: 0.08)
             : Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: ListTile(
-        onTap: () => context.go(route),
-        dense: true,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        leading: Icon(
-          isSelected ? selectedIcon : icon,
-          color: isSelected ? AppTheme.gold : Colors.white70,
-          size: 22,
-        ),
-        title: Text(
-          title,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: isSelected ? AppTheme.gold : Colors.white70,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+          onTap: () => context.go(route),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
+              children: [
+                Icon(icon, color: tone, size: 18),
+                AppSpacing.gapW12,
+                Expanded(
+                  child: Text(
+                    title,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: isSelected ? AppTheme.textStrong : tone,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -216,14 +236,26 @@ class AppSidebar extends ConsumerWidget {
 
   Widget _buildFooter(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
-      color: Colors.black.withValues(alpha: 0.2),
+      padding: const EdgeInsets.all(20),
+      decoration: const BoxDecoration(
+        border: Border(top: BorderSide(color: AppTheme.borderColor)),
+      ),
       child: Row(
         children: [
-          const CircleAvatar(
-            radius: 16,
-            backgroundColor: Colors.white24,
-            child: Icon(Icons.support_agent, color: Colors.white, size: 18),
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: AppTheme.cream,
+              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+              border: AppTheme.hairlineBorder,
+            ),
+            alignment: Alignment.center,
+            child: const Icon(
+              LucideIcons.headphones,
+              color: AppTheme.terracotta,
+              size: 16,
+            ),
           ),
           AppSpacing.gapW12,
           Column(
@@ -233,15 +265,15 @@ class AppSidebar extends ConsumerWidget {
               Text(
                 'Bantuan',
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textStrong,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               Text(
                 'Kontak Support',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Colors.white70,
-                  fontSize: 10,
+                  color: AppTheme.textSubtle,
+                  fontSize: 11,
                 ),
               ),
             ],

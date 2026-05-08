@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 
 import '../../features/auth/domain/user.dart';
@@ -22,27 +23,22 @@ class AppHeader extends ConsumerWidget implements PreferredSizeWidget {
 
     final title = _getTitle(location);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.sogan,
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.sogan.withValues(alpha: 0.3),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        color: AppTheme.cream,
+        border: Border(bottom: BorderSide(color: AppTheme.borderColor)),
       ),
       child: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
         centerTitle: false,
         title: Text(
           title,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.2,
-            color: AppTheme.gold,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.4,
+            color: AppTheme.textStrong,
           ),
         ),
         actions: [
@@ -63,7 +59,7 @@ class AppHeader extends ConsumerWidget implements PreferredSizeWidget {
     return NotificationBadge(
       count: unreadCount,
       child: IconButton(
-        icon: const Icon(Icons.notifications_outlined, color: AppTheme.gold),
+        icon: const Icon(LucideIcons.bell, size: 20, color: AppTheme.textStrong),
         onPressed: () {
           Future.microtask(() {
             if (!context.mounted) return;
@@ -84,15 +80,23 @@ class AppHeader extends ConsumerWidget implements PreferredSizeWidget {
           context.push(RouteConstants.profile);
         });
       },
-      child: CircleAvatar(
-        radius: 16,
-        backgroundColor: AppTheme.gold,
+      child: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          color: AppTheme.terracotta.withValues(alpha: 0.10),
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: AppTheme.terracotta.withValues(alpha: 0.25),
+          ),
+        ),
+        alignment: Alignment.center,
         child: Text(
           user.name.isNotEmpty ? user.name[0].toUpperCase() : '?',
           style: const TextStyle(
-            color: AppTheme.sogan,
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
+            color: AppTheme.terracotta,
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),

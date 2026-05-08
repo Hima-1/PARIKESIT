@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/network/paginated_response.dart';
 import 'package:parikesit/core/utils/file_saver.dart';
 import 'package:parikesit/features/admin/data/admin_user_repository.dart';
@@ -59,7 +60,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     controller.resetCounters();
 
-    await tester.tap(find.byIcon(Icons.clear));
+    await tester.tap(find.byIcon(LucideIcons.x));
     await tester.pump();
 
     expect(controller.setSearchCalls, <String>['']);

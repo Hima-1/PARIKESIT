@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/router/route_constants.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
@@ -117,15 +118,9 @@ class IndicatorReviewNavigationFooter extends StatelessWidget {
     final bool hasPrevious = currentIndex > 0;
     final bool hasNext = currentIndex < indicatorComparisons.length - 1;
     final Widget content = Container(
-      decoration: BoxDecoration(
-        color: AppTheme.shellSurface,
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.sogan.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
+      decoration: const BoxDecoration(
+        color: AppTheme.surface,
+        border: Border(top: BorderSide(color: AppTheme.borderColor)),
       ),
       child: SafeArea(
         top: false,
@@ -153,7 +148,7 @@ class IndicatorReviewNavigationFooter extends StatelessWidget {
                     onPressed: hasPrevious
                         ? () => _handleNavigation(context, currentIndex - 1)
                         : null,
-                    icon: Icons.arrow_back_ios_new_rounded,
+                    icon: LucideIcons.arrowLeft,
                     label: 'SEBELUMNYA',
                     isNext: false,
                   ),
@@ -161,7 +156,7 @@ class IndicatorReviewNavigationFooter extends StatelessWidget {
                     onPressed: hasNext
                         ? () => _handleNavigation(context, currentIndex + 1)
                         : null,
-                    icon: Icons.arrow_forward_ios_rounded,
+                    icon: LucideIcons.chevronRight,
                     label: 'SELANJUTNYA',
                     isNext: true,
                   ),
@@ -374,7 +369,7 @@ class _IndicatorLevelCriteriaSection extends StatelessWidget {
                       ],
                     )
                   : Icon(
-                      Icons.expand_more_rounded,
+                      LucideIcons.chevronDown,
                       size: 20,
                       color: AppTheme.neutral.withValues(alpha: 0.5),
                     ),

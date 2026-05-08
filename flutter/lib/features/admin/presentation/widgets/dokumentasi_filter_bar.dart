@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/widgets/app_sort_dropdown_field.dart';
 
 import '../../../../core/theme/app_spacing.dart';
@@ -64,7 +65,7 @@ class _DokumentasiFilterBarState extends ConsumerState<DokumentasiFilterBar> {
         return AppTextField(
           controller: _searchController,
           label: 'Cari dokumentasi...',
-          prefixIcon: const Icon(Icons.search_rounded),
+          prefixIcon: const Icon(LucideIcons.search),
           suffixIcon: value.text.isEmpty
               ? null
               : IconButton(
@@ -73,7 +74,7 @@ class _DokumentasiFilterBarState extends ConsumerState<DokumentasiFilterBar> {
                     _searchController.clear();
                     _applySearch('');
                   },
-                  icon: const Icon(Icons.clear),
+                  icon: const Icon(LucideIcons.x),
                 ),
           onChanged: (nextValue) {
             _debounce?.cancel();
@@ -109,23 +110,17 @@ class _DokumentasiFilterBarState extends ConsumerState<DokumentasiFilterBar> {
 
     final directionButton = Container(
       decoration: BoxDecoration(
-        color: AppTheme.sogan,
-        borderRadius: BorderRadius.circular(AppTheme.borderRadius),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.sogan.withValues(alpha: 0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+        border: AppTheme.hairlineBorder,
       ),
       child: IconButton(
         key: const Key('admin-documentation-toggle-sort-direction'),
         icon: Icon(
           query.direction.apiValue == 'asc'
-              ? Icons.arrow_upward_rounded
-              : Icons.arrow_downward_rounded,
-          color: AppTheme.gold,
+              ? LucideIcons.arrowUp
+              : LucideIcons.arrowDown,
+          color: AppTheme.textStrong,
         ),
         tooltip: query.direction.apiValue == 'asc'
             ? 'Urutan naik'

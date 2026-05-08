@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/network/paginated_response.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
@@ -64,7 +65,7 @@ class _PenilaianMandiriScreenState
               },
               backgroundColor: AppTheme.gold,
               foregroundColor: AppTheme.sogan,
-              child: const Icon(Icons.arrow_back),
+              child: const Icon(LucideIcons.arrowLeft),
             )
           : null,
       body: Column(
@@ -97,12 +98,12 @@ class _PenilaianMandiriScreenState
           ButtonSegment(
             value: _PenilaianSegment.buatFormulir,
             label: Text('Buat Formulir'),
-            icon: Icon(Icons.note_add_outlined),
+            icon: Icon(LucideIcons.filePlus),
           ),
           ButtonSegment(
             value: _PenilaianSegment.isiFormulir,
             label: Text('Isi Formulir'),
-            icon: Icon(Icons.edit_note_outlined),
+            icon: Icon(LucideIcons.fileEdit),
           ),
         ],
         selected: {_segment},

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 
 import '../theme/app_theme.dart';
@@ -12,7 +13,7 @@ class AppSnackbar {
       messenger,
       message: message,
       backgroundColor: AppTheme.jatiGreen,
-      icon: Icons.check_circle_outline,
+      icon: LucideIcons.checkCircle2,
     );
   }
 
@@ -24,7 +25,7 @@ class AppSnackbar {
       messenger,
       message: message,
       backgroundColor: AppTheme.jatiGreen,
-      icon: Icons.check_circle_outline,
+      icon: LucideIcons.checkCircle2,
     );
   }
 
@@ -34,7 +35,7 @@ class AppSnackbar {
       messenger,
       message: message,
       backgroundColor: AppTheme.sogaRed,
-      icon: Icons.error_outline,
+      icon: LucideIcons.alertCircle,
     );
   }
 
@@ -44,7 +45,7 @@ class AppSnackbar {
       messenger,
       message: message,
       backgroundColor: AppTheme.pusaka,
-      icon: Icons.info_outline,
+      icon: LucideIcons.info,
     );
   }
 

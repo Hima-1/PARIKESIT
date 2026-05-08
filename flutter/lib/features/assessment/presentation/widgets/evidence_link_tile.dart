@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -56,7 +57,7 @@ class EvidenceLinkTile extends StatelessWidget {
         ),
         trailing: IconButton(
           icon: Icon(
-            isImage ? Icons.visibility_rounded : Icons.open_in_new_rounded,
+            isImage ? LucideIcons.eye : LucideIcons.externalLink,
           ),
           color: AppTheme.gold,
           tooltip: isImage ? 'Lihat gambar' : 'Buka bukti dukung',
@@ -122,7 +123,7 @@ class EvidenceLinkTile extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        Icons.broken_image_rounded,
+                        LucideIcons.imageOff,
                         color: Colors.white54,
                         size: 64,
                       ),
@@ -142,7 +143,7 @@ class EvidenceLinkTile extends StatelessWidget {
               child: CircleAvatar(
                 backgroundColor: Colors.black54,
                 child: IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white),
+                  icon: const Icon(LucideIcons.x, color: Colors.white),
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
@@ -204,19 +205,19 @@ class EvidenceLinkTile extends StatelessWidget {
   IconData _resolveFileIcon(String value) {
     final String file = value.toLowerCase();
     if (file.endsWith('.pdf')) {
-      return Icons.picture_as_pdf_rounded;
+      return LucideIcons.fileText;
     }
     if (_isImageFile(file)) {
-      return Icons.image_rounded;
+      return LucideIcons.image;
     }
     if (file.endsWith('.xls') ||
         file.endsWith('.xlsx') ||
         file.endsWith('.csv')) {
-      return Icons.table_chart_rounded;
+      return LucideIcons.table;
     }
     if (file.endsWith('.doc') || file.endsWith('.docx')) {
-      return Icons.description_rounded;
+      return LucideIcons.fileText;
     }
-    return Icons.attach_file_rounded;
+    return LucideIcons.paperclip;
   }
 }

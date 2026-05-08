@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
 import 'package:parikesit/core/widgets/app_text_field.dart';
@@ -137,7 +138,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               child: Row(
                                 children: [
                                   const Icon(
-                                    Icons.error_outline,
+                                    LucideIcons.alertCircle,
                                     color: AppTheme.sogaRed,
                                     size: 20,
                                   ),
@@ -162,7 +163,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           AppTextField(
                             controller: _nameController,
                             label: 'Nama Lengkap',
-                            prefixIcon: const Icon(Icons.badge_outlined),
+                            prefixIcon: const Icon(LucideIcons.badge),
                             textCapitalization: TextCapitalization.words,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -175,7 +176,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           AppTextField(
                             controller: _emailController,
                             label: 'Email',
-                            prefixIcon: const Icon(Icons.email_outlined),
+                            prefixIcon: const Icon(LucideIcons.mail),
                             keyboardType: TextInputType.emailAddress,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -193,7 +194,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           AppTextField(
                             controller: _alamatController,
                             label: 'Alamat',
-                            prefixIcon: const Icon(Icons.location_on_outlined),
+                            prefixIcon: const Icon(LucideIcons.mapPin),
                             maxLines: 3,
                             minLines: 1,
                             keyboardType: TextInputType.streetAddress,
@@ -202,7 +203,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           AppTextField(
                             controller: _nomorTeleponController,
                             label: 'Nomor Telepon',
-                            prefixIcon: const Icon(Icons.phone_outlined),
+                            prefixIcon: const Icon(LucideIcons.phone),
                             keyboardType: TextInputType.phone,
                           ),
                           AppSpacing.gapH24,

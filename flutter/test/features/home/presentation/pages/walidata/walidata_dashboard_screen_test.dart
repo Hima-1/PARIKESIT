@@ -95,7 +95,9 @@ void main() {
     expect(find.text('Riwayat'), findsNothing);
 
     await tester.enterText(find.byType(TextField), 'audit');
-    await tester.pumpAndSettle();
+    // Allow debounce (400ms) plus rebuild settle.
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump();
 
     expect(find.text('Evaluasi SPBE 2026'), findsNothing);
     expect(find.text('Audit Internal 2026'), findsOneWidget);
@@ -243,6 +245,27 @@ class _StaticCompletedAssessmentListController
 
   @override
   Future<PaginatedResponse<AssessmentFormModel>> build() async => _value;
+
+  // Filter the in-memory fixture by title so the dashboard search exercise
+  // does not depend on the API-backed setSearch path.
+  @override
+  Future<void> setSearch(String value) async {
+    final query = value.trim().toLowerCase();
+    if (query.isEmpty) {
+      state = AsyncData(_value);
+      return;
+    }
+    final filtered = _value.items
+        .where((a) => a.title.toLowerCase().contains(query))
+        .toList(growable: false);
+    state = AsyncData(
+      PaginatedResponse<AssessmentFormModel>(
+        data: filtered,
+        meta: _value.meta,
+        links: _value.links,
+      ),
+    );
+  }
 }
 
 class _ThrowingCompletedAssessmentListController

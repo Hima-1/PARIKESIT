@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/features/assessment/domain/assessment_models.dart';
 
@@ -67,7 +68,7 @@ class WalidataActivityCard extends StatelessWidget {
                         Row(
                           children: [
                             const Icon(
-                              Icons.calendar_today,
+                              LucideIcons.calendar,
                               size: 14,
                               color: AppTheme.neutral,
                             ),
@@ -116,7 +117,7 @@ class WalidataActivityCard extends StatelessWidget {
                       ),
                     )
                   else
-                    const Icon(Icons.chevron_right, color: AppTheme.neutral),
+                    const Icon(LucideIcons.chevronRight, color: AppTheme.neutral),
                 ],
               ),
               AppSpacing.gapH16,
@@ -202,8 +203,8 @@ class WalidataActivityCard extends StatelessWidget {
                   children: [
                     Icon(
                       isComplete
-                          ? Icons.check_circle_outline
-                          : Icons.info_outline,
+                          ? LucideIcons.checkCircle2
+                          : LucideIcons.info,
                       size: 16,
                       color: isComplete
                           ? AppTheme.success

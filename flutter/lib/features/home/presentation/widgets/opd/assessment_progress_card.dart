@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
 import 'package:parikesit/core/widgets/ethno_card.dart';
@@ -113,7 +114,7 @@ class AssessmentProgressCard extends StatelessWidget {
             child: Row(
               children: [
                 const Icon(
-                  Icons.info_outline,
+                  LucideIcons.info,
                   size: 18,
                   color: AppTheme.warning,
                 ),

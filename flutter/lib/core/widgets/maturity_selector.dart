@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_theme.dart';
 
@@ -85,19 +86,10 @@ class MaturitySelector extends StatelessWidget {
           color: isSelected ? AppTheme.gold : Colors.transparent,
           width: 2,
         ),
-        boxShadow: isSelected
-            ? [
-                BoxShadow(
-                  color: AppTheme.sogan.withValues(alpha: 0.2),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ]
-            : null,
       ),
       child: Center(
         child: isSelected
-            ? const Icon(Icons.check_circle, color: AppTheme.gold, size: 24)
+            ? const Icon(LucideIcons.checkCircle2, color: AppTheme.gold, size: 24)
             : Text(
                 '$level',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -144,13 +136,6 @@ class MaturitySelector extends StatelessWidget {
         color: color,
         shape: BoxShape.circle,
         border: Border.all(color: Colors.white, width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: color.withValues(alpha: 0.2),
-            blurRadius: 2,
-            offset: const Offset(0, 1),
-          ),
-        ],
       ),
       child: Center(
         child: Text(

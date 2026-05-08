@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
 import 'package:parikesit/core/widgets/ethno_card.dart';
@@ -166,17 +167,20 @@ class _FileUploadFieldState extends State<FileUploadField> {
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  width: 36,
+                  height: 36,
                   decoration: BoxDecoration(
-                    color: AppTheme.gold.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
+                    color: AppTheme.terracotta.withValues(alpha: 0.10),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                    border: Border.all(
+                      color: AppTheme.terracotta.withValues(alpha: 0.20),
+                    ),
                   ),
+                  alignment: Alignment.center,
                   child: Icon(
-                    hasSelection
-                        ? Icons.file_present_rounded
-                        : Icons.cloud_upload_outlined,
-                    color: AppTheme.gold,
-                    size: 20,
+                    hasSelection ? LucideIcons.file : LucideIcons.uploadCloud,
+                    color: AppTheme.terracotta,
+                    size: 18,
                   ),
                 ),
                 AppSpacing.gapW16,
@@ -225,7 +229,7 @@ class _FileUploadFieldState extends State<FileUploadField> {
                 if (hasSelection && !widget.isLoading)
                   IconButton(
                     icon: const Icon(
-                      Icons.cancel_rounded,
+                      LucideIcons.xCircle,
                       color: AppTheme.error,
                       size: 22,
                     ),
@@ -239,7 +243,7 @@ class _FileUploadFieldState extends State<FileUploadField> {
                     height: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation(AppTheme.gold),
+                      valueColor: AlwaysStoppedAnimation(AppTheme.terracotta),
                     ),
                   ),
               ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
 import 'package:parikesit/core/widgets/app_text_field.dart';
@@ -121,7 +122,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                               child: Row(
                                 children: [
                                   const Icon(
-                                    Icons.error_outline,
+                                    LucideIcons.alertCircle,
                                     color: AppTheme.sogaRed,
                                     size: 20,
                                   ),
@@ -146,7 +147,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                           AppTextField(
                             controller: _oldPasswordController,
                             label: 'Password Saat Ini',
-                            prefixIcon: const Icon(Icons.lock_outline),
+                            prefixIcon: const Icon(LucideIcons.lock),
                             obscureText: true,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -159,7 +160,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                           AppTextField(
                             controller: _newPasswordController,
                             label: 'Password Baru',
-                            prefixIcon: const Icon(Icons.lock_reset),
+                            prefixIcon: const Icon(LucideIcons.keyRound),
                             obscureText: true,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -175,7 +176,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                           AppTextField(
                             controller: _confirmPasswordController,
                             label: 'Konfirmasi Password Baru',
-                            prefixIcon: const Icon(Icons.check_circle_outline),
+                            prefixIcon: const Icon(LucideIcons.checkCircle2),
                             obscureText: true,
                             validator: (value) {
                               if (value == null || value.isEmpty) {

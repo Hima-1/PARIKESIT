@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/network/paginated_response.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
@@ -71,6 +72,7 @@ class _PublicCompletedAssessmentSectionState
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isCompact = constraints.maxWidth < 600;
+        final textTheme = Theme.of(context).textTheme;
 
         return Padding(
           padding: widget.padding,
@@ -81,32 +83,29 @@ class _PublicCompletedAssessmentSectionState
                 'Daftar formulir selesai',
                 style:
                     (isCompact
-                            ? Theme.of(context).textTheme.titleLarge
-                            : Theme.of(context).textTheme.headlineMedium)
+                            ? textTheme.titleLarge
+                            : textTheme.headlineMedium)
                         ?.copyWith(
-                          color: AppTheme.sogan,
-                          fontWeight: FontWeight.w900,
+                          color: AppTheme.textStrong,
+                          fontWeight: FontWeight.w700,
                         ),
               ),
               AppSpacing.gapH8,
               Text(
                 'Telusuri formulir selesai lalu buka daftar OPD dan skor akhirnya.',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppTheme.pusaka.withValues(alpha: 0.78),
-                  height: 1.5,
-                ),
+                style: textTheme.bodyMedium,
               ),
-              SizedBox(height: isCompact ? 16 : 24),
+              AppSpacing.gapH24,
               _buildToolbar(context),
-              SizedBox(height: isCompact ? 16 : 24),
+              AppSpacing.gapH24,
               widget.state.when(
                 loading: _buildLoadingState,
                 error: (error, stackTrace) => AppEmptyState(
-                  icon: Icons.cloud_off_rounded,
+                  icon: LucideIcons.cloudOff,
                   title: 'Gagal memuat penilaian selesai.',
                   message:
                       'Periksa koneksi lalu muat ulang untuk mengambil daftar formulir publik.',
-                  actionIcon: Icons.refresh_rounded,
+                  actionIcon: LucideIcons.refreshCw,
                   actionLabel: 'Coba lagi',
                   onAction: () {
                     widget.onRefresh();
@@ -154,8 +153,6 @@ class _PublicCompletedAssessmentSectionState
   }
 
   Widget _buildSearchField(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
     return ValueListenableBuilder<TextEditingValue>(
       valueListenable: _searchController,
       builder: (context, value, child) {
@@ -164,18 +161,14 @@ class _PublicCompletedAssessmentSectionState
           controller: _searchController,
           onChanged: _onSearchChanged,
           textInputAction: TextInputAction.search,
-          style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
           decoration: InputDecoration(
             hintText: 'Cari formulir selesai',
-            hintStyle: textTheme.bodyMedium?.copyWith(
-              color: AppTheme.sogan.withValues(alpha: 0.35),
-            ),
-            prefixIcon: const Icon(Icons.search_rounded),
+            prefixIcon: const Icon(LucideIcons.search, size: 18),
             suffixIcon: value.text.isEmpty
                 ? null
                 : IconButton(
                     onPressed: _clearSearch,
-                    icon: const Icon(Icons.close_rounded),
+                    icon: const Icon(LucideIcons.x, size: 18),
                   ),
           ),
         );
@@ -211,20 +204,24 @@ class _PublicCompletedAssessmentSectionState
               ),
             ),
             SizedBox(width: isCompact ? 8 : 12),
-            IconButton.filledTonal(
-              key: const Key('completed-assessment-toggle-sort-direction'),
-              onPressed: widget.onToggleSortDirection,
-              tooltip: query.direction == CompletedAssessmentSortDirection.asc
-                  ? 'Urutan naik'
-                  : 'Urutan turun',
-              style: IconButton.styleFrom(
-                backgroundColor: AppTheme.sogan.withValues(alpha: 0.08),
-                foregroundColor: AppTheme.sogan,
+            Container(
+              decoration: BoxDecoration(
+                color: AppTheme.surface,
+                borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                border: AppTheme.hairlineBorder,
               ),
-              icon: Icon(
-                query.direction == CompletedAssessmentSortDirection.asc
-                    ? Icons.arrow_upward_rounded
-                    : Icons.arrow_downward_rounded,
+              child: IconButton(
+                key: const Key('completed-assessment-toggle-sort-direction'),
+                onPressed: widget.onToggleSortDirection,
+                tooltip: query.direction == CompletedAssessmentSortDirection.asc
+                    ? 'Urutan naik'
+                    : 'Urutan turun',
+                icon: Icon(
+                  query.direction == CompletedAssessmentSortDirection.asc
+                      ? LucideIcons.arrowUp
+                      : LucideIcons.arrowDown,
+                  size: 18,
+                ),
               ),
             ),
           ],
@@ -240,10 +237,11 @@ class _PublicCompletedAssessmentSectionState
         (index) => Padding(
           padding: EdgeInsets.only(bottom: index == 2 ? 0 : 16),
           child: Container(
-            height: 168,
+            height: 152,
             decoration: BoxDecoration(
-              color: AppTheme.sogan.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(24),
+              color: AppTheme.surface,
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+              border: AppTheme.hairlineBorder,
             ),
           ),
         ),
@@ -255,7 +253,7 @@ class _PublicCompletedAssessmentSectionState
     if (page.isEmpty) {
       final bool isSearching = _searchController.text.trim().isNotEmpty;
       return AppEmptyState(
-        icon: isSearching ? Icons.search_off_rounded : Icons.history_rounded,
+        icon: isSearching ? LucideIcons.searchX : LucideIcons.history,
         title: isSearching
             ? 'Formulir tidak ditemukan.'
             : 'Belum ada data publik.',
@@ -338,155 +336,143 @@ class PublicCompletedAssessmentCard extends StatelessWidget {
       builder: (context, constraints) {
         final bool isCompact = constraints.maxWidth < 600;
 
-        return InkWell(
-          borderRadius: BorderRadius.circular(isCompact ? 20 : 24),
-          onTap: onTap,
-          child: Ink(
-            decoration: BoxDecoration(
-              color: AppTheme.shellSurfaceSoft,
-              borderRadius: BorderRadius.circular(isCompact ? 20 : 24),
-              border: Border.all(color: AppTheme.sogan.withValues(alpha: 0.08)),
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(isCompact ? 16 : 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  LayoutBuilder(
-                    builder: (context, innerConstraints) {
-                      final bool isWide = innerConstraints.maxWidth >= 660;
-                      final Widget headline = Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            activity.title,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style:
-                                (isCompact
-                                        ? textTheme.titleMedium
-                                        : textTheme.titleLarge)
-                                    ?.copyWith(
-                                      color: AppTheme.sogan,
-                                      fontWeight: FontWeight.w900,
-                                    ),
-                          ),
-                          AppSpacing.gapH6,
-                          Text(
-                            'Buka daftar OPD dan lihat skor akhir formulir ini.',
-                            maxLines: isCompact ? 2 : 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: textTheme.bodySmall?.copyWith(
-                              color: AppTheme.pusaka.withValues(alpha: 0.8),
-                              height: 1.45,
-                            ),
-                          ),
-                        ],
-                      );
-
-                      final Widget scorePanel = Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: isCompact ? 14 : 18,
-                          vertical: isCompact ? 12 : 16,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Color.alphaBlend(
-                            AppTheme.gold.withValues(alpha: 0.08),
-                            AppTheme.merang,
-                          ),
-                          borderRadius: BorderRadius.circular(
-                            isCompact ? 16 : 20,
-                          ),
-                        ),
-                        child: Column(
+        return Material(
+          color: AppTheme.surface,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+            onTap: onTap,
+            child: Ink(
+              decoration: BoxDecoration(
+                color: AppTheme.surface,
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                border: AppTheme.hairlineBorder,
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(isCompact ? 16 : 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    LayoutBuilder(
+                      builder: (context, innerConstraints) {
+                        final bool isWide = innerConstraints.maxWidth >= 660;
+                        final Widget headline = Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'SKOR AKHIR',
-                              style: textTheme.labelSmall?.copyWith(
-                                color: AppTheme.sogan,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 1.1,
-                              ),
+                              activity.title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style:
+                                  (isCompact
+                                          ? textTheme.titleMedium
+                                          : textTheme.titleLarge)
+                                      ?.copyWith(
+                                        color: AppTheme.textStrong,
+                                        fontWeight: FontWeight.w700,
+                                      ),
                             ),
                             AppSpacing.gapH4,
                             Text(
-                              scoreLabel ?? 'Belum tersedia',
-                              style:
-                                  (isCompact
-                                          ? textTheme.titleLarge
-                                          : textTheme.headlineSmall)
-                                      ?.copyWith(
-                                        color: AppTheme.sogan,
-                                        fontWeight: FontWeight.w900,
-                                      ),
+                              'Buka daftar OPD dan lihat skor akhir formulir ini.',
+                              maxLines: isCompact ? 2 : 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: textTheme.bodySmall,
                             ),
                           ],
-                        ),
-                      );
-
-                      if (!isWide) {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [headline, AppSpacing.gapH12, scorePanel],
                         );
-                      }
 
-                      return Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(flex: 3, child: headline),
-                          AppSpacing.gapW16,
-                          Expanded(flex: 2, child: scorePanel),
-                        ],
-                      );
-                    },
-                  ),
-                  SizedBox(height: isCompact ? 12 : 16),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      _PublicInfoBadge(
-                        label: formattedDate,
-                        icon: Icons.event_outlined,
-                      ),
-                      _PublicInfoBadge(
-                        label: '${activity.domainsCount} domain',
-                        icon: Icons.grid_view_rounded,
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: isCompact ? 14 : 20),
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: isCompact ? 14 : 16,
-                      vertical: isCompact ? 12 : 14,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppTheme.sogan,
-                      borderRadius: BorderRadius.circular(isCompact ? 16 : 18),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            'Lihat skor OPD',
-                            style: textTheme.labelLarge?.copyWith(
-                              color: AppTheme.gold,
-                              fontWeight: FontWeight.w900,
-                            ),
+                        final Widget scorePanel = Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
                           ),
+                          decoration: BoxDecoration(
+                            color: AppTheme.cream,
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusSm,
+                            ),
+                            border: AppTheme.hairlineBorder,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'SKOR AKHIR',
+                                style: textTheme.labelSmall?.copyWith(
+                                  color: AppTheme.textSubtle,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 1.0,
+                                ),
+                              ),
+                              AppSpacing.gapH4,
+                              Text(
+                                scoreLabel ?? 'Belum tersedia',
+                                style:
+                                    (isCompact
+                                            ? textTheme.titleLarge
+                                            : textTheme.headlineSmall)
+                                        ?.copyWith(
+                                          color: AppTheme.terracotta,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (!isWide) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [headline, AppSpacing.gapH16, scorePanel],
+                          );
+                        }
+
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(flex: 3, child: headline),
+                            AppSpacing.gapW16,
+                            Expanded(flex: 2, child: scorePanel),
+                          ],
+                        );
+                      },
+                    ),
+                    AppSpacing.gapH16,
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        _PublicInfoBadge(
+                          label: formattedDate,
+                          icon: LucideIcons.calendar,
                         ),
-                        const Icon(
-                          Icons.arrow_forward_rounded,
-                          color: AppTheme.gold,
+                        _PublicInfoBadge(
+                          label: '${activity.domainsCount} domain',
+                          icon: LucideIcons.layoutGrid,
                         ),
                       ],
                     ),
-                  ),
-                ],
+                    AppSpacing.gapH16,
+                    Row(
+                      children: [
+                        Text(
+                          'Lihat skor OPD',
+                          style: textTheme.labelLarge?.copyWith(
+                            color: AppTheme.terracotta,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        AppSpacing.gapW8,
+                        const Icon(
+                          LucideIcons.arrowRight,
+                          size: 16,
+                          color: AppTheme.terracotta,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -523,24 +509,22 @@ class _PublicInfoBadge extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: Color.alphaBlend(
-          AppTheme.gold.withValues(alpha: 0.06),
-          AppTheme.merang,
-        ),
+        color: AppTheme.cream,
         borderRadius: BorderRadius.circular(999),
+        border: AppTheme.hairlineBorder,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: AppTheme.sogan),
+          Icon(icon, size: 14, color: AppTheme.soganSoft),
           AppSpacing.gapW8,
           Text(
             label,
             style: textTheme.labelMedium?.copyWith(
-              color: AppTheme.sogan,
-              fontWeight: FontWeight.w700,
+              color: AppTheme.textStrong,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],

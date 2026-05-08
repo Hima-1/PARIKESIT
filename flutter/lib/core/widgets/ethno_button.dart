@@ -29,14 +29,14 @@ class EthnoButton extends StatelessWidget {
   Color _getForegroundColor(BuildContext context) {
     switch (style) {
       case EthnoButtonStyle.primary:
-        return AppTheme.gold;
+        return Colors.white;
       case EthnoButtonStyle.secondary:
-        return AppTheme.sogan;
+        return Colors.white;
       case EthnoButtonStyle.success:
         return AppTheme.onSuccess;
       case EthnoButtonStyle.outlined:
       case EthnoButtonStyle.text:
-        return AppTheme.sogan;
+        return AppTheme.terracotta;
       case EthnoButtonStyle.danger:
         return AppTheme.onError;
     }
@@ -106,7 +106,7 @@ class EthnoButton extends StatelessWidget {
         return FilledButton(
           onPressed: isLoading ? null : onPressed,
           style: FilledButton.styleFrom(
-            backgroundColor: AppTheme.sogan,
+            backgroundColor: AppTheme.soganBrown,
             foregroundColor: foregroundColor,
             padding: padding,
             shape: shape,
@@ -117,7 +117,7 @@ class EthnoButton extends StatelessWidget {
         return FilledButton(
           onPressed: isLoading ? null : onPressed,
           style: FilledButton.styleFrom(
-            backgroundColor: AppTheme.gold,
+            backgroundColor: AppTheme.terracotta,
             foregroundColor: foregroundColor,
             padding: padding,
             shape: shape,

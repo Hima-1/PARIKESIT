@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/network/paginated_response.dart';
 import 'package:parikesit/features/notifications/data/notification_repository.dart';
 import 'package:parikesit/features/notifications/domain/notification_model.dart';
@@ -61,7 +62,7 @@ void main() {
 
     expect(find.text('Belum ada notifikasi'), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.tap(find.byIcon(LucideIcons.moreVertical));
     await tester.pumpAndSettle();
 
     expect(find.text('Hapus yang sudah dibaca'), findsOneWidget);

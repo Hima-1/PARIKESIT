@@ -72,11 +72,11 @@ class AppShortcutGrid extends StatelessWidget {
             child: Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                color: item.color.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: item.color.withValues(alpha: 0.12)),
+                color: AppTheme.surface,
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                border: AppTheme.hairlineBorder,
               ),
-              child: Icon(item.icon, color: item.color, size: 28),
+              child: Icon(item.icon, color: item.color, size: 24),
             ),
           ),
         ),

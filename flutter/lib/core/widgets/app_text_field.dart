@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import '../theme/app_theme.dart';
 
 class AppTextField extends StatefulWidget {
@@ -75,7 +76,7 @@ class _AppTextFieldState extends State<AppTextField> {
         suffixIcon: widget.obscureText
             ? IconButton(
                 icon: Icon(
-                  _isObscured ? Icons.visibility_off : Icons.visibility,
+                  _isObscured ? LucideIcons.eyeOff : LucideIcons.eye,
                   color: AppTheme.sogan.withValues(alpha: 0.5),
                   size: 20,
                 ),

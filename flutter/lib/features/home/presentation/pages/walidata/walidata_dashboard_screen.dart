@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/features/assessment/presentation/controller/assessment_list_controller.dart';
 import 'package:parikesit/features/auth/presentation/controller/auth_provider.dart';
 
@@ -77,7 +78,7 @@ class _WalidataDashboardScreenState
                     controller: _searchController,
                     decoration: InputDecoration(
                       hintText: 'Cari progress penilaian',
-                      prefixIcon: const Icon(Icons.search),
+                      prefixIcon: const Icon(LucideIcons.search),
                       border: const OutlineInputBorder(),
                       suffixIcon: value.text.isEmpty
                           ? null
@@ -86,7 +87,7 @@ class _WalidataDashboardScreenState
                                 _searchController.clear();
                                 _onSearchChanged('');
                               },
-                              icon: const Icon(Icons.close_rounded),
+                              icon: const Icon(LucideIcons.x),
                             ),
                     ),
                     onChanged: _onSearchChanged,
@@ -124,7 +125,7 @@ class _WalidataDashboardScreenState
                     return const Padding(
                       padding: EdgeInsets.symmetric(vertical: 8),
                       child: AppEmptyState(
-                        icon: Icons.search_off_rounded,
+                        icon: LucideIcons.searchX,
                         title: 'Data tidak ditemukan.',
                         message:
                             'Coba ubah filter untuk melihat data progress yang tersedia.',

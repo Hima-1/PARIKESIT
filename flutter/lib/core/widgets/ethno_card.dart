@@ -58,20 +58,16 @@ class EthnoCard extends StatelessWidget {
     }
 
     final card = Card(
-      elevation: isFlat ? 0 : (elevation > 0 ? elevation : 1),
+      elevation: 0,
       margin: margin ?? AppSpacing.pV8,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(borderRadius),
         side: BorderSide(
-          color:
-              borderColor ??
-              (isFlat
-                  ? AppTheme.sogan.withValues(alpha: 0.08)
-                  : Colors.transparent),
-          width: borderColor != null ? 1.5 : 1.0,
+          color: borderColor ?? AppTheme.borderColor,
+          width: AppTheme.hairline,
         ),
       ),
-      color: AppTheme.shellSurface,
+      color: AppTheme.surface,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(borderRadius),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 
 import '../theme/app_theme.dart';
@@ -18,7 +19,7 @@ class AppErrorState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, color: AppTheme.error, size: 48),
+            const Icon(LucideIcons.alertCircle, color: AppTheme.error, size: 48),
             AppSpacing.gapH16,
             Text(
               'Terjadi Kesalahan',
@@ -39,7 +40,7 @@ class AppErrorState extends StatelessWidget {
               AppSpacing.gapH24,
               EthnoButton(
                 onPressed: onRetry,
-                icon: Icons.refresh,
+                icon: LucideIcons.refreshCw,
                 label: 'Coba Lagi',
                 style: EthnoButtonStyle.primary,
               ),

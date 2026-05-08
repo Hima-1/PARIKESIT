@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/auth/app_user.dart';
 import 'package:parikesit/core/network/paginated_response.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
@@ -89,12 +90,12 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
             hintStyle: textTheme.bodyMedium?.copyWith(
               color: AppTheme.sogan.withValues(alpha: 0.35),
             ),
-            prefixIcon: const Icon(Icons.search_rounded),
+            prefixIcon: const Icon(LucideIcons.search),
             suffixIcon: value.text.isEmpty
                 ? null
                 : IconButton(
                     onPressed: _clearSearch,
-                    icon: const Icon(Icons.close_rounded),
+                    icon: const Icon(LucideIcons.x),
                   ),
           ),
         );
@@ -138,8 +139,8 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
               : 'Urutan turun',
           icon: Icon(
             query.direction == SortDirection.asc
-                ? Icons.arrow_upward_rounded
-                : Icons.arrow_downward_rounded,
+                ? LucideIcons.arrowUp
+                : LucideIcons.arrowDown,
           ),
         ),
       ],
@@ -155,8 +156,8 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
           Expanded(
             child: AppEmptyState(
               icon: isSearching
-                  ? Icons.search_off_rounded
-                  : Icons.people_alt_outlined,
+                  ? LucideIcons.searchX
+                  : LucideIcons.users,
               title: isSearching
                   ? 'Tidak ada user yang cocok.'
                   : 'Belum ada pengguna.',
@@ -244,10 +245,10 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
 
   Widget _buildErrorState() {
     return AppEmptyState(
-      icon: Icons.cloud_off_rounded,
+      icon: LucideIcons.cloudOff,
       title: 'Gagal memuat data pengguna.',
       message: 'Periksa koneksi lalu coba lagi untuk mengambil daftar user.',
-      actionIcon: Icons.refresh_rounded,
+      actionIcon: LucideIcons.refreshCw,
       actionLabel: 'Coba Lagi',
       onAction: () =>
           ref.read(userAdminControllerProvider.notifier).refreshUsers(),
@@ -323,7 +324,7 @@ class _UserCard extends StatelessWidget {
                 Row(
                   children: [
                     Icon(
-                      Icons.email_outlined,
+                      LucideIcons.mail,
                       size: 14,
                       color: AppTheme.sogan.withValues(alpha: 0.4),
                     ),
@@ -345,7 +346,7 @@ class _UserCard extends StatelessWidget {
                   Row(
                     children: [
                       Icon(
-                        Icons.phone_outlined,
+                        LucideIcons.phone,
                         size: 14,
                         color: AppTheme.sogan.withValues(alpha: 0.4),
                       ),
@@ -375,7 +376,7 @@ class _UserCard extends StatelessWidget {
                     ),
                     AppSpacing.gapW4,
                     const Icon(
-                      Icons.chevron_right_rounded,
+                      LucideIcons.chevronRight,
                       size: 16,
                       color: AppTheme.gold,
                     ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
 
 class AppSortDropdownField<T> extends StatelessWidget {
@@ -32,7 +33,7 @@ class AppSortDropdownField<T> extends StatelessWidget {
           value: value,
           onChanged: onChanged,
           icon: Icon(
-            Icons.keyboard_arrow_down_rounded,
+            LucideIcons.chevronDown,
             color: AppTheme.sogan.withValues(alpha: 0.5),
           ),
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(

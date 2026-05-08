@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../theme/app_theme.dart';
 
@@ -25,7 +26,7 @@ class AppPaginationFooter extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final status = Text(
       'Halaman $currentPage dari $lastPage',
-      style: textTheme.bodySmall?.copyWith(color: AppTheme.neutral),
+      style: textTheme.bodySmall?.copyWith(color: AppTheme.textMuted),
       textAlign: TextAlign.center,
     );
 
@@ -35,7 +36,7 @@ class AppPaginationFooter extends StatelessWidget {
       children: [
         _PaginationIconButton(
           tooltip: 'Halaman sebelumnya',
-          icon: Icons.chevron_left_rounded,
+          icon: LucideIcons.chevronLeft,
           onPressed: hasPreviousPage ? onPrevious : null,
         ),
         const SizedBox(width: 6),
@@ -43,7 +44,7 @@ class AppPaginationFooter extends StatelessWidget {
         const SizedBox(width: 6),
         _PaginationIconButton(
           tooltip: 'Halaman berikutnya',
-          icon: Icons.chevron_right_rounded,
+          icon: LucideIcons.chevronRight,
           onPressed: hasNextPage ? onNext : null,
         ),
       ],
@@ -67,17 +68,17 @@ class _PaginationIconButton extends StatelessWidget {
     return IconButton.outlined(
       onPressed: onPressed,
       tooltip: tooltip,
-      icon: Icon(icon),
-      color: AppTheme.sogan,
-      disabledColor: AppTheme.neutral.withValues(alpha: 0.38),
-      constraints: const BoxConstraints.tightFor(width: 40, height: 40),
+      icon: Icon(icon, size: 18),
+      color: AppTheme.textStrong,
+      disabledColor: AppTheme.textSubtle,
+      constraints: const BoxConstraints.tightFor(width: 36, height: 36),
       padding: EdgeInsets.zero,
       style: IconButton.styleFrom(
-        side: BorderSide(
-          color: onPressed == null
-              ? AppTheme.neutral.withValues(alpha: 0.38)
-              : AppTheme.sogan,
+        backgroundColor: AppTheme.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
         ),
+        side: const BorderSide(color: AppTheme.borderColor),
       ),
     );
   }

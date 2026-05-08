@@ -61,6 +61,8 @@ dependencies:
   pdf: ^3.11.1
   url_launcher: ^6.3.2
   package_info_plus: ^8.3.0
+  lucide_icons: ^0.257.0
+  flutter_animate: ^4.5.2
 
 
 dev_dependencies:

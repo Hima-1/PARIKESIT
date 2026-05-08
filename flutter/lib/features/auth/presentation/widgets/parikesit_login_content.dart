@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
 import 'package:parikesit/core/utils/startup_probe.dart';
@@ -125,7 +125,7 @@ class _ParikesitLoginContentState extends ConsumerState<ParikesitLoginContent> {
                                 key: ParikesitLoginContent.emailFieldKey,
                                 controller: _emailController,
                                 label: 'Email',
-                                prefixIcon: const Icon(Icons.email_outlined),
+                                prefixIcon: const Icon(LucideIcons.mail),
                                 keyboardType: TextInputType.emailAddress,
                                 textCapitalization: TextCapitalization.none,
                               ),
@@ -134,7 +134,7 @@ class _ParikesitLoginContentState extends ConsumerState<ParikesitLoginContent> {
                                 key: ParikesitLoginContent.passwordFieldKey,
                                 controller: _passwordController,
                                 label: 'Password',
-                                prefixIcon: const Icon(Icons.lock_outline),
+                                prefixIcon: const Icon(LucideIcons.lock),
                                 obscureText: true,
                                 onSubmitted: (_) => _login(),
                               ),

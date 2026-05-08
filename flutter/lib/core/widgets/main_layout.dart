@@ -17,8 +17,8 @@ class MainLayout extends StatelessWidget {
       data: baseTheme.copyWith(
         scaffoldBackgroundColor: Colors.transparent,
         cardTheme: baseTheme.cardTheme.copyWith(
-          color: AppTheme.shellSurface,
-          shadowColor: AppTheme.sogan.withValues(alpha: 0.08),
+          color: AppTheme.surface,
+          shadowColor: Colors.transparent,
         ),
       ),
       child: child,
@@ -32,6 +32,7 @@ class MainLayout extends StatelessWidget {
 
     if (isMobile) {
       return KawungBackground(
+        opacity: 0.025,
         child: Scaffold(
           appBar: const AppHeader(),
           body: SafeArea(child: themedChild),
@@ -46,6 +47,7 @@ class MainLayout extends StatelessWidget {
           const AppSidebar(),
           Expanded(
             child: KawungBackground(
+              opacity: 0.025,
               child: Column(
                 children: [
                   const AppHeader(),

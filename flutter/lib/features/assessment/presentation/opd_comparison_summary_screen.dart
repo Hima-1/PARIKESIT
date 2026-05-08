@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
 import 'package:parikesit/core/widgets/app_empty_state.dart';
@@ -68,7 +69,7 @@ class OpdComparisonSummaryScreen extends ConsumerWidget {
                     return const Padding(
                       padding: EdgeInsets.symmetric(vertical: 8),
                       child: AppEmptyState(
-                        icon: Icons.analytics_outlined,
+                        icon: LucideIcons.lineChart,
                         title: 'Belum ada ringkasan perbandingan OPD.',
                         message:
                             'Ringkasan perbandingan akan tampil di halaman ini setelah data tersedia.',

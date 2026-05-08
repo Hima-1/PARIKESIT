@@ -37,19 +37,12 @@ class _BpsDataTableState extends State<BpsDataTable> {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.shellSurface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.sogan.withValues(alpha: 0.1)),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.sogan.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        border: AppTheme.hairlineBorder,
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
         child: Scrollbar(
           controller: _horizontalController,
           thumbVisibility: true,

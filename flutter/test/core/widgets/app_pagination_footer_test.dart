@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
 import 'package:parikesit/core/widgets/app_pagination_footer.dart';
 
@@ -34,8 +35,8 @@ void main() {
     final footer = find.byType(AppPaginationFooter);
 
     expect(find.text('Halaman 2 dari 5'), findsOneWidget);
-    expect(find.byIcon(Icons.chevron_left_rounded), findsOneWidget);
-    expect(find.byIcon(Icons.chevron_right_rounded), findsOneWidget);
+    expect(find.byIcon(LucideIcons.chevronLeft), findsOneWidget);
+    expect(find.byIcon(LucideIcons.chevronRight), findsOneWidget);
     expect(find.byTooltip('Halaman sebelumnya'), findsOneWidget);
     expect(find.byTooltip('Halaman berikutnya'), findsOneWidget);
     expect(find.text('Mundur'), findsNothing);
@@ -52,11 +53,11 @@ void main() {
     );
 
     final previousCenter = tester
-        .getCenter(find.byIcon(Icons.chevron_left_rounded))
+        .getCenter(find.byIcon(LucideIcons.chevronLeft))
         .dy;
     final statusCenter = tester.getCenter(find.text('Halaman 2 dari 5')).dy;
     final nextCenter = tester
-        .getCenter(find.byIcon(Icons.chevron_right_rounded))
+        .getCenter(find.byIcon(LucideIcons.chevronRight))
         .dy;
 
     expect((previousCenter - statusCenter).abs(), lessThan(12));

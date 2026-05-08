@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 
 import '../../domain/admin_assessment_progress_query.dart';
@@ -92,7 +93,7 @@ class _AdminProgressFilterBarState extends State<AdminProgressFilterBar> {
       controller: _controller,
       decoration: const InputDecoration(
         hintText: 'Cari progress penilaian',
-        prefixIcon: Icon(Icons.search),
+        prefixIcon: Icon(LucideIcons.search),
         border: OutlineInputBorder(),
       ),
       onChanged: (value) {
@@ -141,8 +142,8 @@ class _AdminProgressFilterBarState extends State<AdminProgressFilterBar> {
       onPressed: widget.onToggleSortDirection,
       icon: Icon(
         widget.query.sortDirection == SortDirection.asc
-            ? Icons.arrow_upward
-            : Icons.arrow_downward,
+            ? LucideIcons.arrowUp
+            : LucideIcons.arrowDown,
       ),
     );
   }
