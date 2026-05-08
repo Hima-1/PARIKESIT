@@ -94,11 +94,11 @@ test('dokumentasi detail keeps legacy public file urls working', function () {
         mkdir($legacyDirectory, 0777, true);
     }
 
-    file_put_contents($legacyDirectory . DIRECTORY_SEPARATOR . 'undangan.pdf', 'legacy-undangan');
-    file_put_contents($legacyDirectory . DIRECTORY_SEPARATOR . 'hadir.pdf', 'legacy-hadir');
-    file_put_contents($legacyDirectory . DIRECTORY_SEPARATOR . 'materi.pdf', 'legacy-materi');
-    file_put_contents($legacyDirectory . DIRECTORY_SEPARATOR . 'notula.pdf', 'legacy-notula');
-    file_put_contents($legacyDirectory . DIRECTORY_SEPARATOR . 'photo.jpg', 'legacy-photo');
+    file_put_contents($legacyDirectory.DIRECTORY_SEPARATOR.'undangan.pdf', 'legacy-undangan');
+    file_put_contents($legacyDirectory.DIRECTORY_SEPARATOR.'hadir.pdf', 'legacy-hadir');
+    file_put_contents($legacyDirectory.DIRECTORY_SEPARATOR.'materi.pdf', 'legacy-materi');
+    file_put_contents($legacyDirectory.DIRECTORY_SEPARATOR.'notula.pdf', 'legacy-notula');
+    file_put_contents($legacyDirectory.DIRECTORY_SEPARATOR.'photo.jpg', 'legacy-photo');
 
     $dokumentasi = DokumentasiKegiatan::factory()->create([
         'bukti_dukung_undangan_dokumentasi' => 'legacy-dokumentasi/undangan.pdf',

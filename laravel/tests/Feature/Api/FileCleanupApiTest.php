@@ -15,7 +15,7 @@ test('owner can delete media file', function () {
 
     $fileMedia = FilePembinaan::factory()->create([
         'pembinaan_id' => $pembinaan->id,
-        'nama_file' => $filePath
+        'nama_file' => $filePath,
     ]);
 
     $response = loginAs($user)->deleteJson("/api/file-pembinaan/{$fileMedia->id}");
@@ -65,7 +65,7 @@ test('owner can delete dokumentasi media file', function () {
 
     $fileMedia = \App\Models\FileDokumentasi::factory()->create([
         'dokumentasi_kegiatan_id' => $dokumentasi->id,
-        'nama_file' => $filePath
+        'nama_file' => $filePath,
     ]);
 
     $response = loginAs($user)->deleteJson("/api/file-dokumentasi/{$fileMedia->id}");

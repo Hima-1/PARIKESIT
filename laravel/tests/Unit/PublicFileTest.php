@@ -26,7 +26,7 @@ test('public file url keeps legacy public assets working', function () {
         mkdir($legacyDirectory, 0777, true);
     }
 
-    file_put_contents($legacyDirectory . DIRECTORY_SEPARATOR . 'legacy-unit.pdf', 'legacy-file');
+    file_put_contents($legacyDirectory.DIRECTORY_SEPARATOR.'legacy-unit.pdf', 'legacy-file');
 
     expect(PublicFile::url('legacy-dokumentasi/legacy-unit.pdf'))
         ->toBe(asset('legacy-dokumentasi/legacy-unit.pdf'));

@@ -22,7 +22,7 @@ test('full assessment lifecycle flow: opd -> walidata -> admin', function () {
     // 2. OPD Step: Submit Penilaian
     $responseOPD = loginAs($opd)->postJson("/api/formulir/{$formulir->id}/indikator/{$indikator->id}/penilaian", [
         'nilai' => 3,
-        'catatan' => 'Original OPD response'
+        'catatan' => 'Original OPD response',
     ]);
     $responseOPD->assertStatus(201);
     $penilaianId = $responseOPD->json('data.id');
@@ -31,7 +31,7 @@ test('full assessment lifecycle flow: opd -> walidata -> admin', function () {
     $responseWalidata = loginAs($walidata)->postJson('/api/penilaian-selesai/koreksi', [
         'penilaian_id' => $penilaianId,
         'nilai' => 4,
-        'catatan_koreksi' => 'Walidata recommendation'
+        'catatan_koreksi' => 'Walidata recommendation',
     ]);
     $responseWalidata->assertStatus(200);
 
@@ -39,7 +39,7 @@ test('full assessment lifecycle flow: opd -> walidata -> admin', function () {
     $responseAdmin = loginAs($admin)->postJson('/api/penilaian-selesai/evaluasi', [
         'penilaian_id' => $penilaianId,
         'nilai_evaluasi' => 5,
-        'evaluasi' => 'Final BPS decision'
+        'evaluasi' => 'Final BPS decision',
     ]);
     $responseAdmin->assertStatus(200);
 

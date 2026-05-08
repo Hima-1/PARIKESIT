@@ -12,7 +12,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(Tests\TestCase::class, RefreshDatabase::class);
 
 test('it resolves layer scores from the most relevant record for each field', function () {
-    $service = new AssessmentCalculationService();
+    $service = new AssessmentCalculationService;
 
     $formulir = Formulir::factory()->create();
     $domain = Domain::factory()->create(['bobot_domain' => 100]);

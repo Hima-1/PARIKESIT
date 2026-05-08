@@ -68,7 +68,7 @@ test('logout deactivates the current access token device record', function () {
     ]);
 
     $this
-        ->withHeader('Authorization', 'Bearer ' . $token->plainTextToken)
+        ->withHeader('Authorization', 'Bearer '.$token->plainTextToken)
         ->postJson('/api/logout')
         ->assertOk();
 

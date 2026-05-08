@@ -7,7 +7,6 @@ uses(
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 /*
@@ -54,7 +53,7 @@ expect()->extend('toBeOne', function () {
  *
  * @return Tests\TestCase
  */
-function loginAs(User $user = null)
+function loginAs(?User $user = null)
 {
     return test()->actingAs($user ?? User::factory()->create(), 'sanctum');
 }
@@ -64,9 +63,10 @@ function loginAs(User $user = null)
  *
  * @return Tests\TestCase
  */
-function loginAsAdmin(User $user = null)
+function loginAsAdmin(?User $user = null)
 {
     $user = $user ?? User::factory()->create(['role' => 'admin']);
+
     return test()->actingAs($user, 'sanctum');
 }
 

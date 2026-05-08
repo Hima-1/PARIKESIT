@@ -24,7 +24,7 @@ test('real-time assessment sync reflected in dashboard statistics', function () 
     // Perform assessment
     $responseStore = loginAs($user)->postJson("/api/formulir/{$formulir->id}/indikator/{$ind->id}/penilaian", [
         'nilai' => 5,
-        'catatan' => 'Integration Sync Test'
+        'catatan' => 'Integration Sync Test',
     ]);
 
     $responseStore->assertStatus(201);
@@ -39,9 +39,9 @@ test('real-time assessment sync reflected in dashboard statistics', function () 
         'data' => [
             'stats' => [
                 'jumlahKegiatanPenilaian',
-                'userTerdaftar'
+                'userTerdaftar',
             ],
-            'progress_data'
-        ]
+            'progress_data',
+        ],
     ]);
 });

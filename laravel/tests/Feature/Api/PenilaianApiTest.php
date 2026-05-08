@@ -129,7 +129,6 @@ test('penilaian indicators returns 404 when formulir id does not exist', functio
         ->assertJsonStructure(['message']);
 });
 
-
 test('user can store a penilaian with file upload', function () {
     Storage::fake('public');
 
@@ -147,7 +146,7 @@ test('user can store a penilaian with file upload', function () {
     $response = loginAs($user)->postJson("/api/formulir/{$formulir->id}/indikator/{$indikator->id}/penilaian", [
         'nilai' => 5,
         'catatan' => 'Test Catatan',
-        'bukti_dukung' => [$file]
+        'bukti_dukung' => [$file],
     ]);
 
     $response->assertStatus(201)
@@ -318,7 +317,7 @@ test('user cannot store penilaian for other user formulir', function () {
     $indikator = Indikator::factory()->create();
 
     $response = loginAs($user)->postJson("/api/formulir/{$otherFormulir->id}/indikator/{$indikator->id}/penilaian", [
-        'nilai' => 4
+        'nilai' => 4,
     ]);
 
     $response->assertStatus(403);
@@ -334,7 +333,7 @@ test('admin cannot store penilaian for any formulir', function () {
     $indikator = Indikator::factory()->create(['aspek_id' => $aspek->id]);
 
     $response = loginAsAdmin()->postJson("/api/formulir/{$otherFormulir->id}/indikator/{$indikator->id}/penilaian", [
-        'nilai' => 3
+        'nilai' => 3,
     ]);
 
     $response->assertStatus(403)

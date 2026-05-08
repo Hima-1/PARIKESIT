@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Formulir;
-use App\Models\Penilaian;
 use App\Models\User;
 
 test('admin can view global dashboard stats', function () {
@@ -16,10 +15,10 @@ test('admin can view global dashboard stats', function () {
                     'jumlahKegiatanPenilaian',
                     'jumlahPenilaianSelesai',
                     'jumlahPenilaianProgres',
-                    'userTerdaftar'
+                    'userTerdaftar',
                 ],
-                'progress_data'
-            ]
+                'progress_data',
+            ],
         ]);
 });
 
@@ -45,8 +44,8 @@ test('opd can view their own dashboard stats', function () {
         ->assertJsonStructure([
             'data' => [
                 'stats',
-                'progress_data'
-            ]
+                'progress_data',
+            ],
         ]);
 });
 

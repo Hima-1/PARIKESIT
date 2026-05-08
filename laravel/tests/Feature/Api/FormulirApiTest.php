@@ -3,7 +3,6 @@
 use App\Models\Formulir;
 use App\Models\Penilaian;
 use App\Models\User;
-use Illuminate\Support\Facades\Storage;
 
 test('regular user can list their own formulirs', function () {
     $user = User::factory()->create();
@@ -30,7 +29,7 @@ test('user can create a formulir', function () {
     $user = User::factory()->create(['role' => 'opd']);
 
     $response = loginAs($user)->postJson('/api/formulir', [
-        'nama_formulir' => 'Test API Formulir'
+        'nama_formulir' => 'Test API Formulir',
     ]);
 
     $response->assertStatus(201)

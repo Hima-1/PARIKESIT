@@ -6,7 +6,7 @@ test('it returns json for non-existent routes', function () {
     // Default Laravel biasanya mengembalikan 404 JSON jika Accept: application/json dikirim
     // Namun kita ingin memastikan formatnya konsisten dan prediktabel.
     $response->assertStatus(404)
-             ->assertHeader('Content-Type', 'application/json');
+        ->assertHeader('Content-Type', 'application/json');
 });
 
 test('it returns json for model not found exceptions', function () {
@@ -14,7 +14,7 @@ test('it returns json for model not found exceptions', function () {
     $response = loginAsAdmin()->getJson('/api/users/9999');
 
     $response->assertStatus(404)
-             ->assertJsonStructure(['message']);
+        ->assertJsonStructure(['message']);
 });
 
 test('it returns json for internal server errors', function () {
@@ -23,12 +23,12 @@ test('it returns json for internal server errors', function () {
     $response = $this->getJson('/api/test-500');
 
     $response->assertStatus(500)
-             ->assertJson(['message' => 'Internal Server Error']);
+        ->assertJson(['message' => 'Internal Server Error']);
 });
 
 test('it returns json for unauthenticated requests', function () {
     $response = $this->getJson('/api/user');
 
     $response->assertStatus(401)
-             ->assertJson(['message' => 'Unauthenticated']);
+        ->assertJson(['message' => 'Unauthenticated']);
 });

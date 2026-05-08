@@ -2,9 +2,9 @@
 
 use App\Models\Aspek;
 use App\Models\Domain;
+use App\Models\Formulir;
 use App\Models\Indikator;
 use App\Models\Penilaian;
-use App\Models\Formulir;
 use App\Models\User;
 use App\Services\DashboardService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -12,7 +12,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(Tests\TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->service = new DashboardService();
+    $this->service = new DashboardService;
 });
 
 test('it returns correct aggregate statistics', function () {
@@ -28,7 +28,6 @@ test('it returns correct aggregate statistics', function () {
     expect($stats['userTerdaftar'])->toBe(10);
 });
 
-
 test('it returns progress data for opd role', function () {
     $user = User::factory()->create(['role' => 'opd']);
     $formulir = Formulir::factory()->create();
@@ -39,7 +38,7 @@ test('it returns progress data for opd role', function () {
         'formulir_id' => $formulir->id,
         'user_id' => $user->id,
         'indikator_id' => $ind->id,
-        'nilai' => 4
+        'nilai' => 4,
     ]);
 
     $progress = $this->service->getOPDProgress($user);
