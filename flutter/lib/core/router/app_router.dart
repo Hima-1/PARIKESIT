@@ -25,6 +25,7 @@ import 'package:parikesit/features/home/presentation/home_screen.dart';
 import 'package:parikesit/features/notifications/presentation/notification_list_screen.dart';
 import 'package:parikesit/features/pembinaan/presentation/dokumentasi_list_screen.dart';
 import 'package:parikesit/features/public/presentation/landing_public_screen.dart';
+import 'package:parikesit/features/public/presentation/public_shell.dart';
 
 import 'auth_bootstrap_screen.dart';
 import 'routes/admin_routes.dart';
@@ -101,117 +102,122 @@ final routerProvider = Provider<GoRouter>((ref) {
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const AuthBootstrapScreen(),
       ),
-      GoRoute(
-        path: RouteConstants.landing,
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const LandingPublicScreen(),
-      ),
-      GoRoute(
-        path: RouteConstants.publicAssessmentOpdSelection,
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) {
-          final String activityId = state.pathParameters['activityId']!;
-          return OpdSelectionScreen(
-            activityId: activityId,
-            activity: state.extra as AssessmentFormModel?,
-            isPublicReadOnly: true,
-          );
-        },
-      ),
-      GoRoute(
-        path: RouteConstants.publicAssessmentOpdReview,
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) {
-          final String activityId = state.pathParameters['activityId']!;
-          final int? opdId = int.tryParse(state.pathParameters['opdId'] ?? '');
-
-          return ActivityReviewScreen(
-            activityId: activityId,
-            opdId: opdId,
-            activity: state.extra as AssessmentFormModel?,
-            isPublicReadOnly: true,
-          );
-        },
+      ShellRoute(
+        builder: (context, state, child) =>
+            PublicShell(location: state.uri, child: child),
         routes: [
           GoRoute(
-            path: 'domain/:domainId',
-            parentNavigatorKey: _rootNavigatorKey,
+            path: RouteConstants.landing,
+            builder: (context, state) {
+              return LandingPublicScreen(tab: _publicLandingTabFor(state.uri));
+            },
+          ),
+          GoRoute(
+            path: RouteConstants.publicAssessmentOpdSelection,
             builder: (context, state) {
               final String activityId = state.pathParameters['activityId']!;
-              final String domainId = state.pathParameters['domainId']!;
-              final Map<String, dynamic>? extra =
-                  state.extra as Map<String, dynamic>?;
-              final List<IndicatorComparisonData> indicatorComparisons =
-                  ((extra?['indicatorComparisons'] as List<dynamic>?) ??
-                          const <dynamic>[])
-                      .map((dynamic item) {
-                        if (item is IndicatorComparisonData) {
-                          return item;
-                        }
-
-                        return IndicatorComparisonData.fromJson(
-                          item as Map<String, dynamic>,
-                        );
-                      })
-                      .toList(growable: false);
-
-              return DomainCorrectionListScreen(
+              return OpdSelectionScreen(
                 activityId: activityId,
-                domainId: domainId,
-                isSelfReview: false,
+                activity: state.extra as AssessmentFormModel?,
                 isPublicReadOnly: true,
-                opdId: state.pathParameters['opdId'],
-                domain: switch (extra?['domain']) {
-                  final AssessmentDomain value => value,
-                  final Map<String, dynamic> value => AssessmentDomain.fromJson(
-                    value,
-                  ),
-                  _ => null,
-                },
-                indicatorComparisons: indicatorComparisons,
+              );
+            },
+          ),
+          GoRoute(
+            path: RouteConstants.publicAssessmentOpdReview,
+            builder: (context, state) {
+              final String activityId = state.pathParameters['activityId']!;
+              final int? opdId = int.tryParse(
+                state.pathParameters['opdId'] ?? '',
+              );
+
+              return ActivityReviewScreen(
+                activityId: activityId,
+                opdId: opdId,
+                activity: state.extra as AssessmentFormModel?,
+                isPublicReadOnly: true,
               );
             },
             routes: [
               GoRoute(
-                path: 'indicator/:indicatorId',
-                parentNavigatorKey: _rootNavigatorKey,
+                path: 'domain/:domainId',
                 builder: (context, state) {
                   final String activityId = state.pathParameters['activityId']!;
                   final String domainId = state.pathParameters['domainId']!;
-                  final String indicatorId =
-                      state.pathParameters['indicatorId']!;
-
                   final Map<String, dynamic>? extra =
                       state.extra as Map<String, dynamic>?;
-                  final List<IndicatorComparisonData> comparisons =
-                      ((extra?['comparisons'] as List<dynamic>?) ??
+                  final List<IndicatorComparisonData> indicatorComparisons =
+                      ((extra?['indicatorComparisons'] as List<dynamic>?) ??
                               const <dynamic>[])
                           .map((dynamic item) {
                             if (item is IndicatorComparisonData) {
                               return item;
                             }
+
                             return IndicatorComparisonData.fromJson(
                               item as Map<String, dynamic>,
                             );
                           })
-                          .toList();
+                          .toList(growable: false);
 
-                  return IndicatorReadOnlyReviewScreen(
+                  return DomainCorrectionListScreen(
                     activityId: activityId,
                     domainId: domainId,
-                    indicatorId: indicatorId,
+                    isSelfReview: false,
                     isPublicReadOnly: true,
                     opdId: state.pathParameters['opdId'],
-                    data: switch (extra?['data']) {
-                      final IndicatorComparisonData value => value,
+                    domain: switch (extra?['domain']) {
+                      final AssessmentDomain value => value,
                       final Map<String, dynamic> value =>
-                        IndicatorComparisonData.fromJson(value),
+                        AssessmentDomain.fromJson(value),
                       _ => null,
                     },
-                    indicatorComparisons: comparisons,
-                    currentIndex: extra?['currentIndex'] as int? ?? 0,
+                    indicatorComparisons: indicatorComparisons,
                   );
                 },
+                routes: [
+                  GoRoute(
+                    path: 'indicator/:indicatorId',
+                    builder: (context, state) {
+                      final String activityId =
+                          state.pathParameters['activityId']!;
+                      final String domainId = state.pathParameters['domainId']!;
+                      final String indicatorId =
+                          state.pathParameters['indicatorId']!;
+
+                      final Map<String, dynamic>? extra =
+                          state.extra as Map<String, dynamic>?;
+                      final List<IndicatorComparisonData> comparisons =
+                          ((extra?['comparisons'] as List<dynamic>?) ??
+                                  const <dynamic>[])
+                              .map((dynamic item) {
+                                if (item is IndicatorComparisonData) {
+                                  return item;
+                                }
+                                return IndicatorComparisonData.fromJson(
+                                  item as Map<String, dynamic>,
+                                );
+                              })
+                              .toList();
+
+                      return IndicatorReadOnlyReviewScreen(
+                        activityId: activityId,
+                        domainId: domainId,
+                        indicatorId: indicatorId,
+                        isPublicReadOnly: true,
+                        opdId: state.pathParameters['opdId'],
+                        data: switch (extra?['data']) {
+                          final IndicatorComparisonData value => value,
+                          final Map<String, dynamic> value =>
+                            IndicatorComparisonData.fromJson(value),
+                          _ => null,
+                        },
+                        indicatorComparisons: comparisons,
+                        currentIndex: extra?['currentIndex'] as int? ?? 0,
+                      );
+                    },
+                  ),
+                ],
               ),
             ],
           ),
@@ -284,6 +290,12 @@ final routerProvider = Provider<GoRouter>((ref) {
 
 bool _isPublicRoute(String path) {
   return path == RouteConstants.landing || _publicAssessmentPath.hasMatch(path);
+}
+
+PublicLandingTab _publicLandingTabFor(Uri uri) {
+  return uri.queryParameters['tab'] == PublicLandingTab.hasil.name
+      ? PublicLandingTab.hasil
+      : PublicLandingTab.about;
 }
 
 String _buildBootstrapLocation(Uri fromUri) {

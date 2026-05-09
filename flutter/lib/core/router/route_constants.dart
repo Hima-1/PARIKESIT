@@ -1,6 +1,8 @@
 class RouteConstants {
   // Public
   static const String landing = '/';
+  static const String publicLandingAbout = '/?tab=about';
+  static const String publicLandingResults = '/?tab=hasil';
   static const String authBootstrap = '/auth-bootstrap';
 
   // Auth

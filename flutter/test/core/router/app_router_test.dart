@@ -34,7 +34,7 @@ void main() {
 
     final ProviderContainer container = ProviderContainer(
       overrides: [
-        authNotifierProvider.overrideWith(() => _FakeGuestAuthNotifier()),
+        authNotifierProvider.overrideWith(_FakeGuestAuthNotifier.new),
         assessmentRepositoryProvider.overrideWithValue(
           _RouterAssessmentRepository(),
         ),
@@ -235,7 +235,7 @@ void main() {
 
     final ProviderContainer container = ProviderContainer(
       overrides: [
-        authNotifierProvider.overrideWith(() => _FakeGuestAuthNotifier()),
+        authNotifierProvider.overrideWith(_FakeGuestAuthNotifier.new),
         assessmentRepositoryProvider.overrideWithValue(
           _RouterAssessmentRepository(),
         ),
@@ -272,7 +272,7 @@ void main() {
 
     final ProviderContainer container = ProviderContainer(
       overrides: [
-        authNotifierProvider.overrideWith(() => _FakeGuestAuthNotifier()),
+        authNotifierProvider.overrideWith(_FakeGuestAuthNotifier.new),
         assessmentRepositoryProvider.overrideWithValue(
           _RouterAssessmentRepository(),
         ),
@@ -309,7 +309,7 @@ void main() {
 
     final ProviderContainer container = ProviderContainer(
       overrides: [
-        authNotifierProvider.overrideWith(() => _InstantLoginAuthNotifier()),
+        authNotifierProvider.overrideWith(_InstantLoginAuthNotifier.new),
         assessmentRepositoryProvider.overrideWithValue(
           _RouterAssessmentRepository(),
         ),
@@ -351,7 +351,7 @@ void main() {
 
     final ProviderContainer container = ProviderContainer(
       overrides: [
-        authNotifierProvider.overrideWith(() => _FakeGuestAuthNotifier()),
+        authNotifierProvider.overrideWith(_FakeGuestAuthNotifier.new),
         assessmentRepositoryProvider.overrideWithValue(
           _RouterAssessmentRepository(),
         ),
@@ -388,7 +388,7 @@ void main() {
 
     final ProviderContainer container = ProviderContainer(
       overrides: [
-        authNotifierProvider.overrideWith(() => _FakeGuestAuthNotifier()),
+        authNotifierProvider.overrideWith(_FakeGuestAuthNotifier.new),
         assessmentRepositoryProvider.overrideWithValue(
           _RouterAssessmentRepository(),
         ),
@@ -434,7 +434,7 @@ void main() {
 
       final ProviderContainer container = ProviderContainer(
         overrides: [
-          authNotifierProvider.overrideWith(() => _FakeOpdAuthNotifier()),
+          authNotifierProvider.overrideWith(_FakeOpdAuthNotifier.new),
           userRoleProvider.overrideWithValue(UserRole.opd),
           assessmentRepositoryProvider.overrideWithValue(
             _RouterAssessmentRepository(),
@@ -473,7 +473,7 @@ void main() {
 
       final ProviderContainer container = ProviderContainer(
         overrides: [
-          authNotifierProvider.overrideWith(() => _FakeOpdAuthNotifier()),
+          authNotifierProvider.overrideWith(_FakeOpdAuthNotifier.new),
           userRoleProvider.overrideWithValue(UserRole.opd),
           assessmentRepositoryProvider.overrideWithValue(
             _RouterAssessmentRepository(),
@@ -512,7 +512,7 @@ void main() {
 
       final ProviderContainer container = ProviderContainer(
         overrides: [
-          authNotifierProvider.overrideWith(() => _FakeGuestAuthNotifier()),
+          authNotifierProvider.overrideWith(_FakeGuestAuthNotifier.new),
           assessmentRepositoryProvider.overrideWithValue(
             _RouterAssessmentRepository(),
           ),
@@ -539,6 +539,8 @@ void main() {
         router.routeInformationProvider.value.uri.path,
         '/publik/penilaian-selesai/7/opds',
       );
+      expect(find.byKey(LandingPublicScreen.bottomNavKey), findsOneWidget);
+      expect(find.byType(MainLayout), findsNothing);
     },
   );
 }
@@ -642,7 +644,10 @@ class _DelayedAuthRepository extends AuthRepository {
   }
 }
 
-class _RouterAssessmentRepository implements IAssessmentRepository {
+class _RouterAssessmentRepository implements AssessmentRepository {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+
   int publicCompletedActivitiesCallCount = 0;
 
   @override
@@ -752,10 +757,8 @@ class _RouterAssessmentRepository implements IAssessmentRepository {
   ) async => throw UnimplementedError();
 
   @override
-  Future<Penilaian> submitAdminEvaluation(
-    int assessmentId,
-    Map<String, dynamic> data,
-  ) async => throw UnimplementedError();
+  Future<Penilaian> submitAdminEvaluation(Map<String, dynamic> data) async =>
+      throw UnimplementedError();
 
   @override
   Future<Penilaian> submitPenilaian(
@@ -765,10 +768,8 @@ class _RouterAssessmentRepository implements IAssessmentRepository {
   ) async => throw UnimplementedError();
 
   @override
-  Future<Penilaian> submitWalidataCorrection(
-    int assessmentId,
-    Map<String, dynamic> data,
-  ) async => throw UnimplementedError();
+  Future<Penilaian> submitWalidataCorrection(Map<String, dynamic> data) async =>
+      throw UnimplementedError();
 
   @override
   Future<BuktiDukung> uploadBuktiDukung(

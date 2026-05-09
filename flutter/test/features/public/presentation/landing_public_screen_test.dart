@@ -21,6 +21,7 @@ import 'package:parikesit/features/auth/domain/login_response.dart';
 import 'package:parikesit/features/auth/domain/user.dart';
 import 'package:parikesit/features/auth/presentation/controller/auth_provider.dart';
 import 'package:parikesit/features/public/presentation/landing_public_screen.dart';
+import 'package:parikesit/features/public/presentation/public_shell.dart';
 
 void main() {
   testWidgets('landing public defaults to about tab', (
@@ -47,15 +48,22 @@ void main() {
     WidgetTester tester,
   ) async {
     final repository = _PublicLandingRepository();
+    final router = _buildRouter(repository);
+    addTearDown(router.dispose);
 
-    await tester.pumpWidget(_buildApp(repository));
+    await tester.pumpWidget(_buildApp(repository, router: router));
     await tester.pumpAndSettle();
 
     await _tapBottomNavLabel(tester, 'HASIL');
+    expect(router.routeInformationProvider.value.uri.toString(), '/?tab=hasil');
     expect(
       find.byKey(const Key('completed-assessment-search')),
       findsOneWidget,
     );
+
+    await _tapBottomNavLabel(tester, 'ABOUT');
+    expect(router.routeInformationProvider.value.uri.toString(), '/?tab=about');
+    expect(find.byKey(LandingPublicScreen.aboutHeroKey), findsOneWidget);
 
     await _tapBottomNavLabel(tester, 'LOGIN');
     expect(find.text('login-screen'), findsOneWidget);
@@ -72,7 +80,7 @@ void main() {
       ProviderScope(
         overrides: [
           assessmentRepositoryProvider.overrideWithValue(repository),
-          authNotifierProvider.overrideWith(() => _UnauthenticatedNotifier()),
+          authNotifierProvider.overrideWith(_UnauthenticatedNotifier.new),
         ],
         child: MaterialApp.router(
           theme: AppTheme.lightTheme,
@@ -94,6 +102,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('public-opds'), findsOneWidget);
+    expect(find.byKey(LandingPublicScreen.bottomNavKey), findsOneWidget);
+    expect(find.text('ABOUT'), findsOneWidget);
+    expect(find.text('HASIL'), findsOneWidget);
+    expect(find.text('LOGIN'), findsOneWidget);
   });
 
   testWidgets('landing public preserves result state across tab switches', (
@@ -193,15 +205,18 @@ void main() {
   });
 }
 
-Widget _buildApp(_PublicLandingRepository repository) {
-  final router = _buildRouter(repository);
+Widget _buildApp(_PublicLandingRepository repository, {GoRouter? router}) {
+  final appRouter = router ?? _buildRouter(repository);
 
   return ProviderScope(
     overrides: [
       assessmentRepositoryProvider.overrideWithValue(repository),
-      authNotifierProvider.overrideWith(() => _UnauthenticatedNotifier()),
+      authNotifierProvider.overrideWith(_UnauthenticatedNotifier.new),
     ],
-    child: MaterialApp.router(theme: AppTheme.lightTheme, routerConfig: router),
+    child: MaterialApp.router(
+      theme: AppTheme.lightTheme,
+      routerConfig: appRouter,
+    ),
   );
 }
 
@@ -209,20 +224,30 @@ GoRouter _buildRouter(_PublicLandingRepository repository) {
   return GoRouter(
     initialLocation: '/',
     routes: <RouteBase>[
-      GoRoute(
-        path: '/',
-        builder: (BuildContext context, GoRouterState state) =>
-            const LandingPublicScreen(),
+      ShellRoute(
+        builder: (BuildContext context, GoRouterState state, Widget child) =>
+            PublicShell(location: state.uri, child: child),
+        routes: <RouteBase>[
+          GoRoute(
+            path: '/',
+            builder: (BuildContext context, GoRouterState state) =>
+                LandingPublicScreen(
+                  tab: state.uri.queryParameters['tab'] == 'hasil'
+                      ? PublicLandingTab.hasil
+                      : PublicLandingTab.about,
+                ),
+          ),
+          GoRoute(
+            path: '/publik/penilaian-selesai/:activityId/opds',
+            builder: (BuildContext context, GoRouterState state) =>
+                const Text('public-opds'),
+          ),
+        ],
       ),
       GoRoute(
         path: RouteConstants.login,
         builder: (BuildContext context, GoRouterState state) =>
             const Text('login-screen'),
-      ),
-      GoRoute(
-        path: '/publik/penilaian-selesai/:activityId/opds',
-        builder: (BuildContext context, GoRouterState state) =>
-            const Text('public-opds'),
       ),
     ],
   );
@@ -273,7 +298,10 @@ class _FakeTokenStorage extends TokenStorage {
   Future<String?> getToken() async => null;
 }
 
-class _PublicLandingRepository implements IAssessmentRepository {
+class _PublicLandingRepository implements AssessmentRepository {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+
   CompletedAssessmentQuery lastPublicQuery = const CompletedAssessmentQuery();
 
   @override
@@ -410,10 +438,8 @@ class _PublicLandingRepository implements IAssessmentRepository {
   ) async => throw UnimplementedError();
 
   @override
-  Future<Penilaian> submitAdminEvaluation(
-    int assessmentId,
-    Map<String, dynamic> data,
-  ) async => throw UnimplementedError();
+  Future<Penilaian> submitAdminEvaluation(Map<String, dynamic> data) async =>
+      throw UnimplementedError();
 
   @override
   Future<Penilaian> submitPenilaian(
@@ -423,10 +449,8 @@ class _PublicLandingRepository implements IAssessmentRepository {
   ) async => throw UnimplementedError();
 
   @override
-  Future<Penilaian> submitWalidataCorrection(
-    int assessmentId,
-    Map<String, dynamic> data,
-  ) async => throw UnimplementedError();
+  Future<Penilaian> submitWalidataCorrection(Map<String, dynamic> data) async =>
+      throw UnimplementedError();
 
   @override
   Future<BuktiDukung> uploadBuktiDukung(
