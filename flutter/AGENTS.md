@@ -65,10 +65,38 @@ Follow the established directory structure:
   - Files/Variables: `snake_case`
   - Providers: `<feature><Type>Provider` (e.g., `authControllerProvider`).
 
-## 4. UI Design (Material 3)
-- Use the BPS palette defined in `lib/core/theme/app_theme.dart`:
-  - **Primary:** Navy (`0xFF0B5C9E`)
-  - **Secondary:** Orange (`0xFFF28C28`)
-  - **Tertiary:** Cyan (`0xFF00A2E8`)
-- Use **Google Fonts (Montserrat)** for typography.
-- Use `flutter_svg` for vector icons.
+## 4. UI Design (Material 3 — Javanese Modern Heritage)
+The visual system is "Javanese-Shadcn": Sogan brown brand + cream/white surfaces + 1px hairline borders, no thick shadows. See [docs/design-system.md](docs/design-system.md) for the full reference.
+
+### Tokens — single source of truth
+All design values live in `lib/core/theme/tokens/`:
+- `colors.dart` — `AppColors.soganBrown`, `.terracotta`, `.cream`, semantic (`.success`/`.error`/`.warning`/`.info`), text grades.
+- `typography.dart` — `AppTypography.display(...)` (Philosopher) + `.body(...)` (Plus Jakarta Sans).
+- `radii.dart` — `AppRadii.sm/md/lg/rPill` + ready-to-use `BorderRadius` (`.rrSm/.rrMd/...`).
+- `spacing.dart` — `AppSpacing.xs/sm/md/lg/xl` + `gapH*/gapW*` + `pAll*/pH*/pV*`.
+- `elevation.dart` — `AppElevation.e0/e1/e2/e3` shadow lists.
+- `motion.dart` — `AppMotion.fast/base/slow` durations + curves.
+- `breakpoints.dart` — `AppBreakpoint.compact/medium/expanded` + `AppBreakpoints.of(context)`.
+
+`AppTheme.lightTheme` / `AppTheme.darkTheme` assemble these tokens into Material's `ThemeData`. `lib/core/theme/app_theme.dart` keeps backward-compat aliases (`AppTheme.sogan`, `AppTheme.gold`, etc.) — they delegate to tokens, so old call sites still compile, but **new code must consume tokens or `Theme.of(context)`**.
+
+### Component conventions
+- **Read first, build second.** Run the gallery before adding a new widget: `flutter run -t lib/widgetbook.dart`. If a similar component already exists, extend it.
+- Pull from `lib/core/widgets/` (general) before reaching into a feature. When you do build, place domain-coupled widgets under `features/<x>/presentation/widgets/`, never in `core/`.
+- Wrap `AsyncValue<T>` rendering in `asyncView<T>(...)` from `core/helpers/async_view.dart` so loading/error visuals stay consistent.
+- For paginated lists, use `PagedListView<T>` instead of rebuilding the loading + empty + error + footer stack.
+- For form modals, use `AppFormDialog`. Pass `isSubmitting: true` to disable actions while saving.
+- For filter rows, compose `AppFilterBar` with the `search` / `filters` / `trailing` slots — don't reimplement the responsive collapse.
+
+### Spacing & gaps
+- Prefer `Gap(x)` (from `package:gap`) over `SizedBox(height/width: x)` — works in any flex direction.
+- For semantic edges, `AppSpacing.gapH*/gapW*` and `AppSpacing.pAll*` are still acceptable (and what most existing code uses).
+- Never write `Color(0xFF...)`, `EdgeInsets.all(<n>)`, or `BorderRadius.circular(<n>)` literal in screens — pull from tokens.
+
+### Typography
+- Always read text styles from `Theme.of(context).textTheme.*`. The two-font system (Philosopher for display, Plus Jakarta Sans for body) is wired via `AppTheme`.
+- The `EthnoTextTheme` extension exposes `labelTiny` for eyebrow labels — `EthnoTextTheme.of(context).labelTiny`.
+
+### Icons
+- Use `lucide_icons` for non-system icons (filter, sort, export). System Material icons (`Icons.*`) remain fine for navigation and AppBar actions.
+- Use `flutter_svg` for SVG assets.

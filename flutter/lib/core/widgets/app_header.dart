@@ -59,7 +59,14 @@ class AppHeader extends ConsumerWidget implements PreferredSizeWidget {
     return NotificationBadge(
       count: unreadCount,
       child: IconButton(
-        icon: const Icon(LucideIcons.bell, size: 20, color: AppTheme.textStrong),
+        icon: const Icon(
+          LucideIcons.bell,
+          size: 20,
+          color: AppTheme.textStrong,
+        ),
+        tooltip: unreadCount > 0
+            ? 'Notifikasi ($unreadCount belum dibaca)'
+            : 'Notifikasi',
         onPressed: () {
           Future.microtask(() {
             if (!context.mounted) return;

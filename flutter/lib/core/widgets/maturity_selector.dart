@@ -89,7 +89,11 @@ class MaturitySelector extends StatelessWidget {
       ),
       child: Center(
         child: isSelected
-            ? const Icon(LucideIcons.checkCircle2, color: AppTheme.gold, size: 24)
+            ? const Icon(
+                LucideIcons.checkCircle2,
+                color: AppTheme.gold,
+                size: 24,
+              )
             : Text(
                 '$level',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(

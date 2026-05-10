@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_theme.dart';
+import '../theme/tokens/breakpoints.dart';
 import 'app_bottom_nav.dart';
 import 'app_header.dart';
 import 'app_sidebar.dart';
@@ -27,7 +28,7 @@ class MainLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.sizeOf(context).width < 600;
+    final isMobile = AppBreakpoints.isCompact(context);
     final themedChild = _withShellTheme(context, child);
 
     if (isMobile) {

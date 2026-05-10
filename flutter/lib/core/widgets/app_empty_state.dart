@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:parikesit/core/theme/app_spacing.dart';
 
-import '../theme/app_theme.dart';
+import '../theme/app_spacing.dart';
+import '../theme/tokens/colors.dart';
+import '../theme/tokens/motion.dart';
+import '../theme/tokens/radii.dart';
 import 'ethno_button.dart';
 
 class AppEmptyState extends StatelessWidget {
@@ -25,15 +27,18 @@ class AppEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return Center(
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
+    final body = Center(
       child: Container(
         width: double.infinity,
         padding: AppSpacing.pAll24,
         decoration: BoxDecoration(
-          color: AppTheme.surface,
-          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-          border: AppTheme.hairlineBorder,
+          color: scheme.surface,
+          borderRadius: AppRadii.rrMd,
+          border: Border.all(color: scheme.outline),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -42,10 +47,10 @@ class AppEmptyState extends StatelessWidget {
               width: 72,
               height: 72,
               decoration: BoxDecoration(
-                color: AppTheme.gold.withValues(alpha: 0.14),
+                color: scheme.secondary.withValues(alpha: 0.14),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: 34, color: AppTheme.sogan),
+              child: Icon(icon, size: 34, color: AppColors.soganDeep),
             ),
             AppSpacing.gapH16,
             Text(
@@ -53,7 +58,7 @@ class AppEmptyState extends StatelessWidget {
               textAlign: TextAlign.center,
               style: textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w800,
-                color: AppTheme.sogan,
+                color: AppColors.soganDeep,
               ),
             ),
             AppSpacing.gapH8,
@@ -62,7 +67,7 @@ class AppEmptyState extends StatelessWidget {
               textAlign: TextAlign.center,
               style: textTheme.bodyMedium?.copyWith(
                 height: 1.5,
-                color: AppTheme.sogan.withValues(alpha: 0.6),
+                color: AppColors.soganDeep.withValues(alpha: 0.6),
               ),
             ),
             if (onAction != null && actionLabel != null) ...[
@@ -77,5 +82,7 @@ class AppEmptyState extends StatelessWidget {
         ),
       ),
     );
+
+    return motionEntrance(context, body);
   }
 }

@@ -233,6 +233,7 @@ class _FileUploadFieldState extends State<FileUploadField> {
                       color: AppTheme.error,
                       size: 22,
                     ),
+                    tooltip: 'Hapus file',
                     onPressed: _clearFile,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+
 import '../theme/app_spacing.dart';
-import '../theme/app_theme.dart';
+import '../theme/tokens/colors.dart';
+import '../theme/tokens/radii.dart';
 
 enum EthnoButtonStyle { primary, secondary, success, outlined, text, danger }
 
@@ -26,46 +28,11 @@ class EthnoButton extends StatelessWidget {
   final bool isFullWidth;
   final bool isLoading;
 
-  Color _getForegroundColor(BuildContext context) {
-    switch (style) {
-      case EthnoButtonStyle.primary:
-        return Colors.white;
-      case EthnoButtonStyle.secondary:
-        return Colors.white;
-      case EthnoButtonStyle.success:
-        return AppTheme.onSuccess;
-      case EthnoButtonStyle.outlined:
-      case EthnoButtonStyle.text:
-        return AppTheme.terracotta;
-      case EthnoButtonStyle.danger:
-        return AppTheme.onError;
-    }
-  }
-
-  EdgeInsetsGeometry _getPadding() {
-    switch (size) {
-      case EthnoButtonSize.small:
-        return AppSpacing.pH16V8;
-      case EthnoButtonSize.medium:
-        return AppSpacing.pV16.add(AppSpacing.pH24);
-    }
-  }
-
-  double _getFontSize(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    switch (size) {
-      case EthnoButtonSize.small:
-        return (textTheme.bodySmall?.fontSize ?? 12) + 1; // 13
-      case EthnoButtonSize.medium:
-        return (textTheme.bodyMedium?.fontSize ?? 14) + 1; // 15
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final foregroundColor = _getForegroundColor(context);
-    final padding = _getPadding();
-    final fontSize = _getFontSize(context);
+    final scheme = Theme.of(context).colorScheme;
+    final variant = _resolveVariant(scheme);
+    final dims = _resolveDims(context);
 
     Widget content = Row(
       mainAxisSize: MainAxisSize.min,
@@ -73,21 +40,24 @@ class EthnoButton extends StatelessWidget {
       children: [
         if (isLoading)
           SizedBox(
-            width: fontSize + 3,
-            height: fontSize + 3,
+            width: dims.fontSize + 3,
+            height: dims.fontSize + 3,
             child: CircularProgressIndicator(
               strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(foregroundColor),
+              valueColor: AlwaysStoppedAnimation<Color>(variant.foreground),
             ),
           )
         else ...[
           if (icon != null) ...[
-            Icon(icon, size: fontSize + 5),
+            Icon(icon, size: dims.fontSize + 5),
             AppSpacing.gapW8,
           ],
           Text(
             label,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: dims.fontSize,
+            ),
           ),
         ],
       ],
@@ -97,76 +67,101 @@ class EthnoButton extends StatelessWidget {
       content = SizedBox(width: double.infinity, child: content);
     }
 
-    final shape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(AppTheme.borderRadius),
-    );
+    final shape = RoundedRectangleBorder(borderRadius: AppRadii.rrMd);
+    final effectiveOnPressed = isLoading ? null : onPressed;
 
     switch (style) {
-      case EthnoButtonStyle.primary:
-        return FilledButton(
-          onPressed: isLoading ? null : onPressed,
-          style: FilledButton.styleFrom(
-            backgroundColor: AppTheme.soganBrown,
-            foregroundColor: foregroundColor,
-            padding: padding,
-            shape: shape,
-          ),
-          child: content,
-        );
-      case EthnoButtonStyle.secondary:
-        return FilledButton(
-          onPressed: isLoading ? null : onPressed,
-          style: FilledButton.styleFrom(
-            backgroundColor: AppTheme.terracotta,
-            foregroundColor: foregroundColor,
-            padding: padding,
-            shape: shape,
-          ),
-          child: content,
-        );
-      case EthnoButtonStyle.success:
-        return FilledButton(
-          onPressed: isLoading ? null : onPressed,
-          style: FilledButton.styleFrom(
-            backgroundColor: AppTheme.success,
-            foregroundColor: foregroundColor,
-            padding: padding,
-            shape: shape,
-          ),
-          child: content,
-        );
       case EthnoButtonStyle.outlined:
         return OutlinedButton(
-          onPressed: isLoading ? null : onPressed,
+          onPressed: effectiveOnPressed,
           style: OutlinedButton.styleFrom(
-            foregroundColor: foregroundColor,
-            side: BorderSide(color: foregroundColor),
-            padding: padding,
+            foregroundColor: variant.foreground,
+            side: BorderSide(color: variant.foreground),
+            padding: dims.padding,
             shape: shape,
           ),
           child: content,
         );
       case EthnoButtonStyle.text:
         return TextButton(
-          onPressed: isLoading ? null : onPressed,
+          onPressed: effectiveOnPressed,
           style: TextButton.styleFrom(
-            foregroundColor: foregroundColor,
-            padding: padding,
+            foregroundColor: variant.foreground,
+            padding: dims.padding,
             shape: shape,
           ),
           child: content,
         );
+      case EthnoButtonStyle.primary:
+      case EthnoButtonStyle.secondary:
+      case EthnoButtonStyle.success:
       case EthnoButtonStyle.danger:
         return FilledButton(
-          onPressed: isLoading ? null : onPressed,
+          onPressed: effectiveOnPressed,
           style: FilledButton.styleFrom(
-            backgroundColor: AppTheme.error,
-            foregroundColor: foregroundColor,
-            padding: padding,
+            backgroundColor: variant.background,
+            foregroundColor: variant.foreground,
+            padding: dims.padding,
             shape: shape,
           ),
           child: content,
         );
     }
   }
+
+  _Variant _resolveVariant(ColorScheme scheme) {
+    switch (style) {
+      case EthnoButtonStyle.primary:
+        return _Variant(
+          background: scheme.primary,
+          foreground: scheme.onPrimary,
+        );
+      case EthnoButtonStyle.secondary:
+        return _Variant(
+          background: scheme.secondary,
+          foreground: scheme.onSecondary,
+        );
+      case EthnoButtonStyle.success:
+        return const _Variant(
+          background: AppColors.success,
+          foreground: AppColors.white,
+        );
+      case EthnoButtonStyle.danger:
+        return _Variant(background: scheme.error, foreground: scheme.onError);
+      case EthnoButtonStyle.outlined:
+      case EthnoButtonStyle.text:
+        return _Variant(
+          background: Colors.transparent,
+          foreground: scheme.secondary,
+        );
+    }
+  }
+
+  _Dims _resolveDims(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    switch (size) {
+      case EthnoButtonSize.small:
+        return _Dims(
+          padding: AppSpacing.pH16V8,
+          fontSize: textTheme.labelLarge?.fontSize ?? 13,
+        );
+      case EthnoButtonSize.medium:
+        return _Dims(
+          padding: AppSpacing.pV16.add(AppSpacing.pH24),
+          fontSize: textTheme.titleMedium?.fontSize ?? 15,
+        );
+    }
+  }
+}
+
+class _Variant {
+  const _Variant({required this.background, required this.foreground});
+  final Color background;
+  final Color foreground;
+}
+
+class _Dims {
+  const _Dims({required this.padding, required this.fontSize});
+  final EdgeInsetsGeometry padding;
+  final double fontSize;
 }

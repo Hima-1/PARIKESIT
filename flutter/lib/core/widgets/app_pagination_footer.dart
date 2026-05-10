@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../theme/app_theme.dart';
@@ -39,9 +40,9 @@ class AppPaginationFooter extends StatelessWidget {
           icon: LucideIcons.chevronLeft,
           onPressed: hasPreviousPage ? onPrevious : null,
         ),
-        const SizedBox(width: 6),
+        const Gap(6),
         Flexible(child: status),
-        const SizedBox(width: 6),
+        const Gap(6),
         _PaginationIconButton(
           tooltip: 'Halaman berikutnya',
           icon: LucideIcons.chevronRight,

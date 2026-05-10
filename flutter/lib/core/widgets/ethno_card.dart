@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+
 import '../theme/app_spacing.dart';
-import '../theme/app_theme.dart';
+import '../theme/tokens/colors.dart';
+import '../theme/tokens/radii.dart';
 import 'ethno_patterns.dart';
 
 class EthnoCard extends StatelessWidget {
@@ -11,7 +13,7 @@ class EthnoCard extends StatelessWidget {
     this.margin,
     this.showBatikAccent = false,
     this.onTap,
-    this.borderRadius = AppTheme.borderRadius,
+    this.borderRadius = AppRadii.md,
     this.elevation = 0,
     this.isFlat = true,
     this.borderColor,
@@ -29,6 +31,8 @@ class EthnoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     Widget current = Padding(
       padding: padding ?? AppSpacing.pAll16,
       child: child,
@@ -45,7 +49,7 @@ class EthnoCard extends StatelessWidget {
               child: CustomPaint(
                 size: const Size(100, 100),
                 painter: KawungPainter(
-                  color: AppTheme.sogan,
+                  color: AppColors.soganDeep,
                   opacity: 0.04,
                   size: 40,
                 ),
@@ -57,24 +61,19 @@ class EthnoCard extends StatelessWidget {
       );
     }
 
-    final card = Card(
+    return Card(
       elevation: 0,
       margin: margin ?? AppSpacing.pV8,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(borderRadius),
-        side: BorderSide(
-          color: borderColor ?? AppTheme.borderColor,
-          width: AppTheme.hairline,
-        ),
+        side: BorderSide(color: borderColor ?? scheme.outline, width: 1),
       ),
-      color: AppTheme.surface,
+      color: scheme.surface,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(borderRadius),
         child: current,
       ),
     );
-
-    return card;
   }
 }

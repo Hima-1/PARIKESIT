@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
+import 'package:parikesit/core/theme/tokens/motion.dart';
 
 enum StatusBannerType { success, error, warning, info }
 
@@ -52,10 +53,9 @@ class StatusBanner extends StatelessWidget {
     final primaryColor = foregroundColor ?? _getPrimaryColor();
     final bgColor = backgroundColor ?? primaryColor.withValues(alpha: 0.1);
 
-    return Container(
+    final body = Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 12).add(AppSpacing.pH16),
-
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(AppTheme.borderRadius),
@@ -76,6 +76,14 @@ class StatusBanner extends StatelessWidget {
           ),
         ],
       ),
+    );
+
+    return motionEntrance(
+      context,
+      body,
+      slideY: -0.1,
+      fadeDuration: AppMotion.fast,
+      curve: AppMotion.emphasized,
     );
   }
 }

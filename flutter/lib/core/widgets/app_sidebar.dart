@@ -195,9 +195,7 @@ class AppSidebar extends ConsumerWidget {
         currentRoute == route ||
         (route != '/' && currentRoute.startsWith(route));
 
-    final Color tone = isSelected
-        ? AppTheme.terracotta
-        : AppTheme.textMuted;
+    final Color tone = isSelected ? AppTheme.terracotta : AppTheme.textMuted;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 2, 12, 2),

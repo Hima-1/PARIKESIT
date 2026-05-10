@@ -1,70 +1,82 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'tokens/colors.dart';
+import 'tokens/radii.dart';
+import 'tokens/typography.dart';
+
 /// Javanese Modern Heritage theme.
 ///
 /// Palette pairs Javanese cultural tones (Sogan brown, Terakota) with a
 /// shadcn-style minimalist surface system: cream background, white cards,
-/// a single hairline border, no thick shadows. Light mode only.
+/// a single hairline border, no thick shadows.
+///
+/// New code should consume tokens from `tokens/` directly. The static
+/// fields below are kept as backward-compat aliases for existing call
+/// sites — they delegate to [AppColors]/[AppRadii] under the hood.
 class AppTheme {
   AppTheme._();
 
-  // === Javanese-Shadcn Palette ===========================================
-  // Surfaces
-  static const Color cream = Color(0xFFFDFCF8); // page background
-  static const Color surface = Color(0xFFFFFFFF); // cards / sheets
-  static const Color borderColor = Color(0xFFE5E7EB); // hairline 1.0px
+  // === Backward-compat color aliases =====================================
+  //
+  // ⚠️  DO NOT USE THESE FOR NEW CODE.
+  //
+  // The aliases below remain only so the ~300 existing call sites compile
+  // unchanged. New code MUST consume `Theme.of(context).colorScheme` for
+  // brand-aware values, or `AppColors.*` (from tokens/colors.dart) for raw
+  // semantic colors. Migration mapping is documented in
+  // `docs/design-system.md` §6 — replacing each alias is a one-line change.
+  //
+  // We can't add `@Deprecated` annotations here without flooding the
+  // analyzer; cleanup happens organically per file (see design-system.md).
+  static const Color cream = AppColors.cream;
+  static const Color surface = AppColors.surface;
+  static const Color borderColor = AppColors.border;
 
-  // Brand
-  static const Color soganBrown = Color(0xFF6F4E37); // primary
-  static const Color terracotta = Color(0xFF964B00); // accent
-  static const Color soganDeep = Color(0xFF3F2C20); // body / strong text
-  static const Color soganSoft = Color(0xFF8B6F5A); // muted brown
+  static const Color soganBrown = AppColors.soganBrown;
+  static const Color terracotta = AppColors.terracotta;
+  static const Color soganDeep = AppColors.soganDeep;
+  static const Color soganSoft = AppColors.soganSoft;
 
-  // Semantic
-  static const Color jatiGreen = Color(0xFF486750);
-  static const Color sogaRed = Color(0xFF8B0000);
-  static const Color kunyit = Color(0xFFB8861B);
-  static const Color info = Color(0xFF8B5E3C);
+  static const Color jatiGreen = AppColors.success;
+  static const Color sogaRed = AppColors.error;
+  static const Color kunyit = AppColors.warning;
+  static const Color info = AppColors.info;
 
-  // Text grades on cream
-  static const Color textStrong = soganDeep;
-  static const Color textMuted = Color(0xFF6B5A4F);
-  static const Color textSubtle = Color(0xFF8C7B6E);
+  static const Color textStrong = AppColors.textStrong;
+  static const Color textMuted = AppColors.textMuted;
+  static const Color textSubtle = AppColors.textSubtle;
 
-  // === Legacy aliases (kept so existing call-sites don't break) ===========
-  // Old screens still reference these names; we remap their VALUES so the
-  // whole app picks up the new palette without rename churn.
-  static const Color navy = soganBrown; // primary
-  static const Color orange = terracotta; // accent
-  static const Color cyan = info; // supporting accent
-  static const Color sogan = soganDeep; // dark text / strong surfaces
-  static const Color gold = terracotta; // accent
-  static const Color merang = cream; // background
-  static const Color pusaka = soganDeep;
-  static const Color lightBlue = Color(0xFFF1EBE3); // soft brown wash
-  static const Color background = cream;
+  static const Color navy = AppColors.soganBrown;
+  static const Color orange = AppColors.terracotta;
+  static const Color cyan = AppColors.info;
+  static const Color sogan = AppColors.soganDeep;
+  static const Color gold = AppColors.terracotta;
+  static const Color merang = AppColors.cream;
+  static const Color pusaka = AppColors.soganDeep;
+  static const Color lightBlue = AppColors.softWash;
+  static const Color background = AppColors.cream;
 
-  static const Color success = jatiGreen;
-  static const Color error = sogaRed;
-  static const Color warning = kunyit;
-  static const Color neutral = Color(0xFF9CA3AF);
-  static const Color neutralGrey = borderColor;
-  static const Color white = Colors.white;
+  static const Color success = AppColors.success;
+  static const Color error = AppColors.error;
+  static const Color warning = AppColors.warning;
+  static const Color neutral = AppColors.neutral;
+  static const Color neutralGrey = AppColors.border;
+  static const Color white = AppColors.white;
 
-  static const Color onPrimary = white;
-  static const Color onSecondary = white;
-  static const Color onTertiary = white;
-  static const Color onSurface = soganDeep;
-  static const Color onError = white;
-  static const Color onSuccess = white;
+  static const Color onPrimary = AppColors.white;
+  static const Color onSecondary = AppColors.white;
+  static const Color onTertiary = AppColors.white;
+  static const Color onSurface = AppColors.soganDeep;
+  static const Color onError = AppColors.white;
+  static const Color onSuccess = AppColors.white;
 
-  // === Shape tokens =======================================================
+  // === Shape token aliases ===============================================
   static const double mobilePadding = 16.0;
-  static const double borderRadius = 10.0; // shadcn rounding feel
-  static const double radiusSm = 6.0;
-  static const double radiusMd = 10.0;
-  static const double radiusLg = 16.0;
+  static const double borderRadius = AppRadii.md;
+  static const double radiusSm = AppRadii.sm;
+  static const double radiusMd = AppRadii.md;
+  static const double radiusLg = AppRadii.lg;
   static const double hairline = 1.0;
 
   static Border get hairlineBorder =>
@@ -75,418 +87,412 @@ class AppTheme {
   // === Container decorations =============================================
   static BoxDecoration get cardDecoration => BoxDecoration(
     color: surface,
-    borderRadius: BorderRadius.circular(radiusMd),
+    borderRadius: AppRadii.rrMd,
     border: hairlineBorder,
   );
 
   static BoxDecoration get errorContainerDecoration => BoxDecoration(
     color: error.withValues(alpha: 0.06),
-    borderRadius: BorderRadius.circular(radiusMd),
+    borderRadius: AppRadii.rrMd,
     border: Border.all(color: error.withValues(alpha: 0.3), width: hairline),
   );
 
   static BoxDecoration get successContainerDecoration => BoxDecoration(
     color: success.withValues(alpha: 0.06),
-    borderRadius: BorderRadius.circular(radiusMd),
+    borderRadius: AppRadii.rrMd,
     border: Border.all(color: success.withValues(alpha: 0.3), width: hairline),
   );
 
   static BoxDecoration get warningContainerDecoration => BoxDecoration(
     color: warning.withValues(alpha: 0.08),
-    borderRadius: BorderRadius.circular(radiusMd),
+    borderRadius: AppRadii.rrMd,
     border: Border.all(color: warning.withValues(alpha: 0.3), width: hairline),
   );
 
   static BoxDecoration get neutralContainerDecoration => BoxDecoration(
     color: surface,
-    borderRadius: BorderRadius.circular(radiusMd),
+    borderRadius: AppRadii.rrMd,
     border: hairlineBorder,
   );
 
   static BoxDecoration get brandingContainerDecoration => BoxDecoration(
     color: surface,
-    borderRadius: BorderRadius.circular(radiusLg),
+    borderRadius: AppRadii.rrLg,
     border: hairlineBorder,
   );
 
   static Color get shellSurface => surface;
   static Color get shellSurfaceSoft => surface;
 
-  // === Theme =============================================================
-  static ThemeData get lightTheme {
-    TextStyle display({
-      Color? color,
-      double? fontSize,
-      FontWeight? fontWeight,
-      double? height,
-      double? letterSpacing,
-    }) => GoogleFonts.philosopher(
-      color: color,
-      fontSize: fontSize,
-      fontWeight: fontWeight,
-      height: height,
-      letterSpacing: letterSpacing,
-    );
+  // === Themes ============================================================
+  static ThemeData get lightTheme => _build(brightness: Brightness.light);
 
-    TextStyle body({
-      Color? color,
-      double? fontSize,
-      FontWeight? fontWeight,
-      double? height,
-      double? letterSpacing,
-    }) => GoogleFonts.plusJakartaSans(
-      color: color,
-      fontSize: fontSize,
-      fontWeight: fontWeight,
-      height: height,
-      letterSpacing: letterSpacing,
-    );
+  /// Minimal viable dark theme. Mirrors the light theme structure with
+  /// inverted surfaces. Component-level polish (alpha overlays, custom
+  /// shadows) will follow in a later sprint — current goal is to make
+  /// `themeMode: ThemeMode.dark` render coherently.
+  static ThemeData get darkTheme => _build(brightness: Brightness.dark);
+
+  static ThemeData _build({required Brightness brightness}) {
+    final isDark = brightness == Brightness.dark;
+
+    final scaffoldBg = isDark ? const Color(0xFF1A130E) : AppColors.cream;
+    final surfaceColor = isDark ? const Color(0xFF241B14) : AppColors.surface;
+    final borderTone = isDark ? const Color(0xFF3A2E25) : AppColors.border;
+    final strongText = isDark ? const Color(0xFFF2EBE3) : AppColors.textStrong;
+    final mutedText = isDark ? const Color(0xFFB8A99B) : AppColors.textMuted;
+    final subtleText = isDark ? const Color(0xFF8C7B6E) : AppColors.textSubtle;
+    final primary = isDark ? const Color(0xFFC79B7A) : AppColors.soganBrown;
+    final accent = isDark ? const Color(0xFFD68A4E) : AppColors.terracotta;
 
     final baseTextTheme = GoogleFonts.plusJakartaSansTextTheme().apply(
-      bodyColor: textStrong,
-      displayColor: textStrong,
+      bodyColor: strongText,
+      displayColor: strongText,
     );
 
-    const colorScheme = ColorScheme.light(
-      primary: soganBrown,
-      onPrimary: onPrimary,
-      secondary: terracotta,
-      onSecondary: onSecondary,
-      tertiary: info,
-      onTertiary: onTertiary,
-      surface: surface,
-      onSurface: textStrong,
-      surfaceContainerHighest: cream,
-      outline: borderColor,
-      outlineVariant: borderColor,
-      error: sogaRed,
-      onError: onError,
+    final colorScheme = ColorScheme(
+      brightness: brightness,
+      primary: primary,
+      onPrimary: AppColors.white,
+      secondary: accent,
+      onSecondary: AppColors.white,
+      tertiary: AppColors.info,
+      onTertiary: AppColors.white,
+      surface: surfaceColor,
+      onSurface: strongText,
+      surfaceContainerHighest: scaffoldBg,
+      outline: borderTone,
+      outlineVariant: borderTone,
+      error: AppColors.error,
+      onError: AppColors.white,
     );
 
     final textTheme = baseTextTheme.copyWith(
-      displayLarge: display(
+      displayLarge: AppTypography.display(
         fontSize: 36,
         fontWeight: FontWeight.w700,
-        color: textStrong,
+        color: strongText,
         height: 1.15,
         letterSpacing: -0.5,
       ),
-      displayMedium: display(
+      displayMedium: AppTypography.display(
         fontSize: 30,
         fontWeight: FontWeight.w700,
-        color: textStrong,
+        color: strongText,
         height: 1.2,
         letterSpacing: -0.4,
       ),
-      displaySmall: display(
+      displaySmall: AppTypography.display(
         fontSize: 26,
         fontWeight: FontWeight.w700,
-        color: textStrong,
+        color: strongText,
         height: 1.25,
       ),
-      headlineLarge: display(
+      headlineLarge: AppTypography.display(
         fontSize: 24,
         fontWeight: FontWeight.w700,
-        color: textStrong,
+        color: strongText,
       ),
-      headlineMedium: display(
+      headlineMedium: AppTypography.display(
         fontSize: 20,
         fontWeight: FontWeight.w700,
-        color: textStrong,
+        color: strongText,
       ),
-      headlineSmall: display(
+      headlineSmall: AppTypography.display(
         fontSize: 18,
         fontWeight: FontWeight.w700,
-        color: textStrong,
+        color: strongText,
       ),
-      titleLarge: display(
+      titleLarge: AppTypography.display(
         fontSize: 18,
         fontWeight: FontWeight.w600,
-        color: textStrong,
+        color: strongText,
       ),
-      titleMedium: body(
+      titleMedium: AppTypography.body(
         fontSize: 15,
         fontWeight: FontWeight.w600,
-        color: textStrong,
+        color: strongText,
       ),
-      titleSmall: body(
+      titleSmall: AppTypography.body(
         fontSize: 13,
         fontWeight: FontWeight.w600,
-        color: textStrong,
+        color: strongText,
       ),
-      bodyLarge: body(
+      bodyLarge: AppTypography.body(
         fontSize: 15,
         fontWeight: FontWeight.w400,
-        color: textMuted,
+        color: mutedText,
         height: 1.55,
       ),
-      bodyMedium: body(
+      bodyMedium: AppTypography.body(
         fontSize: 14,
         fontWeight: FontWeight.w400,
-        color: textMuted,
+        color: mutedText,
         height: 1.55,
       ),
-      bodySmall: body(
+      bodySmall: AppTypography.body(
         fontSize: 12.5,
         fontWeight: FontWeight.w400,
-        color: textSubtle,
+        color: subtleText,
         height: 1.5,
       ),
-      labelLarge: body(
+      labelLarge: AppTypography.body(
         fontSize: 13,
         fontWeight: FontWeight.w600,
-        color: textStrong,
+        color: strongText,
         letterSpacing: 0.1,
       ),
-      labelMedium: body(
+      labelMedium: AppTypography.body(
         fontSize: 12,
         fontWeight: FontWeight.w600,
-        color: textStrong,
+        color: strongText,
         letterSpacing: 0.2,
       ),
-      labelSmall: body(
+      labelSmall: AppTypography.body(
         fontSize: 11,
         fontWeight: FontWeight.w600,
-        color: textMuted,
+        color: mutedText,
         letterSpacing: 0.4,
       ),
     );
 
     return ThemeData(
       useMaterial3: true,
+      brightness: brightness,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: cream,
-      canvasColor: cream,
-      dividerColor: borderColor,
+      scaffoldBackgroundColor: scaffoldBg,
+      canvasColor: scaffoldBg,
+      dividerColor: borderTone,
       splashFactory: InkRipple.splashFactory,
       textTheme: textTheme,
       extensions: [
-        EthnoTextTheme(
-          labelTiny: body(
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            color: textSubtle,
-            letterSpacing: 0.6,
-          ),
-        ),
+        EthnoTextTheme(labelTiny: AppTypography.labelTiny(color: subtleText)),
       ],
       appBarTheme: AppBarTheme(
-        backgroundColor: cream,
-        foregroundColor: textStrong,
+        backgroundColor: scaffoldBg,
+        foregroundColor: strongText,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
         surfaceTintColor: Colors.transparent,
-        iconTheme: const IconThemeData(color: soganDeep, size: 20),
-        titleTextStyle: display(
+        iconTheme: IconThemeData(color: strongText, size: 20),
+        titleTextStyle: AppTypography.display(
           fontSize: 18,
           fontWeight: FontWeight.w700,
-          color: textStrong,
+          color: strongText,
         ),
-        shape: const Border(bottom: BorderSide(color: borderColor)),
+        shape: Border(bottom: BorderSide(color: borderTone)),
       ),
       cardTheme: CardThemeData(
         elevation: 0,
-        color: surface,
+        color: surfaceColor,
         surfaceTintColor: Colors.transparent,
         shadowColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(radiusMd),
-          side: const BorderSide(color: borderColor, width: hairline),
+          borderRadius: AppRadii.rrMd,
+          side: BorderSide(color: borderTone, width: hairline),
         ),
         margin: const EdgeInsets.symmetric(vertical: 8),
       ),
-      bottomSheetTheme: const BottomSheetThemeData(
-        backgroundColor: surface,
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: surfaceColor,
         surfaceTintColor: Colors.transparent,
-        modalBackgroundColor: surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(radiusLg)),
+        modalBackgroundColor: surfaceColor,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppRadii.lg),
+          ),
         ),
         showDragHandle: true,
       ),
       dialogTheme: DialogThemeData(
-        backgroundColor: surface,
+        backgroundColor: surfaceColor,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(radiusMd),
-          side: const BorderSide(color: borderColor, width: hairline),
+          borderRadius: AppRadii.rrMd,
+          side: BorderSide(color: borderTone, width: hairline),
         ),
-        titleTextStyle: display(
+        titleTextStyle: AppTypography.display(
           fontSize: 18,
           fontWeight: FontWeight.w700,
-          color: textStrong,
+          color: strongText,
         ),
-        contentTextStyle: body(
+        contentTextStyle: AppTypography.body(
           fontSize: 14,
-          color: textMuted,
+          color: mutedText,
           height: 1.55,
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: terracotta,
+          backgroundColor: accent,
           foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radiusSm),
+          shape: RoundedRectangleBorder(borderRadius: AppRadii.rrSm),
+          textStyle: AppTypography.body(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
           ),
-          textStyle: body(fontSize: 14, fontWeight: FontWeight.w600),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: soganBrown,
+          backgroundColor: primary,
           foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radiusSm),
+          shape: RoundedRectangleBorder(borderRadius: AppRadii.rrSm),
+          textStyle: AppTypography.body(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
           ),
-          textStyle: body(fontSize: 14, fontWeight: FontWeight.w600),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: textStrong,
-          backgroundColor: surface,
+          foregroundColor: strongText,
+          backgroundColor: surfaceColor,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radiusSm),
+          shape: RoundedRectangleBorder(borderRadius: AppRadii.rrSm),
+          side: BorderSide(color: borderTone, width: hairline),
+          textStyle: AppTypography.body(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
           ),
-          side: const BorderSide(color: borderColor, width: hairline),
-          textStyle: body(fontSize: 14, fontWeight: FontWeight.w600),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: terracotta,
+          foregroundColor: accent,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radiusSm),
+          shape: RoundedRectangleBorder(borderRadius: AppRadii.rrSm),
+          textStyle: AppTypography.body(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
           ),
-          textStyle: body(fontSize: 14, fontWeight: FontWeight.w600),
         ),
       ),
       iconButtonTheme: IconButtonThemeData(
         style: IconButton.styleFrom(
-          foregroundColor: textStrong,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radiusSm),
-          ),
+          foregroundColor: strongText,
+          shape: RoundedRectangleBorder(borderRadius: AppRadii.rrSm),
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: surface,
+        backgroundColor: surfaceColor,
         surfaceTintColor: Colors.transparent,
-        indicatorColor: terracotta.withValues(alpha: 0.10),
+        indicatorColor: accent.withValues(alpha: 0.10),
         elevation: 0,
         height: 64,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return const IconThemeData(color: terracotta, size: 22);
+            return IconThemeData(color: accent, size: 22);
           }
-          return const IconThemeData(color: textMuted, size: 22);
+          return IconThemeData(color: mutedText, size: 22);
         }),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return body(
-              color: textStrong,
+            return AppTypography.body(
+              color: strongText,
               fontWeight: FontWeight.w700,
               fontSize: 12,
             );
           }
-          return body(
-            color: textMuted,
+          return AppTypography.body(
+            color: mutedText,
             fontWeight: FontWeight.w500,
             fontSize: 12,
           );
         }),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: surface,
-        selectedItemColor: terracotta,
-        unselectedItemColor: textMuted,
+        backgroundColor: surfaceColor,
+        selectedItemColor: accent,
+        unselectedItemColor: mutedText,
         elevation: 0,
-        selectedLabelStyle: body(fontWeight: FontWeight.w700, fontSize: 12),
-        unselectedLabelStyle: body(fontWeight: FontWeight.w500, fontSize: 12),
+        selectedLabelStyle: AppTypography.body(
+          fontWeight: FontWeight.w700,
+          fontSize: 12,
+        ),
+        unselectedLabelStyle: AppTypography.body(
+          fontWeight: FontWeight.w500,
+          fontSize: 12,
+        ),
       ),
       navigationRailTheme: NavigationRailThemeData(
-        backgroundColor: surface,
-        selectedIconTheme: const IconThemeData(color: terracotta),
-        unselectedIconTheme: const IconThemeData(color: textMuted),
-        selectedLabelTextStyle: body(
-          color: textStrong,
+        backgroundColor: surfaceColor,
+        selectedIconTheme: IconThemeData(color: accent),
+        unselectedIconTheme: IconThemeData(color: mutedText),
+        selectedLabelTextStyle: AppTypography.body(
+          color: strongText,
           fontWeight: FontWeight.w700,
         ),
-        unselectedLabelTextStyle: body(color: textMuted),
+        unselectedLabelTextStyle: AppTypography.body(color: mutedText),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: surface,
+        fillColor: surfaceColor,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 14,
           vertical: 14,
         ),
-        hintStyle: body(color: textSubtle, fontSize: 14),
-        labelStyle: body(color: textMuted, fontSize: 14),
-        floatingLabelStyle: body(
-          color: textStrong,
+        hintStyle: AppTypography.body(color: subtleText, fontSize: 14),
+        labelStyle: AppTypography.body(color: mutedText, fontSize: 14),
+        floatingLabelStyle: AppTypography.body(
+          color: strongText,
           fontWeight: FontWeight.w600,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusSm),
-          borderSide: const BorderSide(color: borderColor, width: hairline),
+          borderRadius: AppRadii.rrSm,
+          borderSide: BorderSide(color: borderTone, width: hairline),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusSm),
-          borderSide: const BorderSide(color: borderColor, width: hairline),
+          borderRadius: AppRadii.rrSm,
+          borderSide: BorderSide(color: borderTone, width: hairline),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusSm),
-          borderSide: const BorderSide(color: soganBrown, width: 1.5),
+          borderRadius: AppRadii.rrSm,
+          borderSide: BorderSide(color: primary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusSm),
-          borderSide: const BorderSide(color: sogaRed, width: hairline),
+          borderRadius: AppRadii.rrSm,
+          borderSide: const BorderSide(color: AppColors.error, width: hairline),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusSm),
-          borderSide: const BorderSide(color: sogaRed, width: 1.5),
+          borderRadius: AppRadii.rrSm,
+          borderSide: const BorderSide(color: AppColors.error, width: 1.5),
         ),
       ),
       chipTheme: ChipThemeData(
-        backgroundColor: cream,
-        selectedColor: terracotta.withValues(alpha: 0.10),
-        side: const BorderSide(color: borderColor, width: hairline),
-        labelStyle: body(
-          color: textStrong,
+        backgroundColor: scaffoldBg,
+        selectedColor: accent.withValues(alpha: 0.10),
+        side: BorderSide(color: borderTone, width: hairline),
+        labelStyle: AppTypography.body(
+          color: strongText,
           fontSize: 12,
           fontWeight: FontWeight.w600,
         ),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(999),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: AppRadii.rrPill),
       ),
-      dividerTheme: const DividerThemeData(
-        color: borderColor,
+      dividerTheme: DividerThemeData(
+        color: borderTone,
         thickness: hairline,
         space: hairline,
       ),
       tooltipTheme: TooltipThemeData(
         decoration: BoxDecoration(
-          color: soganDeep,
-          borderRadius: BorderRadius.circular(radiusSm),
+          color: isDark ? const Color(0xFF0F0A07) : AppColors.soganDeep,
+          borderRadius: AppRadii.rrSm,
         ),
-        textStyle: body(color: Colors.white, fontSize: 12),
+        textStyle: AppTypography.body(color: Colors.white, fontSize: 12),
       ),
-      progressIndicatorTheme: const ProgressIndicatorThemeData(
-        color: terracotta,
-        linearTrackColor: borderColor,
-        circularTrackColor: borderColor,
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: accent,
+        linearTrackColor: borderTone,
+        circularTrackColor: borderTone,
       ),
     );
   }
@@ -517,13 +523,6 @@ class EthnoTextTheme extends ThemeExtension<EthnoTextTheme> {
 
   static EthnoTextTheme of(BuildContext context) {
     return Theme.of(context).extension<EthnoTextTheme>() ??
-        EthnoTextTheme(
-          labelTiny: GoogleFonts.plusJakartaSans(
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            color: AppTheme.textSubtle,
-            letterSpacing: 0.6,
-          ),
-        );
+        EthnoTextTheme(labelTiny: AppTypography.labelTiny());
   }
 }

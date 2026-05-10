@@ -80,6 +80,9 @@ class _AppTextFieldState extends State<AppTextField> {
                   color: AppTheme.sogan.withValues(alpha: 0.5),
                   size: 20,
                 ),
+                tooltip: _isObscured
+                    ? 'Tampilkan kata sandi'
+                    : 'Sembunyikan kata sandi',
                 onPressed: () => setState(() => _isObscured = !_isObscured),
               )
             : widget.suffixIcon,

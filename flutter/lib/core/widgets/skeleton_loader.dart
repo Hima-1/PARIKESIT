@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
-import '../theme/app_spacing.dart';
-import '../theme/app_theme.dart';
 
+import '../theme/app_spacing.dart';
+import '../theme/tokens/colors.dart';
+import '../theme/tokens/radii.dart';
+
+/// Single shimmer wrapper used across the app. All skeleton widgets are
+/// composed from [SkeletonLoader] blocks placed inside a Material card or
+/// list to mimic the real layout while data loads.
 class SkeletonLoader extends StatelessWidget {
   const SkeletonLoader({
     super.key,
     required this.width,
     required this.height,
-    this.borderRadius = 8,
+    this.borderRadius = AppRadii.r8,
   });
 
   final double width;
@@ -18,13 +23,13 @@ class SkeletonLoader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: AppTheme.borderColor,
-      highlightColor: AppTheme.cream,
+      baseColor: AppColors.border,
+      highlightColor: AppColors.cream,
       child: Container(
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: AppTheme.surface,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),
@@ -41,8 +46,8 @@ class ActivityCardSkeleton extends StatelessWidget {
       elevation: 0,
       margin: AppSpacing.pV8,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTheme.borderRadius),
-        side: const BorderSide(color: AppTheme.borderColor),
+        borderRadius: AppRadii.rrMd,
+        side: const BorderSide(color: AppColors.border),
       ),
       child: const Padding(
         padding: AppSpacing.pAll16,
@@ -90,9 +95,9 @@ class StatsCardSkeleton extends StatelessWidget {
     return Container(
       padding: AppSpacing.pAll24,
       decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-        border: AppTheme.hairlineBorder,
+        color: AppColors.surface,
+        borderRadius: AppRadii.rrMd,
+        border: Border.all(color: AppColors.border),
       ),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,6 +122,53 @@ class StatsCardSkeleton extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Skeleton list for assessment-style cards. Migrated from the deleted
+/// `features/assessment/.../shimmer_loading.dart` so the whole app shares
+/// one shimmer implementation.
+class AssessmentListSkeleton extends StatelessWidget {
+  const AssessmentListSkeleton({super.key, this.itemCount = 5});
+
+  final int itemCount;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      padding: AppSpacing.pAll16,
+      itemCount: itemCount,
+      separatorBuilder: (_, _) => AppSpacing.gapH12,
+      itemBuilder: (_, _) => const ActivityCardSkeleton(),
+    );
+  }
+}
+
+/// Header + list skeleton used while loading detail screens.
+class DetailScreenSkeleton extends StatelessWidget {
+  const DetailScreenSkeleton({super.key, this.rowCount = 4});
+
+  final int rowCount;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Padding(
+          padding: AppSpacing.pAll16,
+          child: SkeletonLoader(width: double.infinity, height: 80),
+        ),
+        Expanded(
+          child: ListView.separated(
+            padding: AppSpacing.pAll16,
+            itemCount: rowCount,
+            separatorBuilder: (_, _) => AppSpacing.gapH12,
+            itemBuilder: (_, _) =>
+                const SkeletonLoader(width: double.infinity, height: 60),
+          ),
+        ),
+      ],
     );
   }
 }

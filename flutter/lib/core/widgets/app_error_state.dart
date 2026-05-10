@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:parikesit/core/theme/app_spacing.dart';
 
-import '../theme/app_theme.dart';
+import '../theme/app_spacing.dart';
+import '../theme/tokens/colors.dart';
+import '../theme/tokens/motion.dart';
 import 'ethno_button.dart';
 
 class AppErrorState extends StatelessWidget {
@@ -13,18 +14,21 @@ class AppErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    final body = Padding(
       padding: AppSpacing.pAll24,
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(LucideIcons.alertCircle, color: AppTheme.error, size: 48),
+            Icon(LucideIcons.alertCircle, color: scheme.error, size: 48),
             AppSpacing.gapH16,
             Text(
               'Terjadi Kesalahan',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: AppTheme.error,
+              style: textTheme.titleLarge?.copyWith(
+                color: scheme.error,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -32,8 +36,8 @@ class AppErrorState extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppTheme.sogan.withValues(alpha: 0.7),
+              style: textTheme.bodyMedium?.copyWith(
+                color: AppColors.soganDeep.withValues(alpha: 0.7),
               ),
             ),
             if (onRetry != null) ...[
@@ -49,5 +53,7 @@ class AppErrorState extends StatelessWidget {
         ),
       ),
     );
+
+    return motionEntrance(context, body);
   }
 }
