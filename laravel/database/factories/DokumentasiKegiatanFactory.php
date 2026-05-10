@@ -19,16 +19,16 @@ class DokumentasiKegiatanFactory extends Factory
     public function definition(): array
     {
         $judul = $this->faker->sentence();
-        $slug = Str::slug($judul . '-' . time());
+        $slug = Str::slug($judul).'-'.Str::ulid();
 
         return [
             'created_by_id' => User::factory(),
             'judul_dokumentasi' => $judul,
             'directory_dokumentasi' => $slug,
-            'bukti_dukung_undangan_dokumentasi' => 'file-dokumentasi/' . $slug . '/undangan.pdf',
-            'daftar_hadir_dokumentasi' => 'file-dokumentasi/' . $slug . '/hadir.pdf',
-            'materi_dokumentasi' => 'file-dokumentasi/' . $slug . '/materi.pdf',
-            'notula_dokumentasi' => 'file-dokumentasi/' . $slug . '/notula.pdf',
+            'bukti_dukung_undangan_dokumentasi' => 'file-dokumentasi/'.$slug.'/undangan.pdf',
+            'daftar_hadir_dokumentasi' => 'file-dokumentasi/'.$slug.'/hadir.pdf',
+            'materi_dokumentasi' => 'file-dokumentasi/'.$slug.'/materi.pdf',
+            'notula_dokumentasi' => 'file-dokumentasi/'.$slug.'/notula.pdf',
         ];
     }
 }

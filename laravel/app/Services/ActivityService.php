@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Support\PublicFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use RuntimeException;
 use ZipArchive;
 
 class ActivityService
@@ -29,27 +30,49 @@ class ActivityService
     public function handleFileUploads($request, $basePath, $slug, $existingData = null)
     {
         $data = [];
-        $time = time();
         $disk = Storage::disk('public');
         $suffix = $this->suffixFromBasePath($basePath);
+        $uploadedPaths = [];
+        $oldPathsToDelete = [];
 
-        foreach (self::MAIN_FILE_FIELDS as $field) {
-            $fieldKey = $this->fieldKey($field, $suffix);
-            $file = $request->file($fieldKey) ?? $request->file($field);
+        try {
+            foreach (self::MAIN_FILE_FIELDS as $field) {
+                $fieldKey = $this->fieldKey($field, $suffix);
+                $file = $request->file($fieldKey) ?? $request->file($field);
 
-            if ($file) {
-                $existingPath = $existingData[$fieldKey] ?? ($existingData[$field] ?? null);
-                if ($existingPath && $disk->exists($existingPath)) {
-                    $disk->delete($existingPath);
+                if ($file) {
+                    $existingPath = $existingData[$fieldKey] ?? ($existingData[$field] ?? null);
+                    $filSaved = $this->uniqueStoredFileName($field, $file);
+                    $path = $basePath.'/'.$slug;
+                    $storedPath = $disk->putFileAs($path, $file, $filSaved);
+
+                    if ($storedPath === false) {
+                        throw new RuntimeException("Failed to store uploaded file for {$fieldKey}");
+                    }
+
+                    $data[$fieldKey] = $basePath.'/'.$slug.'/'.$filSaved;
+                    $uploadedPaths[] = $data[$fieldKey];
+
+                    if ($existingPath && $existingPath !== $data[$fieldKey]) {
+                        $oldPathsToDelete[] = $existingPath;
+                    }
+                } else {
+                    $data[$fieldKey] = $existingData[$fieldKey] ?? ($existingData[$field] ?? null);
                 }
+            }
+        } catch (\Throwable $exception) {
+            foreach ($uploadedPaths as $path) {
+                if ($disk->exists($path)) {
+                    $disk->delete($path);
+                }
+            }
 
-                $filSaved = $field.'-'.$time.'.'.$file->getClientOriginalExtension();
-                $path = $basePath.'/'.$slug;
-                $disk->putFileAs($path, $file, $filSaved);
+            throw $exception;
+        }
 
-                $data[$fieldKey] = $basePath.'/'.$slug.'/'.$filSaved;
-            } else {
-                $data[$fieldKey] = $existingData[$fieldKey] ?? ($existingData[$field] ?? null);
+        foreach (array_unique($oldPathsToDelete) as $path) {
+            if ($disk->exists($path)) {
+                $disk->delete($path);
             }
         }
 
@@ -75,10 +98,13 @@ class ActivityService
                 continue;
             }
 
-            $time = time();
-            $filSaved = 'media-'.$index.'-'.$time.'.'.$file->getClientOriginalExtension();
+            $filSaved = $this->uniqueStoredFileName('media-'.$index, $file);
             $fileext = $file->getClientOriginalExtension();
-            $disk->putFileAs($path, $file, $filSaved);
+            $storedPath = $disk->putFileAs($path, $file, $filSaved);
+
+            if ($storedPath === false) {
+                throw new RuntimeException("Failed to store uploaded media file at index {$index}");
+            }
 
             $model->$relationName()->create([
                 'nama_file' => $basePath.'/'.$slug.'/media/'.$filSaved,
@@ -92,7 +118,7 @@ class ActivityService
      */
     public function generateZip($activity, $title, $type)
     {
-        $zipFileName = Str::slug($title).'-'.$type.'-'.now()->format('YmdHis').'.zip';
+        $zipFileName = $this->zipFileName(Str::slug($title), $type);
         $zip = new ZipArchive;
         $disk = Storage::disk('public');
 
@@ -160,7 +186,7 @@ class ActivityService
             return false;
         }
 
-        $zipFileName = 'batch-'.$type.'-'.now()->format('YmdHis').'.zip';
+        $zipFileName = $this->zipFileName('batch', $type);
         $zip = new ZipArchive;
         $disk = Storage::disk('public');
 
@@ -266,5 +292,17 @@ class ActivityService
         }
 
         return $activity->judul_dokumentasi ?? $activity->judul;
+    }
+
+    private function uniqueStoredFileName(string $prefix, $file): string
+    {
+        return $prefix.'-'.Str::ulid().'.'.strtolower($file->getClientOriginalExtension());
+    }
+
+    private function zipFileName(string $name, string $type): string
+    {
+        $baseName = $name !== '' ? $name : 'activity';
+
+        return $baseName.'-'.$type.'-'.now()->format('YmdHis').'-'.Str::ulid().'.zip';
     }
 }

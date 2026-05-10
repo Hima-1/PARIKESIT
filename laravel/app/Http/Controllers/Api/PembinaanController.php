@@ -47,7 +47,7 @@ class PembinaanController extends Controller
 
     public function store(StorePembinaanRequest $request)
     {
-        $slug = Str::slug($request->judul_pembinaan.'-'.time());
+        $slug = $this->uniqueActivityDirectory($request->judul_pembinaan);
         $basePath = 'file-pembinaan';
 
         $fileData = $this->activityService->handleFileUploads($request, $basePath, $slug);
@@ -218,5 +218,12 @@ class PembinaanController extends Controller
         }
 
         return null;
+    }
+
+    private function uniqueActivityDirectory(string $title): string
+    {
+        $base = Str::slug($title);
+
+        return ($base !== '' ? $base : 'activity').'-'.Str::ulid();
     }
 }

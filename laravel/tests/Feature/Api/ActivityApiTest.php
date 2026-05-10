@@ -122,6 +122,28 @@ test('admin can create pembinaan with files', function () {
     $this->assertDatabaseHas('pembinaans', ['judul_pembinaan' => 'Test Pembinaan']);
 });
 
+test('pembinaan created with the same title gets unique directories and file paths', function () {
+    Storage::fake('public');
+
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    $payload = fn () => [
+        'judul_pembinaan' => 'Judul Sama',
+        'bukti_dukung_undangan' => UploadedFile::fake()->create('undangan.pdf', 100),
+        'daftar_hadir' => UploadedFile::fake()->create('hadir.pdf', 100),
+        'materi' => UploadedFile::fake()->create('materi.pdf', 100),
+        'notula' => UploadedFile::fake()->create('notula.pdf', 100),
+    ];
+
+    $first = loginAsAdmin($admin)->postJson('/api/pembinaan', $payload())->assertCreated();
+    $second = loginAsAdmin($admin)->postJson('/api/pembinaan', $payload())->assertCreated();
+
+    expect($first->json('data.directory_pembinaan'))
+        ->not->toBe($second->json('data.directory_pembinaan'));
+    expect($first->json('data.bukti_dukung_undangan_pembinaan'))
+        ->not->toBe($second->json('data.bukti_dukung_undangan_pembinaan'));
+});
+
 test('pembinaan store returns 422 when missing required files', function () {
     $response = loginAsAdmin()->postJson('/api/pembinaan', [
         'judul_pembinaan' => 'Test Pembinaan',
@@ -171,6 +193,18 @@ test('admin can batch download pembinaan', function () {
 
     $response->assertStatus(200);
     $response->assertHeader('content-type', 'application/zip');
+});
+
+test('pembinaan batch download zip filenames are unique when requested repeatedly', function () {
+    Storage::fake('public');
+
+    $pembinaan = Pembinaan::factory()->create(['judul_pembinaan' => 'Zip Sama']);
+
+    $first = loginAsAdmin()->get("/api/pembinaan/download-batch?ids[]={$pembinaan->id}")->assertOk();
+    $second = loginAsAdmin()->get("/api/pembinaan/download-batch?ids[]={$pembinaan->id}")->assertOk();
+
+    expect($first->headers->get('content-disposition'))
+        ->not->toBe($second->headers->get('content-disposition'));
 });
 
 test('pembinaan batch download returns 400 when ids empty', function () {
@@ -231,6 +265,29 @@ test('admin can update pembinaan title', function () {
         ->assertJsonPath('data.judul_pembinaan', 'New Title');
 
     $this->assertDatabaseHas('pembinaans', ['id' => $pembinaan->id, 'judul_pembinaan' => 'New Title']);
+});
+
+test('pembinaan main file update replaces old file after new file is stored', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create(['role' => 'admin']);
+    $pembinaan = Pembinaan::factory()->create([
+        'created_by_id' => $user->id,
+        'bukti_dukung_undangan_pembinaan' => 'file-pembinaan/existing/undangan-old.pdf',
+    ]);
+    Storage::disk('public')->put($pembinaan->bukti_dukung_undangan_pembinaan, 'old content');
+
+    $response = loginAsAdmin($user)->post("/api/pembinaan/{$pembinaan->id}", [
+        '_method' => 'PATCH',
+        'judul_pembinaan' => $pembinaan->judul_pembinaan,
+        'bukti_dukung_undangan' => UploadedFile::fake()->create('undangan.pdf', 100),
+    ])->assertOk();
+
+    $newPath = $response->json('data.bukti_dukung_undangan_pembinaan');
+
+    expect($newPath)->not->toBe('file-pembinaan/existing/undangan-old.pdf');
+    Storage::disk('public')->assertMissing('file-pembinaan/existing/undangan-old.pdf');
+    Storage::disk('public')->assertExists($newPath);
 });
 
 test('admin can update pembinaan with a single media file', function () {

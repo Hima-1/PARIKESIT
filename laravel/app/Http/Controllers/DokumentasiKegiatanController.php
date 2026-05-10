@@ -80,7 +80,7 @@ class DokumentasiKegiatanController extends Controller
             'files.*.max' => 'File maximal 5mb',
         ]);
 
-        $slug = Str::slug($request->judul_dokumentasi.'-'.time());
+        $slug = $this->uniqueActivityDirectory($request->judul_dokumentasi);
         $basePath = 'file-dokumentasi';
         $fileData = $this->activityService->handleFileUploads($request, $basePath, $slug);
 
@@ -246,5 +246,12 @@ class DokumentasiKegiatanController extends Controller
             Auth::user()?->role === 'admin' || $dokumentasiKegiatan->created_by_id === Auth::id(),
             403
         );
+    }
+
+    private function uniqueActivityDirectory(string $title): string
+    {
+        $base = Str::slug($title);
+
+        return ($base !== '' ? $base : 'activity').'-'.Str::ulid();
     }
 }

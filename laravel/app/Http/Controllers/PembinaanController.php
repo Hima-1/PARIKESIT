@@ -74,7 +74,7 @@ class PembinaanController extends Controller
             'files.*.max' => 'File maximal 5mb',
         ]);
 
-        $judul = Str::slug($request->judul_pembinaan.'-'.time());
+        $judul = $this->uniqueActivityDirectory($request->judul_pembinaan);
         $path = 'file-pembinaan/'.$judul;
         if (! file_exists($path)) {
             mkdir($path, 0777, true);
@@ -93,7 +93,7 @@ class PembinaanController extends Controller
         foreach ($fileFields as $field) {
             $file = $request->file($field);
             if ($file) {
-                $filSaved = $field.'-'.time().'.'.$file->getClientOriginalExtension();
+                $filSaved = $this->uniqueStoredFileName($field, $file);
                 $path = $file->move('file-pembinaan/'.$judul.'/', $filSaved);
                 $data[$field] = $path;
             } else {
@@ -115,7 +115,7 @@ class PembinaanController extends Controller
         if ($files && is_array($files)) {
             foreach ($files as $index => $file) {
                 if ($file) {
-                    $filSaved = 'media-'.$index.'-'.time().'.'.$file->getClientOriginalExtension();
+                    $filSaved = $this->uniqueStoredFileName('media-'.$index, $file);
                     $fileext = $file->getClientOriginalExtension();
                     $file->move('file-pembinaan/'.$judul.'/media', $filSaved);
 
@@ -181,8 +181,7 @@ class PembinaanController extends Controller
             'notula.max' => 'Notula maximal 5mb',
         ]);
 
-        $time = time();
-        $judul = Str::slug($request->judul_pembinaan.'-'.$time);
+        $judul = $pembinaan->directory_pembinaan;
         $path = 'file-pembinaan/'.$judul;
         $data = [];
         $data['judul_pembinaan'] = $request->judul_pembinaan;
@@ -211,16 +210,12 @@ class PembinaanController extends Controller
             $localFile = $field['local_file'];
 
             if ($file) {
+                $fileSaved = $this->uniqueStoredFileName($indexName, $file);
+                $path = $file->move('file-pembinaan/'.$judul.'/', $fileSaved);
+                $data[$indexName] = $path;
+
                 if (File::exists($localFile)) {
                     unlink($localFile);
-                    $fileSaved = $indexName.'-'.$localFile.'-'.$time.'.'.$file->getClientOriginalExtension();
-                    $path = $file->move('file-pembinaan/'.$judul.'/', $fileSaved);
-
-                    $data[$indexName] = $path;
-                } else {
-                    $fileSaved = $indexName.'-'.$request->judul_pembinaan.'-'.$time.'.'.$file->getClientOriginalExtension();
-                    $path = $file->move('file-pembinaan/'.$judul.'/', $fileSaved);
-                    $data[$indexName] = $path;
                 }
             }
         }
@@ -251,7 +246,7 @@ class PembinaanController extends Controller
     {
         $pembinaan->load('file_pembinaan');
 
-        $zipFileName = Str::slug($pembinaan->judul_pembinaan).'-pembinaan-'.now()->format('YmdHis').'.zip';
+        $zipFileName = $this->zipFileName(Str::slug($pembinaan->judul_pembinaan), 'pembinaan');
         $zip = new \ZipArchive;
         $zipPath = storage_path('app/public/pembinaan-zip/'.$zipFileName);
 
@@ -296,5 +291,24 @@ class PembinaanController extends Controller
         }
 
         return redirect()->back()->with('error', 'Gagal membuat file zip');
+    }
+
+    private function uniqueActivityDirectory(string $title): string
+    {
+        $base = Str::slug($title);
+
+        return ($base !== '' ? $base : 'activity').'-'.Str::ulid();
+    }
+
+    private function uniqueStoredFileName(string $prefix, $file): string
+    {
+        return $prefix.'-'.Str::ulid().'.'.strtolower($file->getClientOriginalExtension());
+    }
+
+    private function zipFileName(string $name, string $type): string
+    {
+        $baseName = $name !== '' ? $name : 'activity';
+
+        return $baseName.'-'.$type.'-'.now()->format('YmdHis').'-'.Str::ulid().'.zip';
     }
 }

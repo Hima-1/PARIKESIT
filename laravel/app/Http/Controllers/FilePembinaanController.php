@@ -5,35 +5,34 @@ namespace App\Http\Controllers;
 use App\Models\FilePembinaan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class FilePembinaanController extends Controller
 {
-     public function store(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:pdf,jpg,png,jpeg|max:2048'
+            'file' => 'required|mimes:pdf,jpg,png,jpeg|max:2048',
         ]);
 
         $file = $request->file('file');
-        $nama_file = time() . "_" . $file->getClientOriginalName();
+        $nama_file = $this->uniqueStoredFileName($file);
 
         $tujuan_upload = 'data_file';
         $file->move($tujuan_upload, $nama_file);
 
         FilePembinaan::create([
-            'nama_file' => $nama_file,
-            'dokumentasi_kegiatan_id' => $request->dokumentasi_kegiatan_id
+            'nama_file' => $tujuan_upload.'/'.$nama_file,
+            'dokumentasi_kegiatan_id' => $request->dokumentasi_kegiatan_id,
         ]);
 
         return redirect()->back()->with('success', 'File berhasil diupload');
     }
 
-
-
     public function destroy(FilePembinaan $filePemb)
     {
         // Pastikan file pembinaan memiliki relasi pembinaan
-        if (!$filePemb->pembinaan) {
+        if (! $filePemb->pembinaan) {
             return redirect()->back()->with('error', 'File pembinaan tidak valid');
         }
 
@@ -49,6 +48,18 @@ class FilePembinaanController extends Controller
         }
 
         $filePemb->delete();
+
         return redirect()->back()->with('success', 'File berhasil dihapus');
+    }
+
+    private function uniqueStoredFileName($file): string
+    {
+        $safeBaseName = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+        $extension = strtolower($file->getClientOriginalExtension());
+        $readableName = $safeBaseName !== '' && $extension !== ''
+            ? '-'.$safeBaseName.'.'.$extension
+            : ($extension !== '' ? '.'.$extension : '');
+
+        return Str::ulid().$readableName;
     }
 }

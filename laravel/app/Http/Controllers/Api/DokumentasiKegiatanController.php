@@ -44,7 +44,7 @@ class DokumentasiKegiatanController extends Controller
 
     public function store(StoreDokumentasiRequest $request)
     {
-        $slug = Str::slug($request->judul_dokumentasi.'-'.time());
+        $slug = $this->uniqueActivityDirectory($request->judul_dokumentasi);
         $basePath = 'file-dokumentasi';
 
         $fileData = $this->activityService->handleFileUploads($request, $basePath, $slug);
@@ -203,5 +203,12 @@ class DokumentasiKegiatanController extends Controller
         }
 
         return null;
+    }
+
+    private function uniqueActivityDirectory(string $title): string
+    {
+        $base = Str::slug($title);
+
+        return ($base !== '' ? $base : 'activity').'-'.Str::ulid();
     }
 }

@@ -247,6 +247,41 @@ test('user can store a penilaian with multiple file upload field', function () {
     expect(Storage::disk('public')->exists((string) $savedFiles[1]))->toBeTrue();
 });
 
+test('penilaian bukti dukung uploads use unique sanitized names for duplicate original filenames', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create(['role' => 'opd']);
+    $formulir = Formulir::factory()->create(['created_by_id' => $user->id]);
+
+    $domain = Domain::factory()->create();
+    $formulir->domains()->attach($domain);
+    $aspek = Aspek::factory()->create(['domain_id' => $domain->id]);
+    $indikator = Indikator::factory()->create(['aspek_id' => $aspek->id]);
+
+    loginAs($user)->post("/api/formulir/{$formulir->id}/indikator/{$indikator->id}/penilaian", [
+        'nilai' => 4,
+        'bukti_dukung' => [
+            UploadedFile::fake()->create('Bukti Sama.pdf', 100),
+            UploadedFile::fake()->create('Bukti Sama.pdf', 100),
+        ],
+    ])->assertCreated();
+
+    $savedPenilaian = Penilaian::query()
+        ->where('formulir_id', $formulir->id)
+        ->where('indikator_id', $indikator->id)
+        ->where('user_id', $user->id)
+        ->firstOrFail();
+
+    $savedFiles = $savedPenilaian->normalizedBuktiDukung();
+
+    expect($savedFiles)->toHaveCount(2);
+    expect(array_unique($savedFiles))->toHaveCount(2);
+    expect($savedFiles[0])->toEndWith('-bukti-sama.pdf');
+    expect($savedFiles[1])->toEndWith('-bukti-sama.pdf');
+    Storage::disk('public')->assertExists($savedFiles[0]);
+    Storage::disk('public')->assertExists($savedFiles[1]);
+});
+
 test('penilaian store preserves existing bukti dukung when saved without new files', function () {
     Storage::fake('public');
 

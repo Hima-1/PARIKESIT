@@ -8,6 +8,8 @@ use App\Models\Penilaian;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use RuntimeException;
 
 class PenilaianService
 {
@@ -24,10 +26,14 @@ class PenilaianService
 
         if ($normalizedFiles !== []) {
             foreach ($normalizedFiles as $file) {
-                $fileName = $file->getClientOriginalName();
-                $savedFileName = time() . '-' . Auth::user()->id . '-' . $fileName;
-                $disk->putFileAs('bukti-dukung', $file, $savedFileName);
-                $savedFileNames[] = 'bukti-dukung/' . $savedFileName;
+                $savedFileName = $this->uniqueStoredFileName($file);
+                $storedPath = $disk->putFileAs('bukti-dukung', $file, $savedFileName);
+
+                if ($storedPath === false) {
+                    throw new RuntimeException('Failed to store bukti dukung file');
+                }
+
+                $savedFileNames[] = 'bukti-dukung/'.$savedFileName;
             }
         }
 
@@ -61,7 +67,7 @@ class PenilaianService
             return $this->normalizeExistingEvidence($data['existing_bukti_dukung']);
         }
 
-        if (!$existingPenilaian instanceof Penilaian) {
+        if (! $existingPenilaian instanceof Penilaian) {
             return [];
         }
 
@@ -112,7 +118,7 @@ class PenilaianService
     }
 
     /**
-     * @param array<int, mixed> $paths
+     * @param  array<int, mixed>  $paths
      * @return array<int, string>
      */
     private function sanitizePaths(array $paths): array
@@ -124,5 +130,29 @@ class PenilaianService
             ),
             static fn (?string $path) => $path !== null && $path !== '' && $path !== '-',
         ));
+    }
+
+    private function uniqueStoredFileName(UploadedFile $file): string
+    {
+        $safeOriginalName = $this->safeOriginalName($file);
+
+        if ($safeOriginalName === '') {
+            return Str::ulid().'.'.strtolower($file->getClientOriginalExtension());
+        }
+
+        return Str::ulid().'-'.$safeOriginalName;
+    }
+
+    private function safeOriginalName(UploadedFile $file): string
+    {
+        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $extension = strtolower($file->getClientOriginalExtension());
+        $safeBaseName = Str::slug($originalName);
+
+        if ($safeBaseName === '' || $extension === '') {
+            return '';
+        }
+
+        return $safeBaseName.'.'.$extension;
     }
 }

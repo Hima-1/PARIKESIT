@@ -137,6 +137,28 @@ test('user can create dokumentasi with files', function () {
     $this->assertDatabaseHas('dokumentasi_kegiatans', ['judul_dokumentasi' => 'Test Dokumentasi']);
 });
 
+test('dokumentasi created with the same title gets unique directories and file paths', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+
+    $payload = fn () => [
+        'judul_dokumentasi' => 'Judul Sama',
+        'bukti_dukung_undangan' => UploadedFile::fake()->create('undangan.pdf', 100),
+        'daftar_hadir' => UploadedFile::fake()->create('hadir.pdf', 100),
+        'materi' => UploadedFile::fake()->create('materi.pdf', 100),
+        'notula' => UploadedFile::fake()->create('notula.pdf', 100),
+    ];
+
+    $first = loginAs($user)->postJson('/api/dokumentasi', $payload())->assertCreated();
+    $second = loginAs($user)->postJson('/api/dokumentasi', $payload())->assertCreated();
+
+    expect($first->json('data.directory_dokumentasi'))
+        ->not->toBe($second->json('data.directory_dokumentasi'));
+    expect($first->json('data.bukti_dukung_undangan_dokumentasi'))
+        ->not->toBe($second->json('data.bukti_dukung_undangan_dokumentasi'));
+});
+
 test('dokumentasi store returns 422 when missing required files', function () {
     $user = User::factory()->create();
 
@@ -181,6 +203,22 @@ test('admin opd and walidata can download dokumentasi zip', function () {
             ->assertOk()
             ->assertHeader('content-type', 'application/zip');
     }
+});
+
+test('dokumentasi download zip filenames are unique when requested repeatedly', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create(['role' => 'opd']);
+    $dokumentasi = DokumentasiKegiatan::factory()->create([
+        'created_by_id' => $user->id,
+        'judul_dokumentasi' => 'Zip Sama',
+    ]);
+
+    $first = loginAs($user)->get("/api/dokumentasi/{$dokumentasi->id}/download")->assertOk();
+    $second = loginAs($user)->get("/api/dokumentasi/{$dokumentasi->id}/download")->assertOk();
+
+    expect($first->headers->get('content-disposition'))
+        ->not->toBe($second->headers->get('content-disposition'));
 });
 
 test('dokumentasi download still returns zip when files are missing', function () {
@@ -268,6 +306,29 @@ test('user can update own dokumentasi title', function () {
     $this->assertDatabaseHas('dokumentasi_kegiatans', ['id' => $dokumentasi->id, 'judul_dokumentasi' => 'New Title']);
 });
 
+test('dokumentasi main file update stores new file before deleting old file', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+    $dokumentasi = DokumentasiKegiatan::factory()->create([
+        'created_by_id' => $user->id,
+        'bukti_dukung_undangan_dokumentasi' => 'file-dokumentasi/existing/undangan-old.pdf',
+    ]);
+    Storage::disk('public')->put($dokumentasi->bukti_dukung_undangan_dokumentasi, 'old content');
+
+    $response = loginAs($user)->post("/api/dokumentasi/{$dokumentasi->id}", [
+        '_method' => 'PATCH',
+        'judul_dokumentasi' => $dokumentasi->judul_dokumentasi,
+        'bukti_dukung_undangan' => UploadedFile::fake()->create('undangan.pdf', 100),
+    ])->assertOk();
+
+    $newPath = $response->json('data.bukti_dukung_undangan_dokumentasi');
+
+    expect($newPath)->not->toBe('file-dokumentasi/existing/undangan-old.pdf');
+    Storage::disk('public')->assertMissing('file-dokumentasi/existing/undangan-old.pdf');
+    Storage::disk('public')->assertExists($newPath);
+});
+
 test('user can update own dokumentasi with a single media file', function () {
     Storage::fake('public');
 
@@ -288,6 +349,32 @@ test('user can update own dokumentasi with a single media file', function () {
     $this->assertDatabaseHas('file_dokumentasis', [
         'dokumentasi_kegiatan_id' => $dokumentasi->id,
     ]);
+});
+
+test('dokumentasi media uploads use unique paths for files with the same original name', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->create();
+    $dokumentasi = DokumentasiKegiatan::factory()->create([
+        'created_by_id' => $user->id,
+    ]);
+
+    loginAs($user)->post("/api/dokumentasi/{$dokumentasi->id}", [
+        '_method' => 'PATCH',
+        'judul_dokumentasi' => $dokumentasi->judul_dokumentasi,
+        'files' => [
+            UploadedFile::fake()->image('media.jpg'),
+            UploadedFile::fake()->image('media.jpg'),
+        ],
+    ])->assertOk();
+
+    $paths = FileDokumentasi::query()
+        ->where('dokumentasi_kegiatan_id', $dokumentasi->id)
+        ->pluck('nama_file')
+        ->all();
+
+    expect($paths)->toHaveCount(2);
+    expect(array_unique($paths))->toHaveCount(2);
 });
 
 test('dokumentasi update returns 401 when unauthenticated', function () {

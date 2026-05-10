@@ -19,16 +19,16 @@ class PembinaanFactory extends Factory
     public function definition(): array
     {
         $judul = $this->faker->sentence();
-        $slug = Str::slug($judul . '-' . time());
+        $slug = Str::slug($judul).'-'.Str::ulid();
 
         return [
             'created_by_id' => User::factory(),
             'judul_pembinaan' => $judul,
             'directory_pembinaan' => $slug,
-            'bukti_dukung_undangan_pembinaan' => 'file-pembinaan/' . $slug . '/undangan.pdf',
-            'daftar_hadir_pembinaan' => 'file-pembinaan/' . $slug . '/hadir.pdf',
-            'materi_pembinaan' => 'file-pembinaan/' . $slug . '/materi.pdf',
-            'notula_pembinaan' => 'file-pembinaan/' . $slug . '/notula.pdf',
+            'bukti_dukung_undangan_pembinaan' => 'file-pembinaan/'.$slug.'/undangan.pdf',
+            'daftar_hadir_pembinaan' => 'file-pembinaan/'.$slug.'/hadir.pdf',
+            'materi_pembinaan' => 'file-pembinaan/'.$slug.'/materi.pdf',
+            'notula_pembinaan' => 'file-pembinaan/'.$slug.'/notula.pdf',
         ];
     }
 }
