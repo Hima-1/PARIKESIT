@@ -20,6 +20,7 @@ Map<String, dynamic> _$OpdProgressToJson(_OpdProgress instance) =>
 _OpdModel _$OpdModelFromJson(Map<String, dynamic> json) => _OpdModel(
   id: (json['id'] as num).toInt(),
   name: json['name'] as String,
+  email: json['email'] as String?,
   role: json['role'] as String?,
   nomorTelepon: json['nomor_telepon'] as String?,
   opdScore: (json['opd_score'] as num?)?.toDouble(),
@@ -40,6 +41,7 @@ _OpdModel _$OpdModelFromJson(Map<String, dynamic> json) => _OpdModel(
 Map<String, dynamic> _$OpdModelToJson(_OpdModel instance) => <String, dynamic>{
   'id': instance.id,
   'name': instance.name,
+  'email': instance.email,
   'role': instance.role,
   'nomor_telepon': instance.nomorTelepon,
   'opd_score': instance.opdScore,

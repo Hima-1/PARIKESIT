@@ -19,6 +19,7 @@ abstract class OpdModel with _$OpdModel {
   const factory OpdModel({
     required int id,
     required String name,
+    String? email,
     String? role,
     @JsonKey(name: 'nomor_telepon') String? nomorTelepon,
     @JsonKey(name: 'opd_score') double? opdScore,

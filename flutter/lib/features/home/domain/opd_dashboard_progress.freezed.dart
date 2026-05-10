@@ -82,7 +82,7 @@ as OpdProgressDetail,
 @override
 @pragma('vm:prefer-inline')
 $OpdProgressDetailCopyWith<$Res> get progressPerIndikator {
-
+  
   return $OpdProgressDetailCopyWith<$Res>(_self.progressPerIndikator, (value) {
     return _then(_self.copyWith(progressPerIndikator: value));
   });
@@ -91,7 +91,7 @@ $OpdProgressDetailCopyWith<$Res> get progressPerIndikator {
 @override
 @pragma('vm:prefer-inline')
 $OpdProgressDetailCopyWith<$Res> get progressKoreksiWalidata {
-
+  
   return $OpdProgressDetailCopyWith<$Res>(_self.progressKoreksiWalidata, (value) {
     return _then(_self.copyWith(progressKoreksiWalidata: value));
   });
@@ -100,7 +100,7 @@ $OpdProgressDetailCopyWith<$Res> get progressKoreksiWalidata {
 @override
 @pragma('vm:prefer-inline')
 $OpdProgressDetailCopyWith<$Res> get progressEvaluasiAdmin {
-
+  
   return $OpdProgressDetailCopyWith<$Res>(_self.progressEvaluasiAdmin, (value) {
     return _then(_self.copyWith(progressEvaluasiAdmin: value));
   });
@@ -321,7 +321,7 @@ as OpdProgressDetail,
 @override
 @pragma('vm:prefer-inline')
 $OpdProgressDetailCopyWith<$Res> get progressPerIndikator {
-
+  
   return $OpdProgressDetailCopyWith<$Res>(_self.progressPerIndikator, (value) {
     return _then(_self.copyWith(progressPerIndikator: value));
   });
@@ -330,7 +330,7 @@ $OpdProgressDetailCopyWith<$Res> get progressPerIndikator {
 @override
 @pragma('vm:prefer-inline')
 $OpdProgressDetailCopyWith<$Res> get progressKoreksiWalidata {
-
+  
   return $OpdProgressDetailCopyWith<$Res>(_self.progressKoreksiWalidata, (value) {
     return _then(_self.copyWith(progressKoreksiWalidata: value));
   });
@@ -339,7 +339,7 @@ $OpdProgressDetailCopyWith<$Res> get progressKoreksiWalidata {
 @override
 @pragma('vm:prefer-inline')
 $OpdProgressDetailCopyWith<$Res> get progressEvaluasiAdmin {
-
+  
   return $OpdProgressDetailCopyWith<$Res>(_self.progressEvaluasiAdmin, (value) {
     return _then(_self.copyWith(progressEvaluasiAdmin: value));
   });

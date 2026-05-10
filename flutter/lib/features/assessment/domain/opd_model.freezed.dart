@@ -281,7 +281,7 @@ as double,
 /// @nodoc
 mixin _$OpdModel {
 
- int get id; String get name; String? get role;@JsonKey(name: 'nomor_telepon') String? get nomorTelepon;@JsonKey(name: 'opd_score') double? get opdScore;@JsonKey(name: 'walidata_score') double? get walidataScore;@JsonKey(name: 'admin_score') double? get adminScore;@JsonKey(name: 'total_indikator') int get totalIndicators;@JsonKey(name: 'opd_progress') OpdProgress? get opdProgress;@JsonKey(name: 'walidata_progress') OpdProgress? get walidataProgress;@JsonKey(name: 'admin_progress') OpdProgress? get adminProgress;
+ int get id; String get name; String? get email; String? get role;@JsonKey(name: 'nomor_telepon') String? get nomorTelepon;@JsonKey(name: 'opd_score') double? get opdScore;@JsonKey(name: 'walidata_score') double? get walidataScore;@JsonKey(name: 'admin_score') double? get adminScore;@JsonKey(name: 'total_indikator') int get totalIndicators;@JsonKey(name: 'opd_progress') OpdProgress? get opdProgress;@JsonKey(name: 'walidata_progress') OpdProgress? get walidataProgress;@JsonKey(name: 'admin_progress') OpdProgress? get adminProgress;
 /// Create a copy of OpdModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -294,16 +294,16 @@ $OpdModelCopyWith<OpdModel> get copyWith => _$OpdModelCopyWithImpl<OpdModel>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OpdModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.role, role) || other.role == role)&&(identical(other.nomorTelepon, nomorTelepon) || other.nomorTelepon == nomorTelepon)&&(identical(other.opdScore, opdScore) || other.opdScore == opdScore)&&(identical(other.walidataScore, walidataScore) || other.walidataScore == walidataScore)&&(identical(other.adminScore, adminScore) || other.adminScore == adminScore)&&(identical(other.totalIndicators, totalIndicators) || other.totalIndicators == totalIndicators)&&(identical(other.opdProgress, opdProgress) || other.opdProgress == opdProgress)&&(identical(other.walidataProgress, walidataProgress) || other.walidataProgress == walidataProgress)&&(identical(other.adminProgress, adminProgress) || other.adminProgress == adminProgress));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OpdModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.email, email) || other.email == email)&&(identical(other.role, role) || other.role == role)&&(identical(other.nomorTelepon, nomorTelepon) || other.nomorTelepon == nomorTelepon)&&(identical(other.opdScore, opdScore) || other.opdScore == opdScore)&&(identical(other.walidataScore, walidataScore) || other.walidataScore == walidataScore)&&(identical(other.adminScore, adminScore) || other.adminScore == adminScore)&&(identical(other.totalIndicators, totalIndicators) || other.totalIndicators == totalIndicators)&&(identical(other.opdProgress, opdProgress) || other.opdProgress == opdProgress)&&(identical(other.walidataProgress, walidataProgress) || other.walidataProgress == walidataProgress)&&(identical(other.adminProgress, adminProgress) || other.adminProgress == adminProgress));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,role,nomorTelepon,opdScore,walidataScore,adminScore,totalIndicators,opdProgress,walidataProgress,adminProgress);
+int get hashCode => Object.hash(runtimeType,id,name,email,role,nomorTelepon,opdScore,walidataScore,adminScore,totalIndicators,opdProgress,walidataProgress,adminProgress);
 
 @override
 String toString() {
-  return 'OpdModel(id: $id, name: $name, role: $role, nomorTelepon: $nomorTelepon, opdScore: $opdScore, walidataScore: $walidataScore, adminScore: $adminScore, totalIndicators: $totalIndicators, opdProgress: $opdProgress, walidataProgress: $walidataProgress, adminProgress: $adminProgress)';
+  return 'OpdModel(id: $id, name: $name, email: $email, role: $role, nomorTelepon: $nomorTelepon, opdScore: $opdScore, walidataScore: $walidataScore, adminScore: $adminScore, totalIndicators: $totalIndicators, opdProgress: $opdProgress, walidataProgress: $walidataProgress, adminProgress: $adminProgress)';
 }
 
 
@@ -314,7 +314,7 @@ abstract mixin class $OpdModelCopyWith<$Res>  {
   factory $OpdModelCopyWith(OpdModel value, $Res Function(OpdModel) _then) = _$OpdModelCopyWithImpl;
 @useResult
 $Res call({
- int id, String name, String? role,@JsonKey(name: 'nomor_telepon') String? nomorTelepon,@JsonKey(name: 'opd_score') double? opdScore,@JsonKey(name: 'walidata_score') double? walidataScore,@JsonKey(name: 'admin_score') double? adminScore,@JsonKey(name: 'total_indikator') int totalIndicators,@JsonKey(name: 'opd_progress') OpdProgress? opdProgress,@JsonKey(name: 'walidata_progress') OpdProgress? walidataProgress,@JsonKey(name: 'admin_progress') OpdProgress? adminProgress
+ int id, String name, String? email, String? role,@JsonKey(name: 'nomor_telepon') String? nomorTelepon,@JsonKey(name: 'opd_score') double? opdScore,@JsonKey(name: 'walidata_score') double? walidataScore,@JsonKey(name: 'admin_score') double? adminScore,@JsonKey(name: 'total_indikator') int totalIndicators,@JsonKey(name: 'opd_progress') OpdProgress? opdProgress,@JsonKey(name: 'walidata_progress') OpdProgress? walidataProgress,@JsonKey(name: 'admin_progress') OpdProgress? adminProgress
 });
 
 
@@ -331,11 +331,12 @@ class _$OpdModelCopyWithImpl<$Res>
 
 /// Create a copy of OpdModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? role = freezed,Object? nomorTelepon = freezed,Object? opdScore = freezed,Object? walidataScore = freezed,Object? adminScore = freezed,Object? totalIndicators = null,Object? opdProgress = freezed,Object? walidataProgress = freezed,Object? adminProgress = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? email = freezed,Object? role = freezed,Object? nomorTelepon = freezed,Object? opdScore = freezed,Object? walidataScore = freezed,Object? adminScore = freezed,Object? totalIndicators = null,Object? opdProgress = freezed,Object? walidataProgress = freezed,Object? adminProgress = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String,role: freezed == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
+as String,email: freezed == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String?,role: freezed == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
 as String?,nomorTelepon: freezed == nomorTelepon ? _self.nomorTelepon : nomorTelepon // ignore: cast_nullable_to_non_nullable
 as String?,opdScore: freezed == opdScore ? _self.opdScore : opdScore // ignore: cast_nullable_to_non_nullable
 as double?,walidataScore: freezed == walidataScore ? _self.walidataScore : walidataScore // ignore: cast_nullable_to_non_nullable
@@ -465,10 +466,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String name,  String? role, @JsonKey(name: 'nomor_telepon')  String? nomorTelepon, @JsonKey(name: 'opd_score')  double? opdScore, @JsonKey(name: 'walidata_score')  double? walidataScore, @JsonKey(name: 'admin_score')  double? adminScore, @JsonKey(name: 'total_indikator')  int totalIndicators, @JsonKey(name: 'opd_progress')  OpdProgress? opdProgress, @JsonKey(name: 'walidata_progress')  OpdProgress? walidataProgress, @JsonKey(name: 'admin_progress')  OpdProgress? adminProgress)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String name,  String? email,  String? role, @JsonKey(name: 'nomor_telepon')  String? nomorTelepon, @JsonKey(name: 'opd_score')  double? opdScore, @JsonKey(name: 'walidata_score')  double? walidataScore, @JsonKey(name: 'admin_score')  double? adminScore, @JsonKey(name: 'total_indikator')  int totalIndicators, @JsonKey(name: 'opd_progress')  OpdProgress? opdProgress, @JsonKey(name: 'walidata_progress')  OpdProgress? walidataProgress, @JsonKey(name: 'admin_progress')  OpdProgress? adminProgress)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _OpdModel() when $default != null:
-return $default(_that.id,_that.name,_that.role,_that.nomorTelepon,_that.opdScore,_that.walidataScore,_that.adminScore,_that.totalIndicators,_that.opdProgress,_that.walidataProgress,_that.adminProgress);case _:
+return $default(_that.id,_that.name,_that.email,_that.role,_that.nomorTelepon,_that.opdScore,_that.walidataScore,_that.adminScore,_that.totalIndicators,_that.opdProgress,_that.walidataProgress,_that.adminProgress);case _:
   return orElse();
 
 }
@@ -486,10 +487,10 @@ return $default(_that.id,_that.name,_that.role,_that.nomorTelepon,_that.opdScore
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String name,  String? role, @JsonKey(name: 'nomor_telepon')  String? nomorTelepon, @JsonKey(name: 'opd_score')  double? opdScore, @JsonKey(name: 'walidata_score')  double? walidataScore, @JsonKey(name: 'admin_score')  double? adminScore, @JsonKey(name: 'total_indikator')  int totalIndicators, @JsonKey(name: 'opd_progress')  OpdProgress? opdProgress, @JsonKey(name: 'walidata_progress')  OpdProgress? walidataProgress, @JsonKey(name: 'admin_progress')  OpdProgress? adminProgress)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String name,  String? email,  String? role, @JsonKey(name: 'nomor_telepon')  String? nomorTelepon, @JsonKey(name: 'opd_score')  double? opdScore, @JsonKey(name: 'walidata_score')  double? walidataScore, @JsonKey(name: 'admin_score')  double? adminScore, @JsonKey(name: 'total_indikator')  int totalIndicators, @JsonKey(name: 'opd_progress')  OpdProgress? opdProgress, @JsonKey(name: 'walidata_progress')  OpdProgress? walidataProgress, @JsonKey(name: 'admin_progress')  OpdProgress? adminProgress)  $default,) {final _that = this;
 switch (_that) {
 case _OpdModel():
-return $default(_that.id,_that.name,_that.role,_that.nomorTelepon,_that.opdScore,_that.walidataScore,_that.adminScore,_that.totalIndicators,_that.opdProgress,_that.walidataProgress,_that.adminProgress);case _:
+return $default(_that.id,_that.name,_that.email,_that.role,_that.nomorTelepon,_that.opdScore,_that.walidataScore,_that.adminScore,_that.totalIndicators,_that.opdProgress,_that.walidataProgress,_that.adminProgress);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -506,10 +507,10 @@ return $default(_that.id,_that.name,_that.role,_that.nomorTelepon,_that.opdScore
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String name,  String? role, @JsonKey(name: 'nomor_telepon')  String? nomorTelepon, @JsonKey(name: 'opd_score')  double? opdScore, @JsonKey(name: 'walidata_score')  double? walidataScore, @JsonKey(name: 'admin_score')  double? adminScore, @JsonKey(name: 'total_indikator')  int totalIndicators, @JsonKey(name: 'opd_progress')  OpdProgress? opdProgress, @JsonKey(name: 'walidata_progress')  OpdProgress? walidataProgress, @JsonKey(name: 'admin_progress')  OpdProgress? adminProgress)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String name,  String? email,  String? role, @JsonKey(name: 'nomor_telepon')  String? nomorTelepon, @JsonKey(name: 'opd_score')  double? opdScore, @JsonKey(name: 'walidata_score')  double? walidataScore, @JsonKey(name: 'admin_score')  double? adminScore, @JsonKey(name: 'total_indikator')  int totalIndicators, @JsonKey(name: 'opd_progress')  OpdProgress? opdProgress, @JsonKey(name: 'walidata_progress')  OpdProgress? walidataProgress, @JsonKey(name: 'admin_progress')  OpdProgress? adminProgress)?  $default,) {final _that = this;
 switch (_that) {
 case _OpdModel() when $default != null:
-return $default(_that.id,_that.name,_that.role,_that.nomorTelepon,_that.opdScore,_that.walidataScore,_that.adminScore,_that.totalIndicators,_that.opdProgress,_that.walidataProgress,_that.adminProgress);case _:
+return $default(_that.id,_that.name,_that.email,_that.role,_that.nomorTelepon,_that.opdScore,_that.walidataScore,_that.adminScore,_that.totalIndicators,_that.opdProgress,_that.walidataProgress,_that.adminProgress);case _:
   return null;
 
 }
@@ -521,11 +522,12 @@ return $default(_that.id,_that.name,_that.role,_that.nomorTelepon,_that.opdScore
 @JsonSerializable()
 
 class _OpdModel implements OpdModel {
-  const _OpdModel({required this.id, required this.name, this.role, @JsonKey(name: 'nomor_telepon') this.nomorTelepon, @JsonKey(name: 'opd_score') this.opdScore, @JsonKey(name: 'walidata_score') this.walidataScore, @JsonKey(name: 'admin_score') this.adminScore, @JsonKey(name: 'total_indikator') this.totalIndicators = 0, @JsonKey(name: 'opd_progress') this.opdProgress, @JsonKey(name: 'walidata_progress') this.walidataProgress, @JsonKey(name: 'admin_progress') this.adminProgress});
+  const _OpdModel({required this.id, required this.name, this.email, this.role, @JsonKey(name: 'nomor_telepon') this.nomorTelepon, @JsonKey(name: 'opd_score') this.opdScore, @JsonKey(name: 'walidata_score') this.walidataScore, @JsonKey(name: 'admin_score') this.adminScore, @JsonKey(name: 'total_indikator') this.totalIndicators = 0, @JsonKey(name: 'opd_progress') this.opdProgress, @JsonKey(name: 'walidata_progress') this.walidataProgress, @JsonKey(name: 'admin_progress') this.adminProgress});
   factory _OpdModel.fromJson(Map<String, dynamic> json) => _$OpdModelFromJson(json);
 
 @override final  int id;
 @override final  String name;
+@override final  String? email;
 @override final  String? role;
 @override@JsonKey(name: 'nomor_telepon') final  String? nomorTelepon;
 @override@JsonKey(name: 'opd_score') final  double? opdScore;
@@ -549,16 +551,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OpdModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.role, role) || other.role == role)&&(identical(other.nomorTelepon, nomorTelepon) || other.nomorTelepon == nomorTelepon)&&(identical(other.opdScore, opdScore) || other.opdScore == opdScore)&&(identical(other.walidataScore, walidataScore) || other.walidataScore == walidataScore)&&(identical(other.adminScore, adminScore) || other.adminScore == adminScore)&&(identical(other.totalIndicators, totalIndicators) || other.totalIndicators == totalIndicators)&&(identical(other.opdProgress, opdProgress) || other.opdProgress == opdProgress)&&(identical(other.walidataProgress, walidataProgress) || other.walidataProgress == walidataProgress)&&(identical(other.adminProgress, adminProgress) || other.adminProgress == adminProgress));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OpdModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.email, email) || other.email == email)&&(identical(other.role, role) || other.role == role)&&(identical(other.nomorTelepon, nomorTelepon) || other.nomorTelepon == nomorTelepon)&&(identical(other.opdScore, opdScore) || other.opdScore == opdScore)&&(identical(other.walidataScore, walidataScore) || other.walidataScore == walidataScore)&&(identical(other.adminScore, adminScore) || other.adminScore == adminScore)&&(identical(other.totalIndicators, totalIndicators) || other.totalIndicators == totalIndicators)&&(identical(other.opdProgress, opdProgress) || other.opdProgress == opdProgress)&&(identical(other.walidataProgress, walidataProgress) || other.walidataProgress == walidataProgress)&&(identical(other.adminProgress, adminProgress) || other.adminProgress == adminProgress));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,role,nomorTelepon,opdScore,walidataScore,adminScore,totalIndicators,opdProgress,walidataProgress,adminProgress);
+int get hashCode => Object.hash(runtimeType,id,name,email,role,nomorTelepon,opdScore,walidataScore,adminScore,totalIndicators,opdProgress,walidataProgress,adminProgress);
 
 @override
 String toString() {
-  return 'OpdModel(id: $id, name: $name, role: $role, nomorTelepon: $nomorTelepon, opdScore: $opdScore, walidataScore: $walidataScore, adminScore: $adminScore, totalIndicators: $totalIndicators, opdProgress: $opdProgress, walidataProgress: $walidataProgress, adminProgress: $adminProgress)';
+  return 'OpdModel(id: $id, name: $name, email: $email, role: $role, nomorTelepon: $nomorTelepon, opdScore: $opdScore, walidataScore: $walidataScore, adminScore: $adminScore, totalIndicators: $totalIndicators, opdProgress: $opdProgress, walidataProgress: $walidataProgress, adminProgress: $adminProgress)';
 }
 
 
@@ -569,7 +571,7 @@ abstract mixin class _$OpdModelCopyWith<$Res> implements $OpdModelCopyWith<$Res>
   factory _$OpdModelCopyWith(_OpdModel value, $Res Function(_OpdModel) _then) = __$OpdModelCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String name, String? role,@JsonKey(name: 'nomor_telepon') String? nomorTelepon,@JsonKey(name: 'opd_score') double? opdScore,@JsonKey(name: 'walidata_score') double? walidataScore,@JsonKey(name: 'admin_score') double? adminScore,@JsonKey(name: 'total_indikator') int totalIndicators,@JsonKey(name: 'opd_progress') OpdProgress? opdProgress,@JsonKey(name: 'walidata_progress') OpdProgress? walidataProgress,@JsonKey(name: 'admin_progress') OpdProgress? adminProgress
+ int id, String name, String? email, String? role,@JsonKey(name: 'nomor_telepon') String? nomorTelepon,@JsonKey(name: 'opd_score') double? opdScore,@JsonKey(name: 'walidata_score') double? walidataScore,@JsonKey(name: 'admin_score') double? adminScore,@JsonKey(name: 'total_indikator') int totalIndicators,@JsonKey(name: 'opd_progress') OpdProgress? opdProgress,@JsonKey(name: 'walidata_progress') OpdProgress? walidataProgress,@JsonKey(name: 'admin_progress') OpdProgress? adminProgress
 });
 
 
@@ -586,11 +588,12 @@ class __$OpdModelCopyWithImpl<$Res>
 
 /// Create a copy of OpdModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? role = freezed,Object? nomorTelepon = freezed,Object? opdScore = freezed,Object? walidataScore = freezed,Object? adminScore = freezed,Object? totalIndicators = null,Object? opdProgress = freezed,Object? walidataProgress = freezed,Object? adminProgress = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? email = freezed,Object? role = freezed,Object? nomorTelepon = freezed,Object? opdScore = freezed,Object? walidataScore = freezed,Object? adminScore = freezed,Object? totalIndicators = null,Object? opdProgress = freezed,Object? walidataProgress = freezed,Object? adminProgress = freezed,}) {
   return _then(_OpdModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String,role: freezed == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
+as String,email: freezed == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String?,role: freezed == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
 as String?,nomorTelepon: freezed == nomorTelepon ? _self.nomorTelepon : nomorTelepon // ignore: cast_nullable_to_non_nullable
 as String?,opdScore: freezed == opdScore ? _self.opdScore : opdScore // ignore: cast_nullable_to_non_nullable
 as double?,walidataScore: freezed == walidataScore ? _self.walidataScore : walidataScore // ignore: cast_nullable_to_non_nullable

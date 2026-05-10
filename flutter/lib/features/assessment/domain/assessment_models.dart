@@ -93,6 +93,7 @@ abstract class AssessmentFormModel with _$AssessmentFormModel {
     @JsonKey(name: 'nama_formulir') required String title,
     @JsonKey(name: 'created_at') required DateTime date,
     required List<DomainModel> domains,
+    @JsonKey(name: 'participating_opd_count') @Default(0) int opdCount,
     RoleScore? scores,
     @JsonKey(name: 'review_progress') ReviewProgressSummary? reviewProgress,
   }) = _AssessmentFormModel;

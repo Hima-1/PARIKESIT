@@ -48,3 +48,14 @@ linter:
     - prefer_const_constructors
     - prefer_const_literals_to_create_immutables
     - prefer_const_declarations
+
+    # Design-system hygiene (Sprint 3 additions)
+    # Kept conservative: rules below either produce zero new hits today
+    # or clearly reflect design-system intent. `prefer_relative_imports`
+    # and `require_trailing_commas` were considered but excluded — they
+    # would generate hundreds of stylistic hits without real value.
+    - unnecessary_lambdas
+    - sized_box_shrink_expand   # encourages Gap()/SizedBox.shrink over SizedBox()
+    - use_colored_box           # avoid Container just for a color
+    - use_decorated_box         # avoid Container just for decoration
+    - avoid_unnecessary_containers

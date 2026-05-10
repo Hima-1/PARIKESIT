@@ -1453,7 +1453,7 @@ $RoleScoreCopyWith<$Res>? get scores {
 /// @nodoc
 mixin _$AssessmentFormModel {
 
- String get id;@JsonKey(name: 'nama_formulir') String get title;@JsonKey(name: 'created_at') DateTime get date; List<DomainModel> get domains; RoleScore? get scores;@JsonKey(name: 'review_progress') ReviewProgressSummary? get reviewProgress;
+ String get id;@JsonKey(name: 'nama_formulir') String get title;@JsonKey(name: 'created_at') DateTime get date; List<DomainModel> get domains;@JsonKey(name: 'participating_opd_count') int get opdCount; RoleScore? get scores;@JsonKey(name: 'review_progress') ReviewProgressSummary? get reviewProgress;
 /// Create a copy of AssessmentFormModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1466,16 +1466,16 @@ $AssessmentFormModelCopyWith<AssessmentFormModel> get copyWith => _$AssessmentFo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AssessmentFormModel&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.date, date) || other.date == date)&&const DeepCollectionEquality().equals(other.domains, domains)&&(identical(other.scores, scores) || other.scores == scores)&&(identical(other.reviewProgress, reviewProgress) || other.reviewProgress == reviewProgress));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AssessmentFormModel&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.date, date) || other.date == date)&&const DeepCollectionEquality().equals(other.domains, domains)&&(identical(other.opdCount, opdCount) || other.opdCount == opdCount)&&(identical(other.scores, scores) || other.scores == scores)&&(identical(other.reviewProgress, reviewProgress) || other.reviewProgress == reviewProgress));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,title,date,const DeepCollectionEquality().hash(domains),scores,reviewProgress);
+int get hashCode => Object.hash(runtimeType,id,title,date,const DeepCollectionEquality().hash(domains),opdCount,scores,reviewProgress);
 
 @override
 String toString() {
-  return 'AssessmentFormModel(id: $id, title: $title, date: $date, domains: $domains, scores: $scores, reviewProgress: $reviewProgress)';
+  return 'AssessmentFormModel(id: $id, title: $title, date: $date, domains: $domains, opdCount: $opdCount, scores: $scores, reviewProgress: $reviewProgress)';
 }
 
 
@@ -1486,7 +1486,7 @@ abstract mixin class $AssessmentFormModelCopyWith<$Res>  {
   factory $AssessmentFormModelCopyWith(AssessmentFormModel value, $Res Function(AssessmentFormModel) _then) = _$AssessmentFormModelCopyWithImpl;
 @useResult
 $Res call({
- String id,@JsonKey(name: 'nama_formulir') String title,@JsonKey(name: 'created_at') DateTime date, List<DomainModel> domains, RoleScore? scores,@JsonKey(name: 'review_progress') ReviewProgressSummary? reviewProgress
+ String id,@JsonKey(name: 'nama_formulir') String title,@JsonKey(name: 'created_at') DateTime date, List<DomainModel> domains,@JsonKey(name: 'participating_opd_count') int opdCount, RoleScore? scores,@JsonKey(name: 'review_progress') ReviewProgressSummary? reviewProgress
 });
 
 
@@ -1503,13 +1503,14 @@ class _$AssessmentFormModelCopyWithImpl<$Res>
 
 /// Create a copy of AssessmentFormModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? date = null,Object? domains = null,Object? scores = freezed,Object? reviewProgress = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? date = null,Object? domains = null,Object? opdCount = null,Object? scores = freezed,Object? reviewProgress = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
 as DateTime,domains: null == domains ? _self.domains : domains // ignore: cast_nullable_to_non_nullable
-as List<DomainModel>,scores: freezed == scores ? _self.scores : scores // ignore: cast_nullable_to_non_nullable
+as List<DomainModel>,opdCount: null == opdCount ? _self.opdCount : opdCount // ignore: cast_nullable_to_non_nullable
+as int,scores: freezed == scores ? _self.scores : scores // ignore: cast_nullable_to_non_nullable
 as RoleScore?,reviewProgress: freezed == reviewProgress ? _self.reviewProgress : reviewProgress // ignore: cast_nullable_to_non_nullable
 as ReviewProgressSummary?,
   ));
@@ -1620,10 +1621,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'nama_formulir')  String title, @JsonKey(name: 'created_at')  DateTime date,  List<DomainModel> domains,  RoleScore? scores, @JsonKey(name: 'review_progress')  ReviewProgressSummary? reviewProgress)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'nama_formulir')  String title, @JsonKey(name: 'created_at')  DateTime date,  List<DomainModel> domains, @JsonKey(name: 'participating_opd_count')  int opdCount,  RoleScore? scores, @JsonKey(name: 'review_progress')  ReviewProgressSummary? reviewProgress)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AssessmentFormModel() when $default != null:
-return $default(_that.id,_that.title,_that.date,_that.domains,_that.scores,_that.reviewProgress);case _:
+return $default(_that.id,_that.title,_that.date,_that.domains,_that.opdCount,_that.scores,_that.reviewProgress);case _:
   return orElse();
 
 }
@@ -1641,10 +1642,10 @@ return $default(_that.id,_that.title,_that.date,_that.domains,_that.scores,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'nama_formulir')  String title, @JsonKey(name: 'created_at')  DateTime date,  List<DomainModel> domains,  RoleScore? scores, @JsonKey(name: 'review_progress')  ReviewProgressSummary? reviewProgress)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'nama_formulir')  String title, @JsonKey(name: 'created_at')  DateTime date,  List<DomainModel> domains, @JsonKey(name: 'participating_opd_count')  int opdCount,  RoleScore? scores, @JsonKey(name: 'review_progress')  ReviewProgressSummary? reviewProgress)  $default,) {final _that = this;
 switch (_that) {
 case _AssessmentFormModel():
-return $default(_that.id,_that.title,_that.date,_that.domains,_that.scores,_that.reviewProgress);case _:
+return $default(_that.id,_that.title,_that.date,_that.domains,_that.opdCount,_that.scores,_that.reviewProgress);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1661,10 +1662,10 @@ return $default(_that.id,_that.title,_that.date,_that.domains,_that.scores,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id, @JsonKey(name: 'nama_formulir')  String title, @JsonKey(name: 'created_at')  DateTime date,  List<DomainModel> domains,  RoleScore? scores, @JsonKey(name: 'review_progress')  ReviewProgressSummary? reviewProgress)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id, @JsonKey(name: 'nama_formulir')  String title, @JsonKey(name: 'created_at')  DateTime date,  List<DomainModel> domains, @JsonKey(name: 'participating_opd_count')  int opdCount,  RoleScore? scores, @JsonKey(name: 'review_progress')  ReviewProgressSummary? reviewProgress)?  $default,) {final _that = this;
 switch (_that) {
 case _AssessmentFormModel() when $default != null:
-return $default(_that.id,_that.title,_that.date,_that.domains,_that.scores,_that.reviewProgress);case _:
+return $default(_that.id,_that.title,_that.date,_that.domains,_that.opdCount,_that.scores,_that.reviewProgress);case _:
   return null;
 
 }
@@ -1676,7 +1677,7 @@ return $default(_that.id,_that.title,_that.date,_that.domains,_that.scores,_that
 @JsonSerializable()
 
 class _AssessmentFormModel extends AssessmentFormModel {
-  const _AssessmentFormModel({required this.id, @JsonKey(name: 'nama_formulir') required this.title, @JsonKey(name: 'created_at') required this.date, required final  List<DomainModel> domains, this.scores, @JsonKey(name: 'review_progress') this.reviewProgress}): _domains = domains,super._();
+  const _AssessmentFormModel({required this.id, @JsonKey(name: 'nama_formulir') required this.title, @JsonKey(name: 'created_at') required this.date, required final  List<DomainModel> domains, @JsonKey(name: 'participating_opd_count') this.opdCount = 0, this.scores, @JsonKey(name: 'review_progress') this.reviewProgress}): _domains = domains,super._();
   factory _AssessmentFormModel.fromJson(Map<String, dynamic> json) => _$AssessmentFormModelFromJson(json);
 
 @override final  String id;
@@ -1689,6 +1690,7 @@ class _AssessmentFormModel extends AssessmentFormModel {
   return EqualUnmodifiableListView(_domains);
 }
 
+@override@JsonKey(name: 'participating_opd_count') final  int opdCount;
 @override final  RoleScore? scores;
 @override@JsonKey(name: 'review_progress') final  ReviewProgressSummary? reviewProgress;
 
@@ -1705,16 +1707,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AssessmentFormModel&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.date, date) || other.date == date)&&const DeepCollectionEquality().equals(other._domains, _domains)&&(identical(other.scores, scores) || other.scores == scores)&&(identical(other.reviewProgress, reviewProgress) || other.reviewProgress == reviewProgress));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AssessmentFormModel&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.date, date) || other.date == date)&&const DeepCollectionEquality().equals(other._domains, _domains)&&(identical(other.opdCount, opdCount) || other.opdCount == opdCount)&&(identical(other.scores, scores) || other.scores == scores)&&(identical(other.reviewProgress, reviewProgress) || other.reviewProgress == reviewProgress));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,title,date,const DeepCollectionEquality().hash(_domains),scores,reviewProgress);
+int get hashCode => Object.hash(runtimeType,id,title,date,const DeepCollectionEquality().hash(_domains),opdCount,scores,reviewProgress);
 
 @override
 String toString() {
-  return 'AssessmentFormModel(id: $id, title: $title, date: $date, domains: $domains, scores: $scores, reviewProgress: $reviewProgress)';
+  return 'AssessmentFormModel(id: $id, title: $title, date: $date, domains: $domains, opdCount: $opdCount, scores: $scores, reviewProgress: $reviewProgress)';
 }
 
 
@@ -1725,7 +1727,7 @@ abstract mixin class _$AssessmentFormModelCopyWith<$Res> implements $AssessmentF
   factory _$AssessmentFormModelCopyWith(_AssessmentFormModel value, $Res Function(_AssessmentFormModel) _then) = __$AssessmentFormModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id,@JsonKey(name: 'nama_formulir') String title,@JsonKey(name: 'created_at') DateTime date, List<DomainModel> domains, RoleScore? scores,@JsonKey(name: 'review_progress') ReviewProgressSummary? reviewProgress
+ String id,@JsonKey(name: 'nama_formulir') String title,@JsonKey(name: 'created_at') DateTime date, List<DomainModel> domains,@JsonKey(name: 'participating_opd_count') int opdCount, RoleScore? scores,@JsonKey(name: 'review_progress') ReviewProgressSummary? reviewProgress
 });
 
 
@@ -1742,13 +1744,14 @@ class __$AssessmentFormModelCopyWithImpl<$Res>
 
 /// Create a copy of AssessmentFormModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? date = null,Object? domains = null,Object? scores = freezed,Object? reviewProgress = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? date = null,Object? domains = null,Object? opdCount = null,Object? scores = freezed,Object? reviewProgress = freezed,}) {
   return _then(_AssessmentFormModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
 as DateTime,domains: null == domains ? _self._domains : domains // ignore: cast_nullable_to_non_nullable
-as List<DomainModel>,scores: freezed == scores ? _self.scores : scores // ignore: cast_nullable_to_non_nullable
+as List<DomainModel>,opdCount: null == opdCount ? _self.opdCount : opdCount // ignore: cast_nullable_to_non_nullable
+as int,scores: freezed == scores ? _self.scores : scores // ignore: cast_nullable_to_non_nullable
 as RoleScore?,reviewProgress: freezed == reviewProgress ? _self.reviewProgress : reviewProgress // ignore: cast_nullable_to_non_nullable
 as ReviewProgressSummary?,
   ));

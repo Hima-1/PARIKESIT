@@ -4,14 +4,13 @@ targets:
       freezed:
         generate_for:
           - lib/core/auth/app_user.dart
-          - lib/core/api/api_response.dart
           - lib/core/network/*.dart
           - lib/features/**/domain/*.dart
           - lib/features/**/models/*.dart
+          - lib/features/**/presentation/controller/*.dart
       json_serializable:
         generate_for:
           - lib/core/auth/app_user.dart
-          - lib/core/api/api_response.dart
           - lib/core/network/*.dart
           - lib/features/**/domain/*.dart
           - lib/features/**/models/*.dart

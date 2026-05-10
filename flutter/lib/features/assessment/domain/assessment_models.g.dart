@@ -121,6 +121,7 @@ _AssessmentFormModel _$AssessmentFormModelFromJson(Map<String, dynamic> json) =>
       domains: (json['domains'] as List<dynamic>)
           .map((e) => DomainModel.fromJson(e as Map<String, dynamic>))
           .toList(),
+      opdCount: (json['participating_opd_count'] as num?)?.toInt() ?? 0,
       scores: json['scores'] == null
           ? null
           : RoleScore.fromJson(json['scores'] as Map<String, dynamic>),
@@ -138,6 +139,7 @@ Map<String, dynamic> _$AssessmentFormModelToJson(
   'nama_formulir': instance.title,
   'created_at': instance.date.toIso8601String(),
   'domains': instance.domains,
+  'participating_opd_count': instance.opdCount,
   'scores': instance.scores,
   'review_progress': instance.reviewProgress,
 };
