@@ -36,7 +36,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          authNotifierProvider.overrideWith(() => _FakeAuthNotifier()),
+          authNotifierProvider.overrideWith(_FakeAuthNotifier.new),
           userRoleProvider.overrideWithValue(UserRole.admin),
           dokumentasiRepositoryProvider.overrideWithValue(
             _FakeDokumentasiRepository(),
@@ -67,7 +67,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          authNotifierProvider.overrideWith(() => _FakeAuthNotifier()),
+          authNotifierProvider.overrideWith(_FakeAuthNotifier.new),
           userRoleProvider.overrideWithValue(UserRole.admin),
           dokumentasiRepositoryProvider.overrideWithValue(
             _FakeDokumentasiRepository(),
@@ -99,7 +99,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            authNotifierProvider.overrideWith(() => _FakeAuthNotifier()),
+            authNotifierProvider.overrideWith(_FakeAuthNotifier.new),
             userRoleProvider.overrideWithValue(UserRole.admin),
             dokumentasiRepositoryProvider.overrideWithValue(
               _FakeDokumentasiRepository(),
@@ -178,7 +178,7 @@ class _FakeTokenStorage extends TokenStorage {
   Future<String?> getToken() async => null;
 }
 
-class _FakeDokumentasiRepository implements IDokumentasiRepository {
+class _FakeDokumentasiRepository implements DokumentasiRepository {
   @override
   Future<DokumentasiKegiatan> createActivity(Map<String, dynamic> data) async =>
       _item;
@@ -269,7 +269,7 @@ class _FakeDokumentasiRepository implements IDokumentasiRepository {
   );
 }
 
-class _FakePembinaanRepository implements IPembinaanRepository {
+class _FakePembinaanRepository implements PembinaanRepository {
   @override
   Future<Pembinaan> createActivity(Map<String, dynamic> data) async => _item;
 

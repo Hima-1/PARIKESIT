@@ -181,7 +181,7 @@ class _FormulirListView extends ConsumerWidget {
                 ),
         );
       },
-      loading: () => const AssessmentSkeleton(),
+      loading: () => const AssessmentListSkeleton(),
       error: (err, stack) => RefreshIndicator(
         onRefresh: () => _handleRefresh(ref),
         child: _buildAlwaysScrollableState(
@@ -380,11 +380,7 @@ class _FormulirCard extends StatelessWidget {
           AppSpacing.gapH12,
           Row(
             children: [
-              const Icon(
-                LucideIcons.calendar,
-                size: 14,
-                color: AppTheme.gold,
-              ),
+              const Icon(LucideIcons.calendar, size: 14, color: AppTheme.gold),
               AppSpacing.gapW6,
               Text(
                 'Dibuat: ${_formatDate(activity.date)}',
@@ -462,7 +458,7 @@ class _PenilaianViewState extends ConsumerState<_PenilaianView> {
     );
 
     return controllerAsync.when(
-      loading: () => const DetailSkeleton(),
+      loading: () => const DetailScreenSkeleton(),
       error: (error, _) => RefreshIndicator(
         onRefresh: () => _handleRefresh(formulirId),
         child: _buildAlwaysScrollableState(

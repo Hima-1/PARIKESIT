@@ -81,7 +81,7 @@ void main() {
   });
 }
 
-class _FakeAdminDashboardRepository implements IAdminDashboardRepository {
+class _FakeAdminDashboardRepository implements AdminDashboardRepository {
   int statisticsCallCount = 0;
   final List<AdminAssessmentProgressQuery> progressQueries =
       <AdminAssessmentProgressQuery>[];

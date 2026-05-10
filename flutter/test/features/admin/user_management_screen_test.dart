@@ -194,9 +194,7 @@ void main() {
     _setSurfaceSize(tester, const Size(412, 915));
     final container = ProviderContainer(
       overrides: [
-        userAdminControllerProvider.overrideWith(
-          () => ErrorUserAdminController(),
-        ),
+        userAdminControllerProvider.overrideWith(ErrorUserAdminController.new),
       ],
     );
     addTearDown(container.dispose);
@@ -283,7 +281,7 @@ AppUser _user({
   return AppUser(id: id, name: name, email: email, role: role);
 }
 
-class _FakeAdminUserRepository implements IAdminUserRepository {
+class _FakeAdminUserRepository implements AdminUserRepository {
   _FakeAdminUserRepository({
     this.users = const [],
     this.completer,

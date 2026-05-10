@@ -36,11 +36,7 @@ class EvaluationNoteCard extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(
-                  LucideIcons.messageCircle,
-                  size: 14,
-                  color: roleColor,
-                ),
+                Icon(LucideIcons.messageCircle, size: 14, color: roleColor),
                 AppSpacing.gapW8,
                 Text(
                   'CATATAN ${role.toUpperCase()}',

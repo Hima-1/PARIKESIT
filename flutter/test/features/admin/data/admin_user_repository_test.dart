@@ -63,7 +63,7 @@ void main() {
       });
 
       final dio = Dio()..httpClientAdapter = adapter;
-      final repository = AdminUserRepositoryImpl(dio);
+      final repository = AdminUserRepository(dio);
 
       final users = await repository.getUsers();
 
@@ -112,7 +112,7 @@ void main() {
     });
 
     final dio = Dio()..httpClientAdapter = adapter;
-    final repository = AdminUserRepositoryImpl(dio);
+    final repository = AdminUserRepository(dio);
 
     final users = await repository.getUsers(
       page: 2,
@@ -146,7 +146,7 @@ void main() {
       });
 
       final dio = Dio()..httpClientAdapter = adapter;
-      final repository = AdminUserRepositoryImpl(dio);
+      final repository = AdminUserRepository(dio);
 
       final result = await repository.resetPassword(7);
 
@@ -169,7 +169,7 @@ void main() {
     });
 
     final dio = Dio()..httpClientAdapter = adapter;
-    final repository = AdminUserRepositoryImpl(dio);
+    final repository = AdminUserRepository(dio);
 
     await expectLater(
       repository.resetPassword(7),

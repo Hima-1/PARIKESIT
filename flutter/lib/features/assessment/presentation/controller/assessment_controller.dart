@@ -1,54 +1,25 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:parikesit/features/assessment/data/assessment_repository.dart';
 import 'package:parikesit/features/assessment/domain/assessment_indikator.dart';
 import 'package:parikesit/features/assessment/domain/assessment_models.dart';
 import 'package:parikesit/features/assessment/domain/bukti_dukung.dart';
 import 'package:parikesit/features/assessment/domain/penilaian.dart';
 
-class AssessmentFormState {
-  const AssessmentFormState({
-    required this.formulirId,
-    this.formulir,
-    this.selectedDomainId,
-    this.selectedAspekId,
-    this.indikators = const <AssessmentIndikator>[],
-    this.draftsByIndikatorId = const <int, Penilaian>{},
-    this.buktiDukungByPenilaianId = const <int, List<BuktiDukung>>{},
-  });
+part 'assessment_controller.freezed.dart';
 
-  final int formulirId;
-  final AssessmentFormModel? formulir;
-  final String? selectedDomainId;
-  final String? selectedAspekId;
-  final List<AssessmentIndikator> indikators;
-  final Map<int, Penilaian> draftsByIndikatorId;
-  final Map<int, List<BuktiDukung>> buktiDukungByPenilaianId;
-
-  AssessmentFormState copyWith({
+@freezed
+abstract class AssessmentFormState with _$AssessmentFormState {
+  const factory AssessmentFormState({
+    required int formulirId,
     AssessmentFormModel? formulir,
     String? selectedDomainId,
-    bool clearSelectedDomain = false,
     String? selectedAspekId,
-    bool clearSelectedAspek = false,
-    List<AssessmentIndikator>? indikators,
-    Map<int, Penilaian>? draftsByIndikatorId,
-    Map<int, List<BuktiDukung>>? buktiDukungByPenilaianId,
-  }) {
-    return AssessmentFormState(
-      formulirId: formulirId,
-      formulir: formulir ?? this.formulir,
-      selectedDomainId: clearSelectedDomain
-          ? null
-          : (selectedDomainId ?? this.selectedDomainId),
-      selectedAspekId: clearSelectedAspek
-          ? null
-          : (selectedAspekId ?? this.selectedAspekId),
-      indikators: indikators ?? this.indikators,
-      draftsByIndikatorId: draftsByIndikatorId ?? this.draftsByIndikatorId,
-      buktiDukungByPenilaianId:
-          buktiDukungByPenilaianId ?? this.buktiDukungByPenilaianId,
-    );
-  }
+    @Default(<AssessmentIndikator>[]) List<AssessmentIndikator> indikators,
+    @Default(<int, Penilaian>{}) Map<int, Penilaian> draftsByIndikatorId,
+    @Default(<int, List<BuktiDukung>>{})
+    Map<int, List<BuktiDukung>> buktiDukungByPenilaianId,
+  }) = _AssessmentFormState;
 }
 
 class AssessmentFormController extends AsyncNotifier<AssessmentFormState> {
@@ -58,8 +29,6 @@ class AssessmentFormController extends AsyncNotifier<AssessmentFormState> {
 
   @override
   Future<AssessmentFormState> build() async {
-    // getMyPenilaians sekarang mengembalikan tuple (formulir, map penilaian)
-    // sehingga hanya perlu satu request ke /formulir/{id}/indicators
     final (
       AssessmentFormModel formulir,
       Map<int, Penilaian> existing,
@@ -67,7 +36,6 @@ class AssessmentFormController extends AsyncNotifier<AssessmentFormState> {
         .read(assessmentRepositoryProvider)
         .getMyPenilaians(_formulirId)
         .onError((error, stackTrace) async {
-          // Fallback: coba getFormulir jika indicators gagal
           final AssessmentFormModel f = await ref
               .read(assessmentRepositoryProvider)
               .getFormulir(_formulirId);
@@ -100,7 +68,6 @@ class AssessmentFormController extends AsyncNotifier<AssessmentFormState> {
       return previous.copyWith(
         selectedDomainId: domainId,
         selectedAspekId: aspekId,
-        clearSelectedAspek: aspekId == null,
         indikators: indikators,
       );
     });
@@ -206,7 +173,7 @@ class AssessmentFormController extends AsyncNotifier<AssessmentFormState> {
 
       final Penilaian corrected = await ref
           .read(assessmentRepositoryProvider)
-          .submitWalidataCorrection(existing.id, payload);
+          .submitWalidataCorrection(payload);
 
       final Map<int, Penilaian> nextDrafts = Map<int, Penilaian>.from(
         previous.draftsByIndikatorId,
@@ -249,10 +216,9 @@ class AssessmentFormController extends AsyncNotifier<AssessmentFormState> {
         'evaluasi': note ?? '',
       };
 
-      // Assuming we can use or adapt an existing repository method or add a new one
       final Penilaian evaluated = await ref
           .read(assessmentRepositoryProvider)
-          .submitAdminEvaluation(existing.id, payload);
+          .submitAdminEvaluation(payload);
 
       final Map<int, Penilaian> nextDrafts = Map<int, Penilaian>.from(
         previous.draftsByIndikatorId,
@@ -362,7 +328,7 @@ final assessmentFormControllerProvider =
       AssessmentFormController,
       AssessmentFormState,
       int
-    >((arg) => AssessmentFormController(arg));
+    >(AssessmentFormController.new);
 
 final publicAssessmentDetailProvider =
     FutureProvider.family<AssessmentFormState, ({int activityId, int opdId})>((

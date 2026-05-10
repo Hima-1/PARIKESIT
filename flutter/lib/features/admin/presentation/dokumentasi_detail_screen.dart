@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -591,18 +592,15 @@ class DokumentasiDetailScreen extends ConsumerWidget {
               minScale: 0.5,
               maxScale: 4,
               child: Center(
-                child: Image.network(
-                  fileUrl,
+                child: CachedNetworkImage(
+                  imageUrl: fileUrl,
                   fit: BoxFit.contain,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) {
-                      return child;
-                    }
-                    return const Center(
-                      child: CircularProgressIndicator(color: AppTheme.gold),
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) => const Column(
+                  fadeInDuration: const Duration(milliseconds: 200),
+                  progressIndicatorBuilder: (context, url, progress) =>
+                      const Center(
+                        child: CircularProgressIndicator(color: AppTheme.gold),
+                      ),
+                  errorWidget: (context, url, error) => const Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(

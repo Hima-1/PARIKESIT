@@ -155,9 +155,7 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
         children: [
           Expanded(
             child: AppEmptyState(
-              icon: isSearching
-                  ? LucideIcons.searchX
-                  : LucideIcons.users,
+              icon: isSearching ? LucideIcons.searchX : LucideIcons.users,
               title: isSearching
                   ? 'Tidak ada user yang cocok.'
                   : 'Belum ada pengguna.',

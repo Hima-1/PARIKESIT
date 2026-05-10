@@ -93,7 +93,7 @@ void main() {
         overrides: [
           currentUserProvider.overrideWith((ref) => null),
           opdDashboardControllerProvider.overrideWith(
-            () => _ThrowingOpdDashboardController(),
+            _ThrowingOpdDashboardController.new,
           ),
         ],
         child: const MaterialApp(home: OpdDashboardScreen()),

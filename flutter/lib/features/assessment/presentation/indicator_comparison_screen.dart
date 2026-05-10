@@ -4,8 +4,11 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/auth/role_access.dart';
 import 'package:parikesit/core/auth/user_role.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
+import 'package:parikesit/core/theme/app_theme.dart';
 import 'package:parikesit/core/widgets/ethno_button.dart';
+import 'package:parikesit/core/widgets/ethno_card.dart';
 import 'package:parikesit/core/widgets/status_banner.dart';
+import 'package:parikesit/features/assessment/domain/assessment_indikator.dart';
 import 'package:parikesit/features/assessment/presentation/controller/assessment_controller.dart';
 import 'package:parikesit/features/assessment/presentation/helpers/indicator_review_resolver.dart';
 import 'package:parikesit/features/assessment/presentation/helpers/review_route_context.dart';
@@ -235,6 +238,7 @@ class IndicatorReviewerScreen extends ConsumerWidget {
             currentData,
             isAdmin ? 'Admin' : 'Walidata',
           ),
+          indikator: currentData.indikator,
           opdScore: currentData.opdScore,
           onSave: (int score, String explanation) async {
             final dynamic assessmentController = ref.read(
@@ -296,6 +300,7 @@ class _IndicatorAuditFormScreen extends StatelessWidget {
     required this.inputLabel,
     required this.initialScore,
     required this.initialExplanation,
+    required this.indikator,
     required this.opdScore,
     required this.onSave,
   });
@@ -305,6 +310,7 @@ class _IndicatorAuditFormScreen extends StatelessWidget {
   final String inputLabel;
   final int initialScore;
   final String initialExplanation;
+  final AssessmentIndikator indikator;
   final double opdScore;
   final Future<void> Function(int score, String explanation) onSave;
 
@@ -316,6 +322,8 @@ class _IndicatorAuditFormScreen extends StatelessWidget {
       body: ListView(
         padding: AppSpacing.pPage,
         children: [
+          _IndicatorAuditSummaryCard(indikator: indikator),
+          AppSpacing.gapH16,
           AuditInteractionPanel(
             title: title.toUpperCase(),
             buttonLabel: buttonLabel,
@@ -340,6 +348,66 @@ class _IndicatorAuditFormScreen extends StatelessWidget {
               }
             },
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _IndicatorAuditSummaryCard extends StatelessWidget {
+  const _IndicatorAuditSummaryCard({required this.indikator});
+
+  final AssessmentIndikator indikator;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final String code = indikator.kodeIndikator?.trim().isNotEmpty == true
+        ? indikator.kodeIndikator!.trim()
+        : '#${indikator.id}';
+    final String contextLabel = <String>[
+      if ((indikator.namaDomain ?? '').trim().isNotEmpty)
+        indikator.namaDomain!.trim(),
+      if ((indikator.namaAspek ?? '').trim().isNotEmpty)
+        indikator.namaAspek!.trim(),
+    ].join(' > ');
+
+    return EthnoCard(
+      isFlat: true,
+      padding: AppSpacing.pAll20,
+      margin: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'INDIKATOR $code',
+            style: textTheme.labelSmall?.copyWith(
+              color: AppTheme.gold,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1.2,
+            ),
+          ),
+          AppSpacing.gapH8,
+          Text(
+            indikator.namaIndikator,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: textTheme.titleSmall?.copyWith(
+              color: AppTheme.sogan,
+              fontWeight: FontWeight.w900,
+              height: 1.3,
+            ),
+          ),
+          if (contextLabel.isNotEmpty) ...[
+            AppSpacing.gapH8,
+            Text(
+              contextLabel,
+              style: textTheme.bodySmall?.copyWith(
+                color: AppTheme.neutral,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
         ],
       ),
     );

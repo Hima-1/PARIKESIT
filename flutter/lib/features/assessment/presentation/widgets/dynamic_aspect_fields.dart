@@ -85,10 +85,7 @@ class _AspectFieldRow extends StatelessWidget {
           ),
           if (canRemove)
             IconButton(
-              icon: const Icon(
-                LucideIcons.minusCircle,
-                color: AppTheme.error,
-              ),
+              icon: const Icon(LucideIcons.minusCircle, color: AppTheme.error),
               onPressed: onRemove,
             ),
         ],

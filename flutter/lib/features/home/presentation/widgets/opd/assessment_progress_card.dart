@@ -113,11 +113,7 @@ class AssessmentProgressCard extends StatelessWidget {
             decoration: AppTheme.warningContainerDecoration,
             child: Row(
               children: [
-                const Icon(
-                  LucideIcons.info,
-                  size: 18,
-                  color: AppTheme.warning,
-                ),
+                const Icon(LucideIcons.info, size: 18, color: AppTheme.warning),
                 AppSpacing.gapW8,
                 Text(
                   '$unassignedIndicators indikator belum terisi',

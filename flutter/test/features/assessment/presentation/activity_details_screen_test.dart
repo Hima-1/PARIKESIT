@@ -220,7 +220,10 @@ class _StaticAssessmentListController extends AssessmentListController {
       );
 }
 
-class _ActivityDetailsRepository implements IAssessmentRepository {
+class _ActivityDetailsRepository implements AssessmentRepository {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+
   int getFormulirCallCount = 0;
 
   @override
@@ -246,6 +249,7 @@ class _ActivityDetailsRepository implements IAssessmentRepository {
   Future<List<AssessmentFormModel>> getActivities() async =>
       <AssessmentFormModel>[];
 
+  @override
   Future<PaginatedResponse<AssessmentFormModel>> getActivitiesPage({
     int page = 1,
     int perPage = 15,
@@ -319,6 +323,7 @@ class _ActivityDetailsRepository implements IAssessmentRepository {
   Future<List<OpdModel>> getPublicOpdsForActivity(String activityId) async =>
       getOpdsForActivity(activityId);
 
+  @override
   Future<PaginatedResponse<OpdModel>> getOpdsForActivityPage(
     String activityId, {
     int page = 1,
@@ -340,6 +345,7 @@ class _ActivityDetailsRepository implements IAssessmentRepository {
     ),
   );
 
+  @override
   Future<PaginatedResponse<OpdModel>> getPublicOpdsForActivityPage(
     String activityId, {
     int page = 1,
@@ -395,10 +401,7 @@ class _ActivityDetailsRepository implements IAssessmentRepository {
   }
 
   @override
-  Future<Penilaian> submitAdminEvaluation(
-    int assessmentId,
-    Map<String, dynamic> data,
-  ) {
+  Future<Penilaian> submitAdminEvaluation(Map<String, dynamic> data) {
     throw UnimplementedError();
   }
 
@@ -412,10 +415,7 @@ class _ActivityDetailsRepository implements IAssessmentRepository {
   }
 
   @override
-  Future<Penilaian> submitWalidataCorrection(
-    int assessmentId,
-    Map<String, dynamic> data,
-  ) {
+  Future<Penilaian> submitWalidataCorrection(Map<String, dynamic> data) {
     throw UnimplementedError();
   }
 

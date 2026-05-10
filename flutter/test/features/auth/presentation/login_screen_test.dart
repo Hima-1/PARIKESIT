@@ -21,7 +21,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          authNotifierProvider.overrideWith(() => _UnauthenticatedNotifier()),
+          authNotifierProvider.overrideWith(_UnauthenticatedNotifier.new),
         ],
         child: const MaterialApp(home: LoginScreen()),
       ),
@@ -59,7 +59,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          authNotifierProvider.overrideWith(() => _UnauthenticatedNotifier()),
+          authNotifierProvider.overrideWith(_UnauthenticatedNotifier.new),
         ],
         child: const MaterialApp(home: LoginScreen()),
       ),
@@ -83,7 +83,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            authNotifierProvider.overrideWith(() => _UnauthenticatedNotifier()),
+            authNotifierProvider.overrideWith(_UnauthenticatedNotifier.new),
           ],
           child: const MaterialApp(home: LoginScreen()),
         ),

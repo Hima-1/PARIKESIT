@@ -45,7 +45,7 @@ void main() {
         await request.response.close();
       });
 
-      final AssessmentRepositoryImpl repository = AssessmentRepositoryImpl(
+      final AssessmentRepository repository = AssessmentRepository(
         Dio(
           BaseOptions(
             baseUrl: 'http://127.0.0.1:${server.port}',
@@ -82,7 +82,7 @@ void main() {
       await request.response.close();
     });
 
-    final AssessmentRepositoryImpl repository = AssessmentRepositoryImpl(
+    final AssessmentRepository repository = AssessmentRepository(
       Dio(BaseOptions(baseUrl: 'http://127.0.0.1:${server.port}')),
     );
 
@@ -115,6 +115,7 @@ void main() {
                 'id': 7,
                 'nama_formulir': 'Formulir Baru',
                 'created_at': '2026-03-13T00:00:00.000Z',
+                'participating_opd_count': 12,
                 'domains': <dynamic>[],
                 'review_progress': <String, dynamic>{
                   'total_indicators': 10,
@@ -150,7 +151,7 @@ void main() {
         await request.response.close();
       });
 
-      final AssessmentRepositoryImpl repository = AssessmentRepositoryImpl(
+      final AssessmentRepository repository = AssessmentRepository(
         Dio(
           BaseOptions(
             baseUrl: 'http://127.0.0.1:${server.port}',
@@ -178,6 +179,7 @@ void main() {
       expect(requestUri.queryParameters['per_page'], '10');
       expect(result.items, hasLength(1));
       expect(result.items.first.title, 'Formulir Baru');
+      expect(result.items.first.opdCount, 12);
       expect(result.items.first.reviewProgress?.correctedCount, 8);
       expect(
         result.items.first.reviewProgress?.pendingIndicatorPreview.first.name,
@@ -235,7 +237,7 @@ void main() {
         await request.response.close();
       });
 
-      final AssessmentRepositoryImpl repository = AssessmentRepositoryImpl(
+      final AssessmentRepository repository = AssessmentRepository(
         Dio(
           BaseOptions(
             baseUrl: 'http://127.0.0.1:${server.port}',
@@ -304,7 +306,7 @@ void main() {
       await request.response.close();
     });
 
-    final AssessmentRepositoryImpl repository = AssessmentRepositoryImpl(
+    final AssessmentRepository repository = AssessmentRepository(
       Dio(
         BaseOptions(
           baseUrl: 'http://127.0.0.1:${server.port}',
@@ -366,7 +368,7 @@ void main() {
       await request.response.close();
     });
 
-    final AssessmentRepositoryImpl repository = AssessmentRepositoryImpl(
+    final AssessmentRepository repository = AssessmentRepository(
       Dio(
         BaseOptions(
           baseUrl: 'http://127.0.0.1:${server.port}',
@@ -429,7 +431,7 @@ void main() {
         await request.response.close();
       });
 
-      final AssessmentRepositoryImpl repository = AssessmentRepositoryImpl(
+      final AssessmentRepository repository = AssessmentRepository(
         Dio(
           BaseOptions(
             baseUrl: 'http://127.0.0.1:${server.port}',
@@ -489,7 +491,7 @@ void main() {
         await request.response.close();
       });
 
-      final AssessmentRepositoryImpl repository = AssessmentRepositoryImpl(
+      final AssessmentRepository repository = AssessmentRepository(
         Dio(
           BaseOptions(
             baseUrl: 'http://127.0.0.1:${server.port}',
@@ -528,7 +530,7 @@ void main() {
       await request.response.close();
     });
 
-    final AssessmentRepositoryImpl repository = AssessmentRepositoryImpl(
+    final AssessmentRepository repository = AssessmentRepository(
       Dio(
         BaseOptions(
           baseUrl: 'http://127.0.0.1:${server.port}',
@@ -576,7 +578,7 @@ void main() {
       await request.response.close();
     });
 
-    final AssessmentRepositoryImpl repository = AssessmentRepositoryImpl(
+    final AssessmentRepository repository = AssessmentRepository(
       Dio(
         BaseOptions(
           baseUrl: 'http://127.0.0.1:${server.port}',
@@ -660,7 +662,7 @@ void main() {
         await request.response.close();
       });
 
-      final AssessmentRepositoryImpl repository = AssessmentRepositoryImpl(
+      final AssessmentRepository repository = AssessmentRepository(
         Dio(BaseOptions(baseUrl: 'http://127.0.0.1:${server.port}')),
       );
 
@@ -727,7 +729,7 @@ void main() {
         await request.response.close();
       });
 
-      final AssessmentRepositoryImpl repository = AssessmentRepositoryImpl(
+      final AssessmentRepository repository = AssessmentRepository(
         Dio(
           BaseOptions(
             baseUrl: 'http://127.0.0.1:${server.port}',

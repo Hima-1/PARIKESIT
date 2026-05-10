@@ -246,7 +246,9 @@ class _DokumentasiFormState extends ConsumerState<DokumentasiForm> {
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
       decoration: const BoxDecoration(
         color: AppTheme.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppTheme.radiusLg)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppTheme.radiusLg),
+        ),
         border: Border(top: BorderSide(color: AppTheme.borderColor)),
       ),
       child: AnimatedPadding(
@@ -274,17 +276,14 @@ class _DokumentasiFormState extends ConsumerState<DokumentasiForm> {
                       ),
                     ),
                   ),
-                  Container(
+                  DecoratedBox(
                     decoration: BoxDecoration(
                       color: AppTheme.sogan.withValues(alpha: 0.05),
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
                       onPressed: () => Navigator.pop(context),
-                      icon: const Icon(
-                        LucideIcons.x,
-                        color: AppTheme.sogan,
-                      ),
+                      icon: const Icon(LucideIcons.x, color: AppTheme.sogan),
                     ),
                   ),
                 ],

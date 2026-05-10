@@ -157,7 +157,6 @@ class _WalidataDashboardScreenState
                             correctedCount: progress.correctedCount,
                             totalCount: progress.totalIndicators,
                             percentage: progress.percentage,
-                            pendingIndicators: progress.pendingIndicatorPreview,
                             finalCorrectionScore: progress.finalCorrectionScore,
                             onTap: () {
                               HapticFeedback.lightImpact();

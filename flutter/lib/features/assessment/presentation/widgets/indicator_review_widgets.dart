@@ -117,7 +117,7 @@ class IndicatorReviewNavigationFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool hasPrevious = currentIndex > 0;
     final bool hasNext = currentIndex < indicatorComparisons.length - 1;
-    final Widget content = Container(
+    final Widget content = DecoratedBox(
       decoration: const BoxDecoration(
         color: AppTheme.surface,
         border: Border(top: BorderSide(color: AppTheme.borderColor)),

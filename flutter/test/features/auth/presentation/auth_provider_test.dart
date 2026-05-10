@@ -73,7 +73,7 @@ void main() {
       () async {
         final repository = MockAuthRepository();
         final completer = Completer<void>();
-        when(() => repository.logout()).thenAnswer((_) => completer.future);
+        when(repository.logout).thenAnswer((_) => completer.future);
 
         final container = ProviderContainer(
           overrides: [
@@ -93,7 +93,7 @@ void main() {
           container.read(authNotifierProvider).status,
           AuthStatus.unauthenticated,
         );
-        verify(() => repository.logout()).called(1);
+        verify(repository.logout).called(1);
 
         await expectLater(logoutFuture, completes);
 
@@ -105,7 +105,7 @@ void main() {
     test('loads authenticated user during notifier initialization', () async {
       final repository = MockAuthRepository();
       final completer = Completer<User?>();
-      when(() => repository.getUser()).thenAnswer((_) => completer.future);
+      when(repository.getUser).thenAnswer((_) => completer.future);
 
       final container = ProviderContainer(
         overrides: [authRepositoryProvider.overrideWithValue(repository)],

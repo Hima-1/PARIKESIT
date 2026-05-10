@@ -68,7 +68,7 @@ final opdListProvider =
       OpdSelectionController,
       PaginatedResponse<OpdModel>,
       OpdListArgs
-    >((args) => OpdSelectionController(args));
+    >(OpdSelectionController.new);
 
 /// Lightweight provider: fetches only the 3 comparison scores for an OPD.
 /// Uses the dedicated /penilaian-selesai/{formulir}/opd/{user}/stats endpoint

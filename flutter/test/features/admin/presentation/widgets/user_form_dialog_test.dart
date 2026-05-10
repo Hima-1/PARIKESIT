@@ -405,7 +405,7 @@ class _DialogTestHostState extends State<_DialogTestHost> {
   }
 }
 
-class _FakeAdminUserRepository implements IAdminUserRepository {
+class _FakeAdminUserRepository implements AdminUserRepository {
   _FakeAdminUserRepository({
     this.createShouldFail = false,
     this.resetShouldFail = false,

@@ -433,6 +433,7 @@ class _OpdItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final status = _buildStatus();
+    final supportText = _buildSupportText(status);
 
     return EthnoCard(
       isFlat: true,
@@ -459,13 +460,24 @@ class _OpdItemCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [_buildStatusBadge(context, status)],
-                    ),
-                    AppSpacing.gapH8,
                     if (!isPublicReadOnly) ...[
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [_buildStatusBadge(context, status)],
+                      ),
+                      AppSpacing.gapH8,
+                    ],
+                    if (isPublicReadOnly) ...[
+                      Text(
+                        opd.name,
+                        style: textTheme.titleSmall?.copyWith(
+                          color: AppTheme.sogan,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      AppSpacing.gapH8,
+                    ] else ...[
                       _IdentityRow(
                         icon: LucideIcons.building2,
                         label: 'Nama OPD',
@@ -473,55 +485,51 @@ class _OpdItemCard extends StatelessWidget {
                       ),
                       AppSpacing.gapH4,
                     ],
-                    _IdentityRow(
-                      icon: LucideIcons.badge,
-                      label: 'Jabatan',
-                      value: _identityValue(opd.role),
-                    ),
-                    AppSpacing.gapH4,
-                    _IdentityRow(
-                      icon: LucideIcons.phone,
-                      label: 'Kontak',
-                      value: _identityValue(opd.nomorTelepon),
-                    ),
-                    AppSpacing.gapH8,
-                    Text(
-                      _buildSupportText(status),
-                      style: textTheme.bodySmall?.copyWith(
-                        color: AppTheme.neutral.withValues(alpha: 0.7),
-                        height: 1.35,
+                    if (!isPublicReadOnly) ...[
+                      _IdentityRow(
+                        icon: LucideIcons.badge,
+                        label: 'Jabatan',
+                        value: _identityValue(opd.role),
                       ),
-                    ),
+                      AppSpacing.gapH4,
+                    ],
+                    if (isPublicReadOnly)
+                      _IconValueRow(
+                        icon: LucideIcons.mail,
+                        value: _identityValue(opd.email),
+                      )
+                    else
+                      _IdentityRow(
+                        icon: LucideIcons.phone,
+                        label: 'Kontak',
+                        value: _identityValue(opd.nomorTelepon),
+                      ),
+                    if (isPublicReadOnly && _hasScore(opd.opdScore)) ...[
+                      AppSpacing.gapH12,
+                      _ScoreRow(opd: opd),
+                    ] else ...[
+                      if (supportText.isNotEmpty) ...[
+                        AppSpacing.gapH8,
+                        Text(
+                          supportText,
+                          style: textTheme.bodySmall?.copyWith(
+                            color: AppTheme.neutral.withValues(alpha: 0.7),
+                            height: 1.35,
+                          ),
+                        ),
+                      ],
+                    ],
                   ],
                 ),
               ),
               Icon(LucideIcons.chevronRight, color: config.highlightColor),
             ],
           ),
-          if (_hasScore(opd.opdScore)) ...[
+          if (_hasScore(opd.opdScore) && !isPublicReadOnly) ...[
             AppSpacing.gapH16,
             const Divider(height: 1, thickness: 0.5),
             AppSpacing.gapH12,
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _ScoreInfo(
-                  label: 'MANDIRI',
-                  score: opd.opdScore!,
-                  color: AppTheme.sogan,
-                ),
-                _ScoreInfo(
-                  label: 'WALIDATA',
-                  score: opd.walidataScore ?? 0,
-                  color: AppTheme.gold,
-                ),
-                _ScoreInfo(
-                  label: 'FINAL',
-                  score: opd.adminScore ?? 0,
-                  color: AppTheme.success,
-                ),
-              ],
-            ),
+            _ScoreRow(opd: opd),
             AppSpacing.gapH12,
             Container(
               width: double.infinity,
@@ -541,10 +549,7 @@ class _OpdItemCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Icon(
-                    LucideIcons.chevronRight,
-                    color: config.highlightColor,
-                  ),
+                  Icon(LucideIcons.chevronRight, color: config.highlightColor),
                 ],
               ),
             ),
@@ -578,8 +583,7 @@ class _OpdItemCard extends StatelessWidget {
 
     if (role == UserRole.walidata) {
       return switch (status.state) {
-        _OpdWorkflowState.waiting =>
-          'Belum ada koreksi walidata. Buka detail untuk memulai peninjauan indikator.',
+        _OpdWorkflowState.waiting => '',
         _OpdWorkflowState.partial =>
           'Koreksi walidata belum lengkap. Lanjutkan untuk menyelesaikan indikator tersisa.',
         _OpdWorkflowState.complete =>
@@ -716,6 +720,68 @@ class _IdentityRow extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ],
+    );
+  }
+}
+
+class _IconValueRow extends StatelessWidget {
+  const _IconValueRow({required this.icon, required this.value});
+
+  final IconData icon;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 14, color: AppTheme.neutral.withValues(alpha: 0.62)),
+        AppSpacing.gapW8,
+        Expanded(
+          child: Text(
+            value,
+            style: textTheme.bodySmall?.copyWith(
+              color: AppTheme.neutral.withValues(alpha: 0.78),
+              fontWeight: FontWeight.w500,
+              height: 1.25,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ScoreRow extends StatelessWidget {
+  const _ScoreRow({required this.opd});
+
+  final OpdModel opd;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _ScoreInfo(
+          label: 'MANDIRI',
+          score: opd.opdScore ?? 0,
+          color: AppTheme.sogan,
+        ),
+        AppSpacing.gapW24,
+        _ScoreInfo(
+          label: 'WALIDATA',
+          score: opd.walidataScore ?? 0,
+          color: AppTheme.gold,
+        ),
+        AppSpacing.gapW24,
+        _ScoreInfo(
+          label: 'FINAL',
+          score: opd.adminScore ?? 0,
+          color: AppTheme.success,
         ),
       ],
     );

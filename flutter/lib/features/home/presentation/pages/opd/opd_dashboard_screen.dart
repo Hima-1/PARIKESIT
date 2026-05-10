@@ -152,7 +152,7 @@ class OpdDashboardScreen extends ConsumerWidget {
     return EthnoCard(
       isFlat: true,
       padding: EdgeInsets.zero,
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           color: AppTheme.sogan,
           borderRadius: BorderRadius.circular(AppTheme.borderRadius),

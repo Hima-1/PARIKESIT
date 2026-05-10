@@ -16,7 +16,7 @@ import 'package:parikesit/features/assessment/presentation/penilaian_mandiri_scr
 
 void main() {
   group('PenilaianMandiriScreen', () {
-    ProviderContainer createContainer(IAssessmentRepository repository) {
+    ProviderContainer createContainer(AssessmentRepository repository) {
       return ProviderContainer(
         overrides: [assessmentRepositoryProvider.overrideWithValue(repository)],
       );
@@ -221,7 +221,10 @@ class _StaticAssessmentListController extends AssessmentListController {
       );
 }
 
-class _FakeAssessmentRepository implements IAssessmentRepository {
+class _FakeAssessmentRepository implements AssessmentRepository {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+
   @override
   Future<AssessmentFormModel> addActivity(
     AssessmentFormModel activity, {
@@ -252,6 +255,13 @@ class _FakeAssessmentRepository implements IAssessmentRepository {
   @override
   Future<List<AssessmentFormModel>> getActivities() async =>
       <AssessmentFormModel>[_sampleFormulir()];
+
+  @override
+  Future<PaginatedResponse<AssessmentFormModel>> getActivitiesPage({
+    int page = 1,
+    int perPage = 15,
+  }) async =>
+      _activitiesPage(await getActivities(), page: page, perPage: perPage);
 
   @override
   Future<PaginatedResponse<AssessmentFormModel>> getCompletedActivities({
@@ -331,10 +341,7 @@ class _FakeAssessmentRepository implements IAssessmentRepository {
   }
 
   @override
-  Future<Penilaian> submitAdminEvaluation(
-    int assessmentId,
-    Map<String, dynamic> data,
-  ) {
+  Future<Penilaian> submitAdminEvaluation(Map<String, dynamic> data) {
     throw UnimplementedError();
   }
 
@@ -348,10 +355,7 @@ class _FakeAssessmentRepository implements IAssessmentRepository {
   }
 
   @override
-  Future<Penilaian> submitWalidataCorrection(
-    int assessmentId,
-    Map<String, dynamic> data,
-  ) {
+  Future<Penilaian> submitWalidataCorrection(Map<String, dynamic> data) {
     throw UnimplementedError();
   }
 
@@ -386,7 +390,10 @@ class _FakeAssessmentRepository implements IAssessmentRepository {
   }
 }
 
-class _EmptyAssessmentRepository implements IAssessmentRepository {
+class _EmptyAssessmentRepository implements AssessmentRepository {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+
   @override
   Future<AssessmentFormModel> addActivity(
     AssessmentFormModel activity, {
@@ -419,6 +426,13 @@ class _EmptyAssessmentRepository implements IAssessmentRepository {
   @override
   Future<List<AssessmentFormModel>> getActivities() async =>
       <AssessmentFormModel>[];
+
+  @override
+  Future<PaginatedResponse<AssessmentFormModel>> getActivitiesPage({
+    int page = 1,
+    int perPage = 15,
+  }) async =>
+      _activitiesPage(await getActivities(), page: page, perPage: perPage);
 
   @override
   Future<PaginatedResponse<AssessmentFormModel>> getCompletedActivities({
@@ -502,10 +516,7 @@ class _EmptyAssessmentRepository implements IAssessmentRepository {
   }
 
   @override
-  Future<Penilaian> submitAdminEvaluation(
-    int assessmentId,
-    Map<String, dynamic> data,
-  ) {
+  Future<Penilaian> submitAdminEvaluation(Map<String, dynamic> data) {
     throw UnimplementedError();
   }
 
@@ -519,10 +530,7 @@ class _EmptyAssessmentRepository implements IAssessmentRepository {
   }
 
   @override
-  Future<Penilaian> submitWalidataCorrection(
-    int assessmentId,
-    Map<String, dynamic> data,
-  ) {
+  Future<Penilaian> submitWalidataCorrection(Map<String, dynamic> data) {
     throw UnimplementedError();
   }
 
@@ -532,7 +540,10 @@ class _EmptyAssessmentRepository implements IAssessmentRepository {
   }
 }
 
-class _RefreshingAssessmentRepository implements IAssessmentRepository {
+class _RefreshingAssessmentRepository implements AssessmentRepository {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+
   int activitiesCallCount = 0;
   int myPenilaiansCallCount = 0;
   bool _useUpdatedActivities = false;
@@ -570,6 +581,13 @@ class _RefreshingAssessmentRepository implements IAssessmentRepository {
     activitiesCallCount++;
     return <AssessmentFormModel>[_buildForm()];
   }
+
+  @override
+  Future<PaginatedResponse<AssessmentFormModel>> getActivitiesPage({
+    int page = 1,
+    int perPage = 15,
+  }) async =>
+      _activitiesPage(await getActivities(), page: page, perPage: perPage);
 
   @override
   Future<PaginatedResponse<AssessmentFormModel>> getCompletedActivities({
@@ -652,10 +670,7 @@ class _RefreshingAssessmentRepository implements IAssessmentRepository {
   }
 
   @override
-  Future<Penilaian> submitAdminEvaluation(
-    int assessmentId,
-    Map<String, dynamic> data,
-  ) {
+  Future<Penilaian> submitAdminEvaluation(Map<String, dynamic> data) {
     throw UnimplementedError();
   }
 
@@ -669,10 +684,7 @@ class _RefreshingAssessmentRepository implements IAssessmentRepository {
   }
 
   @override
-  Future<Penilaian> submitWalidataCorrection(
-    int assessmentId,
-    Map<String, dynamic> data,
-  ) {
+  Future<Penilaian> submitWalidataCorrection(Map<String, dynamic> data) {
     throw UnimplementedError();
   }
 
@@ -718,4 +730,27 @@ class _RefreshingAssessmentRepository implements IAssessmentRepository {
       ],
     );
   }
+}
+
+PaginatedResponse<AssessmentFormModel> _activitiesPage(
+  List<AssessmentFormModel> activities, {
+  required int page,
+  required int perPage,
+}) {
+  return PaginatedResponse<AssessmentFormModel>(
+    data: activities,
+    meta: PaginationMeta(
+      currentPage: page,
+      lastPage: 1,
+      perPage: perPage,
+      total: activities.length,
+      from: activities.isEmpty ? null : 1,
+      to: activities.isEmpty ? null : activities.length,
+      path: '/formulir',
+    ),
+    links: const PaginationLinks(
+      first: '/formulir?page=1',
+      last: '/formulir?page=1',
+    ),
+  );
 }

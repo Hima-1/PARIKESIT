@@ -385,11 +385,16 @@ class CompletedActivityCard extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final formattedDate = _formatAssessmentDate(activity.createdAt);
     final scoreLabel = _formatScore(activity.scores, role);
-    final hasRoleAction = role == UserRole.walidata || role == UserRole.admin;
-    final showSummaryText = role == UserRole.opd
+    final hasRoleAction = role == UserRole.admin;
+    final showScoreBadge = role != UserRole.walidata && scoreLabel != null;
+    final showSummaryText = role == UserRole.walidata
+        ? activity.opdCount > 0
+        : role == UserRole.opd
         ? true
         : (config.taskDescription ?? '').isNotEmpty;
-    final summaryText = role == UserRole.opd
+    final summaryText = role == UserRole.walidata
+        ? '${activity.opdCount} OPD terlibat'
+        : role == UserRole.opd
         ? formattedDate
         : config.taskDescription ?? '';
 
@@ -475,7 +480,9 @@ class CompletedActivityCard extends StatelessWidget {
                       ),
                     if (activity.domainsCount > 0)
                       _CardBadge(
-                        label: '${activity.domainsCount} domain',
+                        label: role == UserRole.walidata
+                            ? '${activity.domainsCount} domain penilaian'
+                            : '${activity.domainsCount} domain',
                         backgroundColor: AppTheme.shellSurfaceSoft,
                         foregroundColor: AppTheme.neutral,
                       ),
@@ -487,7 +494,7 @@ class CompletedActivityCard extends StatelessWidget {
                         ),
                         foregroundColor: config.highlightColor,
                       ),
-                    if (scoreLabel != null)
+                    if (showScoreBadge)
                       _CardBadge(
                         label: '${config.scoreLabel}: $scoreLabel',
                         backgroundColor: AppTheme.shellSurfaceSoft,

@@ -52,7 +52,7 @@ class PublicSectionShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: backgroundColor ?? AppTheme.surface,
         borderRadius: BorderRadius.circular(borderRadius),

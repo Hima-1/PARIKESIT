@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:parikesit/core/network/paginated_response.dart';
-import '../../../../data/repositories/dashboard_repository_impl.dart';
+import '../../../../data/dashboard_repository.dart';
 import '../../../../domain/opd_dashboard_progress.dart';
 
 class OpdDashboardController

@@ -166,103 +166,67 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
 
   Widget _buildActionButtons() {
     final isOpdUser = widget.user.role == 'opd';
+    final buttons = <Widget>[
+      EthnoButton(
+        onPressed: () => _showUserForm(isReset: false),
+        icon: LucideIcons.pencil,
+        label: 'Edit',
+        style: EthnoButtonStyle.primary,
+        isFullWidth: true,
+      ),
+      EthnoButton(
+        onPressed: () => _showUserForm(isReset: true),
+        icon: LucideIcons.keyRound,
+        label: 'Reset Password',
+        style: EthnoButtonStyle.secondary,
+        isFullWidth: true,
+      ),
+      if (isOpdUser)
+        EthnoButton(
+          onPressed: _isTriggeringReminder ? null : _triggerReminder,
+          icon: LucideIcons.bellRing,
+          label: _isTriggeringReminder
+              ? 'Mengirim Reminder...'
+              : 'Kirim Reminder',
+          style: EthnoButtonStyle.secondary,
+          isFullWidth: true,
+        ),
+      EthnoButton(
+        onPressed: _confirmDelete,
+        icon: LucideIcons.trash2,
+        label: 'Hapus',
+        style: EthnoButtonStyle.danger,
+        isFullWidth: true,
+      ),
+    ];
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isCompact = constraints.maxWidth < 720 || isOpdUser;
+        final isCompact = constraints.maxWidth < 520;
+
+        if (isCompact) {
+          return Column(
+            children: [
+              for (var index = 0; index < buttons.length; index++) ...[
+                if (index > 0) AppSpacing.gapH16,
+                buttons[index],
+              ],
+            ],
+          );
+        }
 
         return Column(
           children: [
-            if (isCompact) ...[
-              EthnoButton(
-                onPressed: () => Navigator.pop(context),
-                icon: LucideIcons.arrowLeft,
-                label: 'Kembali',
-                style: EthnoButtonStyle.outlined,
-                isFullWidth: true,
-              ),
-              AppSpacing.gapH16,
-              EthnoButton(
-                onPressed: () => _showUserForm(isReset: false),
-                icon: LucideIcons.pencil,
-                label: 'Edit',
-                style: EthnoButtonStyle.primary,
-                isFullWidth: true,
-              ),
-              AppSpacing.gapH16,
-              EthnoButton(
-                onPressed: () => _showUserForm(isReset: true),
-                icon: LucideIcons.keyRound,
-                label: 'Reset Password',
-                style: EthnoButtonStyle.secondary,
-                isFullWidth: true,
-              ),
-              if (isOpdUser) ...[
-                AppSpacing.gapH16,
-                EthnoButton(
-                  onPressed: _isTriggeringReminder ? null : _triggerReminder,
-                  icon: LucideIcons.bellRing,
-                  label: _isTriggeringReminder
-                      ? 'Mengirim Reminder...'
-                      : 'Kirim Reminder',
-                  style: EthnoButtonStyle.secondary,
-                  isFullWidth: true,
-                ),
-              ],
-              AppSpacing.gapH16,
-              EthnoButton(
-                onPressed: _confirmDelete,
-                icon: LucideIcons.trash2,
-                label: 'Hapus',
-                style: EthnoButtonStyle.danger,
-                isFullWidth: true,
-              ),
-            ] else ...[
+            for (var index = 0; index < buttons.length; index += 2) ...[
+              if (index > 0) AppSpacing.gapH16,
               Row(
                 children: [
-                  Expanded(
-                    child: EthnoButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: LucideIcons.arrowLeft,
-                      label: 'Kembali',
-                      style: EthnoButtonStyle.outlined,
-                      isFullWidth: true,
-                    ),
-                  ),
-                  AppSpacing.gapW16,
-                  Expanded(
-                    child: EthnoButton(
-                      onPressed: () => _showUserForm(isReset: false),
-                      icon: LucideIcons.pencil,
-                      label: 'Edit',
-                      style: EthnoButtonStyle.primary,
-                      isFullWidth: true,
-                    ),
-                  ),
-                ],
-              ),
-              AppSpacing.gapH16,
-              Row(
-                children: [
-                  Expanded(
-                    child: EthnoButton(
-                      onPressed: () => _showUserForm(isReset: true),
-                      icon: LucideIcons.keyRound,
-                      label: 'Reset Password',
-                      style: EthnoButtonStyle.secondary,
-                      isFullWidth: true,
-                    ),
-                  ),
-                  AppSpacing.gapW16,
-                  Expanded(
-                    child: EthnoButton(
-                      onPressed: _confirmDelete,
-                      icon: LucideIcons.trash2,
-                      label: 'Hapus',
-                      style: EthnoButtonStyle.danger,
-                      isFullWidth: true,
-                    ),
-                  ),
+                  Expanded(child: buttons[index]),
+                  if (index + 1 < buttons.length) ...[
+                    AppSpacing.gapW16,
+                    Expanded(child: buttons[index + 1]),
+                  ] else
+                    const Spacer(),
                 ],
               ),
             ],

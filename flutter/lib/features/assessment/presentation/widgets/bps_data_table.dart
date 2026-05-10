@@ -35,7 +35,7 @@ class _BpsDataTableState extends State<BpsDataTable> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: AppTheme.surface,
         borderRadius: BorderRadius.circular(AppTheme.radiusMd),

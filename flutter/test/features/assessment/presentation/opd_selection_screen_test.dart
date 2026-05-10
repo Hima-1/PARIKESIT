@@ -155,12 +155,23 @@ void main() {
       expect(find.byType(RefreshIndicator), findsOneWidget);
       expect(find.text('Lihat skor akhir per OPD'), findsOneWidget);
       expect(find.text('Read-only'), findsOneWidget);
-      expect(find.text('Lihat rincian publik'), findsWidgets);
+      expect(find.text('Lihat rincian publik'), findsNothing);
       expect(find.text('Nama OPD:'), findsNothing);
-      expect(find.text('Jabatan:'), findsWidgets);
-      expect(find.text('Kontak:'), findsWidgets);
+      expect(find.text('Zulu'), findsOneWidget);
+      expect(find.text('Alpha'), findsOneWidget);
+      expect(find.text('Jabatan:'), findsNothing);
+      expect(find.text('Kontak:'), findsNothing);
+      expect(find.text('zulu@example.com'), findsOneWidget);
+      expect(find.text('alpha@example.com'), findsOneWidget);
+      expect(
+        find.text(
+          'Skor mandiri OPD tersedia. Koreksi lanjutan belum ditampilkan penuh.',
+        ),
+        findsNothing,
+      );
       expect(find.text('HASIL AKHIR PUBLIK'), findsNothing);
-      expect(find.text('SKOR FINAL TERSEDIA'), findsWidgets);
+      expect(find.text('SKOR MANDIRI TERSEDIA'), findsNothing);
+      expect(find.text('SKOR FINAL TERSEDIA'), findsNothing);
       expect(find.text('MENUNGGU TINJAUAN'), findsNothing);
       expect(find.text('SELESAI'), findsNothing);
       expect(find.text('3.80'), findsWidgets);
@@ -171,10 +182,7 @@ void main() {
 
       await tester.tap(
         find
-            .ancestor(
-              of: find.text('Lihat rincian publik').first,
-              matching: find.byType(InkWell),
-            )
+            .ancestor(of: find.text('Zulu'), matching: find.byType(InkWell))
             .first,
         warnIfMissed: false,
       );
@@ -239,6 +247,12 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('MENUNGGU TINJAUAN'), findsOneWidget);
+    expect(
+      find.text(
+        'Belum ada koreksi walidata. Buka detail untuk memulai peninjauan indikator.',
+      ),
+      findsNothing,
+    );
     expect(find.text('BELUM LENGKAP (1/5)'), findsOneWidget);
     expect(find.text('SELESAI'), findsOneWidget);
     expect(find.text('SUDAH DITINJAU'), findsNothing);
@@ -336,7 +350,7 @@ void main() {
   });
 }
 
-class _OpdSelectionRepository extends AssessmentRepositoryImpl {
+class _OpdSelectionRepository extends AssessmentRepository {
   _OpdSelectionRepository({
     List<OpdModel>? opds,
     List<OpdModel>? publicOpds,
@@ -354,6 +368,7 @@ class _OpdSelectionRepository extends AssessmentRepositoryImpl {
     OpdModel(
       id: 2,
       name: 'Zulu',
+      email: 'zulu@example.com',
       role: 'opd',
       nomorTelepon: '08123456789',
       opdScore: 3.0,
@@ -366,6 +381,7 @@ class _OpdSelectionRepository extends AssessmentRepositoryImpl {
     OpdModel(
       id: 1,
       name: 'Alpha',
+      email: 'alpha@example.com',
       role: 'opd',
       nomorTelepon: '08111111111',
       opdScore: 4.0,
@@ -381,6 +397,7 @@ class _OpdSelectionRepository extends AssessmentRepositoryImpl {
     OpdModel(
       id: 2,
       name: 'Zulu',
+      email: 'zulu@example.com',
       role: 'opd',
       nomorTelepon: '08123456789',
       opdScore: 3.0,
@@ -390,6 +407,7 @@ class _OpdSelectionRepository extends AssessmentRepositoryImpl {
     OpdModel(
       id: 1,
       name: 'Alpha',
+      email: 'alpha@example.com',
       role: 'opd',
       nomorTelepon: '08111111111',
       opdScore: 4.0,
@@ -587,10 +605,8 @@ class _OpdSelectionRepository extends AssessmentRepositoryImpl {
   ) async => throw UnimplementedError();
 
   @override
-  Future<Penilaian> submitAdminEvaluation(
-    int assessmentId,
-    Map<String, dynamic> data,
-  ) async => throw UnimplementedError();
+  Future<Penilaian> submitAdminEvaluation(Map<String, dynamic> data) async =>
+      throw UnimplementedError();
 
   @override
   Future<Penilaian> submitPenilaian(
@@ -600,10 +616,8 @@ class _OpdSelectionRepository extends AssessmentRepositoryImpl {
   ) async => throw UnimplementedError();
 
   @override
-  Future<Penilaian> submitWalidataCorrection(
-    int assessmentId,
-    Map<String, dynamic> data,
-  ) async => throw UnimplementedError();
+  Future<Penilaian> submitWalidataCorrection(Map<String, dynamic> data) async =>
+      throw UnimplementedError();
 
   @override
   Future<BuktiDukung> uploadBuktiDukung(

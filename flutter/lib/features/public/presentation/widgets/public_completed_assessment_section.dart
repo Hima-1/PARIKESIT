@@ -204,7 +204,7 @@ class _PublicCompletedAssessmentSectionState
               ),
             ),
             SizedBox(width: isCompact ? 8 : 12),
-            Container(
+            DecoratedBox(
               decoration: BoxDecoration(
                 color: AppTheme.surface,
                 borderRadius: BorderRadius.circular(AppTheme.radiusSm),

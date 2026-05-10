@@ -350,6 +350,9 @@ void main() {
       await tester.tap(find.text('BERI KOREKSI'));
       await tester.pumpAndSettle();
 
+      expect(find.text('INDIKATOR 30101'), findsOneWidget);
+      expect(find.text('Indikator Sinkron'), findsWidgets);
+      expect(find.text('Domain A > Aspek A'), findsWidgets);
       expect(find.text('Catatan Koreksi Walidata'), findsOneWidget);
       await tester.enterText(find.byType(TextField), 'Perlu sinkronisasi');
       await tester.tap(find.text('SIMPAN KOREKSI'));
@@ -407,7 +410,7 @@ void main() {
                   .firstWhere(
                     (IndicatorComparisonData item) =>
                         item.indikator.id.toString() == indicatorId,
-                    orElse: () => _staleComparisonData(),
+                    orElse: _staleComparisonData,
                   );
 
               return IndicatorReviewerScreen(

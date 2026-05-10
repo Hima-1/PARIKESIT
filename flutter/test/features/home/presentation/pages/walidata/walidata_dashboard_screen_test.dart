@@ -103,7 +103,7 @@ void main() {
     expect(find.text('Audit Internal 2026'), findsOneWidget);
   });
 
-  testWidgets('shows progress cards and indicator preview', (
+  testWidgets('shows progress cards without inline indicator preview', (
     WidgetTester tester,
   ) async {
     tester.view.physicalSize = const Size(1200, 1800);
@@ -131,8 +131,8 @@ void main() {
     expect(find.text('Evaluasi SPBE 2026'), findsOneWidget);
     expect(find.text('Koreksi Walidata'), findsOneWidget);
     expect(find.text('8/10 (80%)'), findsOneWidget);
-    expect(find.text('Indikator Belum Dikoreksi'), findsOneWidget);
-    expect(find.text('Indikator A'), findsOneWidget);
+    expect(find.text('Indikator Belum Dikoreksi'), findsNothing);
+    expect(find.text('Indikator A'), findsNothing);
     expect(find.text('Riwayat'), findsNothing);
   });
 

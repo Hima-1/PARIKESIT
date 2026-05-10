@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../data/repositories/dashboard_repository_impl.dart';
+import '../../../../data/dashboard_repository.dart';
 import '../../../../domain/walidata_dashboard_progress.dart';
 
 class WalidataDashboardController

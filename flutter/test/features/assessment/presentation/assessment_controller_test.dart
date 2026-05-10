@@ -92,7 +92,10 @@ void main() {
   );
 }
 
-class _FakeAssessmentRepository implements IAssessmentRepository {
+class _FakeAssessmentRepository implements AssessmentRepository {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+
   int? lastSubmittedFormulirId;
   int? lastSubmittedIndikatorId;
   Map<String, dynamic>? lastSubmitPayload;
@@ -170,10 +173,8 @@ class _FakeAssessmentRepository implements IAssessmentRepository {
   }
 
   @override
-  Future<Penilaian> submitWalidataCorrection(
-    int assessmentId,
-    Map<String, dynamic> data,
-  ) async {
+  Future<Penilaian> submitWalidataCorrection(Map<String, dynamic> data) async {
+    final int assessmentId = (data['penilaian_id'] as num).toInt();
     lastCorrectionAssessmentId = assessmentId;
     lastCorrectionPayload = Map<String, dynamic>.from(data);
     return Penilaian(
@@ -188,10 +189,7 @@ class _FakeAssessmentRepository implements IAssessmentRepository {
   }
 
   @override
-  Future<Penilaian> submitAdminEvaluation(
-    int assessmentId,
-    Map<String, dynamic> data,
-  ) {
+  Future<Penilaian> submitAdminEvaluation(Map<String, dynamic> data) {
     throw UnimplementedError();
   }
 

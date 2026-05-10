@@ -109,7 +109,7 @@ void main() {
   });
 }
 
-Widget _buildApp({required AppUser user, IAdminUserRepository? repository}) {
+Widget _buildApp({required AppUser user, AdminUserRepository? repository}) {
   return ProviderScope(
     overrides: [
       adminUserRepositoryProvider.overrideWithValue(
@@ -123,7 +123,7 @@ Widget _buildApp({required AppUser user, IAdminUserRepository? repository}) {
   );
 }
 
-class _FakeAdminUserRepository implements IAdminUserRepository {
+class _FakeAdminUserRepository implements AdminUserRepository {
   final List<int> triggeredUserIds = <int>[];
   final List<int> resetPasswordIds = <int>[];
 

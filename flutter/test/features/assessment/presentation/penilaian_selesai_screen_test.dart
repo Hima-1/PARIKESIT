@@ -72,7 +72,16 @@ void main() {
 
       expect(find.text('Antrian Koreksi'), findsWidgets);
       expect(find.text('Lanjutkan koreksi'), findsWidgets);
-      expect(find.text('Skor walidata: 3.42'), findsWidgets);
+      expect(find.text('12 OPD terlibat'), findsWidgets);
+      expect(find.text('12 Mar 2026'), findsWidgets);
+      expect(find.text('1 domain penilaian'), findsWidgets);
+      expect(find.text('1 domain'), findsNothing);
+      expect(find.text('Perlu tindak lanjut'), findsNothing);
+      expect(find.text('Skor walidata: 3.42'), findsNothing);
+      expect(
+        find.text('Tinjau skor OPD dan lanjutkan koreksi indikator.'),
+        findsNothing,
+      );
     });
 
     testWidgets(
@@ -280,8 +289,11 @@ void main() {
   });
 }
 
-class _CompletedAssessmentRepository implements IAssessmentRepository {
+class _CompletedAssessmentRepository implements AssessmentRepository {
   _CompletedAssessmentRepository({this.withScores = true});
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 
   final bool withScores;
   CompletedAssessmentQuery lastQuery = const CompletedAssessmentQuery();
@@ -392,7 +404,16 @@ class _CompletedAssessmentRepository implements IAssessmentRepository {
       id: id,
       title: title,
       date: date,
-      domains: const <DomainModel>[],
+      opdCount: 12,
+      domains: <DomainModel>[
+        DomainModel(
+          id: '1',
+          name: 'Domain Statistik',
+          date: date,
+          aspects: const <AspectModel>[],
+          indicatorCount: 0,
+        ),
+      ],
       scores: withScores ? const RoleScore(admin: 3.42) : null,
     );
   }
@@ -457,10 +478,8 @@ class _CompletedAssessmentRepository implements IAssessmentRepository {
   ) async => throw UnimplementedError();
 
   @override
-  Future<Penilaian> submitAdminEvaluation(
-    int assessmentId,
-    Map<String, dynamic> data,
-  ) async => throw UnimplementedError();
+  Future<Penilaian> submitAdminEvaluation(Map<String, dynamic> data) async =>
+      throw UnimplementedError();
 
   @override
   Future<Penilaian> submitPenilaian(
@@ -470,10 +489,8 @@ class _CompletedAssessmentRepository implements IAssessmentRepository {
   ) async => throw UnimplementedError();
 
   @override
-  Future<Penilaian> submitWalidataCorrection(
-    int assessmentId,
-    Map<String, dynamic> data,
-  ) async => throw UnimplementedError();
+  Future<Penilaian> submitWalidataCorrection(Map<String, dynamic> data) async =>
+      throw UnimplementedError();
 
   @override
   Future<BuktiDukung> uploadBuktiDukung(

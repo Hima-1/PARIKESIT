@@ -47,7 +47,7 @@ void main() {
       });
 
       final dio = Dio()..httpClientAdapter = adapter;
-      final repository = AdminDashboardRepositoryImpl(dio);
+      final repository = AdminDashboardRepository(dio);
 
       final page = await repository.getAssessmentProgressPage(
         const AdminAssessmentProgressQuery(
@@ -91,7 +91,7 @@ void main() {
     });
 
     final dio = Dio()..httpClientAdapter = adapter;
-    final repository = AdminDashboardRepositoryImpl(dio);
+    final repository = AdminDashboardRepository(dio);
 
     final page = await repository.getAssessmentProgressPage(
       const AdminAssessmentProgressQuery(),

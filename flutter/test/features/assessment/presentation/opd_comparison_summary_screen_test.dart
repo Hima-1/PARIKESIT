@@ -54,7 +54,10 @@ void main() {
   });
 }
 
-class _SummaryAssessmentRepository implements IAssessmentRepository {
+class _SummaryAssessmentRepository implements AssessmentRepository {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+
   @override
   Future<AssessmentFormModel> addActivity(
     AssessmentFormModel activity, {
@@ -83,6 +86,7 @@ class _SummaryAssessmentRepository implements IAssessmentRepository {
   Future<List<AssessmentFormModel>> getActivities() async =>
       <AssessmentFormModel>[];
 
+  @override
   Future<PaginatedResponse<AssessmentFormModel>> getActivitiesPage({
     int page = 1,
     int perPage = 15,
@@ -191,6 +195,7 @@ class _SummaryAssessmentRepository implements IAssessmentRepository {
   Future<List<OpdModel>> getOpdsForActivity(String activityId) async =>
       <OpdModel>[];
 
+  @override
   Future<PaginatedResponse<OpdModel>> getOpdsForActivityPage(
     String activityId, {
     int page = 1,
@@ -212,6 +217,7 @@ class _SummaryAssessmentRepository implements IAssessmentRepository {
     ),
   );
 
+  @override
   Future<PaginatedResponse<OpdModel>> getPublicOpdsForActivityPage(
     String activityId, {
     int page = 1,
@@ -225,10 +231,8 @@ class _SummaryAssessmentRepository implements IAssessmentRepository {
   ) async => throw UnimplementedError();
 
   @override
-  Future<Penilaian> submitAdminEvaluation(
-    int assessmentId,
-    Map<String, dynamic> data,
-  ) async => throw UnimplementedError();
+  Future<Penilaian> submitAdminEvaluation(Map<String, dynamic> data) async =>
+      throw UnimplementedError();
 
   @override
   Future<Penilaian> submitPenilaian(
@@ -238,10 +242,8 @@ class _SummaryAssessmentRepository implements IAssessmentRepository {
   ) async => throw UnimplementedError();
 
   @override
-  Future<Penilaian> submitWalidataCorrection(
-    int assessmentId,
-    Map<String, dynamic> data,
-  ) async => throw UnimplementedError();
+  Future<Penilaian> submitWalidataCorrection(Map<String, dynamic> data) async =>
+      throw UnimplementedError();
 
   @override
   Future<BuktiDukung> uploadBuktiDukung(

@@ -163,7 +163,7 @@ class _RecordingAdminDokumentasiController extends AdminDokumentasiController {
   }
 }
 
-class _FakeDokumentasiRepository implements IDokumentasiRepository {
+class _FakeDokumentasiRepository implements DokumentasiRepository {
   @override
   Future<DokumentasiKegiatan> createActivity(Map<String, dynamic> data) async =>
       throw UnimplementedError();
@@ -220,7 +220,7 @@ class _FakeDokumentasiRepository implements IDokumentasiRepository {
   ) async => throw UnimplementedError();
 }
 
-class _FakePembinaanRepository implements IPembinaanRepository {
+class _FakePembinaanRepository implements PembinaanRepository {
   @override
   Future<Pembinaan> createActivity(Map<String, dynamic> data) async =>
       throw UnimplementedError();

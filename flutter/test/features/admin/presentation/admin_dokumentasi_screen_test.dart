@@ -268,7 +268,7 @@ void main() {
   });
 }
 
-class _FakeDokumentasiRepository implements IDokumentasiRepository {
+class _FakeDokumentasiRepository implements DokumentasiRepository {
   int getActivitiesPageCallCount = 0;
 
   @override
@@ -386,7 +386,7 @@ class _ThrowingDokumentasiRepository extends _FakeDokumentasiRepository {
   }
 }
 
-class _FakePembinaanRepository implements IPembinaanRepository {
+class _FakePembinaanRepository implements PembinaanRepository {
   @override
   Future<Pembinaan> createActivity(Map<String, dynamic> data) async =>
       _items.first;

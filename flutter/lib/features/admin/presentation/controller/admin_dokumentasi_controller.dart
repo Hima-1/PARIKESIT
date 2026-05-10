@@ -20,8 +20,8 @@ class AdminDokumentasiController extends StateNotifier<AdminDokumentasiState> {
     refresh();
   }
 
-  final IDokumentasiRepository dokumentasiRepository;
-  final IPembinaanRepository pembinaanRepository;
+  final DokumentasiRepository dokumentasiRepository;
+  final PembinaanRepository pembinaanRepository;
 
   void setMode(DokumentasiMode mode) {
     state = state.copyWith(mode: mode, clearErrorMessage: true);

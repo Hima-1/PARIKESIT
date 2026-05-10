@@ -113,7 +113,7 @@ void main() {
   });
 }
 
-class _PagedAssessmentRepository extends AssessmentRepositoryImpl {
+class _PagedAssessmentRepository extends AssessmentRepository {
   _PagedAssessmentRepository() : super(Dio());
 
   final List<int> requestedPages = <int>[];
@@ -155,7 +155,7 @@ class _PagedAssessmentRepository extends AssessmentRepositoryImpl {
   }
 }
 
-class _FakeAssessmentRepository implements IAssessmentRepository {
+class _FakeAssessmentRepository implements AssessmentRepository {
   _FakeAssessmentRepository()
     : _activities = <AssessmentFormModel>[
         AssessmentFormModel(
@@ -165,6 +165,9 @@ class _FakeAssessmentRepository implements IAssessmentRepository {
           domains: const <DomainModel>[],
         ),
       ];
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 
   final List<AssessmentFormModel> _activities;
   @override
@@ -239,6 +242,24 @@ class _FakeAssessmentRepository implements IAssessmentRepository {
   Future<List<AssessmentFormModel>> getActivities() async {
     return List<AssessmentFormModel>.unmodifiable(_activities);
   }
+
+  @override
+  Future<PaginatedResponse<AssessmentFormModel>> getActivitiesPage({
+    int page = 1,
+    int perPage = 15,
+  }) async => PaginatedResponse<AssessmentFormModel>(
+    data: await getActivities(),
+    meta: PaginationMeta(
+      currentPage: page,
+      lastPage: 1,
+      perPage: perPage,
+      total: _activities.length,
+      from: _activities.isEmpty ? null : 1,
+      to: _activities.isEmpty ? null : _activities.length,
+      path: '',
+    ),
+    links: const PaginationLinks(first: '', last: ''),
+  );
 
   @override
   Future<PaginatedResponse<AssessmentFormModel>> getCompletedActivities({
@@ -322,10 +343,7 @@ class _FakeAssessmentRepository implements IAssessmentRepository {
   }
 
   @override
-  Future<Penilaian> submitAdminEvaluation(
-    int assessmentId,
-    Map<String, dynamic> data,
-  ) {
+  Future<Penilaian> submitAdminEvaluation(Map<String, dynamic> data) {
     throw UnimplementedError();
   }
 
@@ -339,10 +357,7 @@ class _FakeAssessmentRepository implements IAssessmentRepository {
   }
 
   @override
-  Future<Penilaian> submitWalidataCorrection(
-    int assessmentId,
-    Map<String, dynamic> data,
-  ) {
+  Future<Penilaian> submitWalidataCorrection(Map<String, dynamic> data) {
     throw UnimplementedError();
   }
 

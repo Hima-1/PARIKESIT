@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:parikesit/core/network/paginated_response.dart';
 import 'package:parikesit/features/assessment/data/assessment_repository.dart';
 import 'package:parikesit/features/assessment/domain/assessment_models.dart';
@@ -15,9 +15,9 @@ class AssessmentListController
   }
 
   Future<PaginatedResponse<AssessmentFormModel>> _reloadActivities(
-    Future<void> Function(IAssessmentRepository repository) mutation,
+    Future<void> Function(AssessmentRepository repository) mutation,
   ) async {
-    final IAssessmentRepository repository = ref.read(
+    final AssessmentRepository repository = ref.read(
       assessmentRepositoryProvider,
     );
 
@@ -44,7 +44,7 @@ class AssessmentListController
   }
 
   Future<void> addActivity(String name, {bool useTemplate = true}) async {
-    final IAssessmentRepository repository = ref.read(
+    final AssessmentRepository repository = ref.read(
       assessmentRepositoryProvider,
     );
     final AssessmentFormModel activity = AssessmentFormModel(
@@ -67,7 +67,7 @@ class AssessmentListController
     String domainName,
     List<String> aspects,
   ) async {
-    final IAssessmentRepository repository = ref.read(
+    final AssessmentRepository repository = ref.read(
       assessmentRepositoryProvider,
     );
 
@@ -139,9 +139,9 @@ class AssessmentListController
   }
 
   Future<PaginatedResponse<AssessmentFormModel>> _fetch({
-    IAssessmentRepository? repository,
+    AssessmentRepository? repository,
   }) {
-    final IAssessmentRepository resolvedRepository =
+    final AssessmentRepository resolvedRepository =
         repository ?? ref.read(assessmentRepositoryProvider);
     return resolvedRepository.getActivitiesPage(page: _page, perPage: _perPage);
   }

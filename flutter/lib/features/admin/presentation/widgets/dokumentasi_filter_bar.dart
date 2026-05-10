@@ -3,11 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:parikesit/core/theme/tokens/colors.dart';
+import 'package:parikesit/core/theme/tokens/radii.dart';
+import 'package:parikesit/core/widgets/app_filter_bar.dart';
 import 'package:parikesit/core/widgets/app_sort_dropdown_field.dart';
+import 'package:parikesit/core/widgets/app_text_field.dart';
 
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_theme.dart';
-import '../../../../core/widgets/app_text_field.dart';
 import '../../domain/admin_activity_query.dart';
 import '../controller/admin_dokumentasi_controller.dart';
 
@@ -30,9 +31,7 @@ class _DokumentasiFilterBarState extends ConsumerState<DokumentasiFilterBar> {
       adminDokumentasiControllerProvider.select((state) => state.activeQuery),
     );
 
-    if (trimmed == currentQuery.search) {
-      return;
-    }
+    if (trimmed == currentQuery.search) return;
 
     notifier.setSearch(trimmed);
     notifier.refresh();
@@ -59,6 +58,7 @@ class _DokumentasiFilterBarState extends ConsumerState<DokumentasiFilterBar> {
     final query = ref.watch(
       adminDokumentasiControllerProvider.select((state) => state.activeQuery),
     );
+
     final searchField = ValueListenableBuilder<TextEditingValue>(
       valueListenable: _searchController,
       builder: (context, value, _) {
@@ -74,6 +74,7 @@ class _DokumentasiFilterBarState extends ConsumerState<DokumentasiFilterBar> {
                     _searchController.clear();
                     _applySearch('');
                   },
+                  tooltip: 'Hapus pencarian',
                   icon: const Icon(LucideIcons.x),
                 ),
           onChanged: (nextValue) {
@@ -108,11 +109,12 @@ class _DokumentasiFilterBarState extends ConsumerState<DokumentasiFilterBar> {
       },
     );
 
-    final directionButton = Container(
+    final scheme = Theme.of(context).colorScheme;
+    final directionButton = DecoratedBox(
       decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-        border: AppTheme.hairlineBorder,
+        color: scheme.surface,
+        borderRadius: AppRadii.rrSm,
+        border: Border.all(color: scheme.outline),
       ),
       child: IconButton(
         key: const Key('admin-documentation-toggle-sort-direction'),
@@ -120,7 +122,7 @@ class _DokumentasiFilterBarState extends ConsumerState<DokumentasiFilterBar> {
           query.direction.apiValue == 'asc'
               ? LucideIcons.arrowUp
               : LucideIcons.arrowDown,
-          color: AppTheme.textStrong,
+          color: AppColors.textStrong,
         ),
         tooltip: query.direction.apiValue == 'asc'
             ? 'Urutan naik'
@@ -135,38 +137,11 @@ class _DokumentasiFilterBarState extends ConsumerState<DokumentasiFilterBar> {
       ),
     );
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isCompact = constraints.maxWidth < 760;
-
-        if (isCompact) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              searchField,
-              AppSpacing.gapH12,
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(child: sortField),
-                  AppSpacing.gapW12,
-                  directionButton,
-                ],
-              ),
-            ],
-          );
-        }
-
-        return Row(
-          children: [
-            Expanded(flex: 3, child: searchField),
-            AppSpacing.gapW12,
-            Expanded(flex: 2, child: sortField),
-            AppSpacing.gapW12,
-            directionButton,
-          ],
-        );
-      },
+    return AppFilterBar(
+      narrowWidth: 760,
+      search: searchField,
+      filters: [sortField],
+      trailing: directionButton,
     );
   }
 }

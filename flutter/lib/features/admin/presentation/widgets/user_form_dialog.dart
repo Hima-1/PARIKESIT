@@ -76,7 +76,7 @@ class _UserFormDialogState extends ConsumerState<UserFormDialog> {
                     ),
                   ),
                 ),
-                Container(
+                DecoratedBox(
                   decoration: BoxDecoration(
                     color: AppTheme.sogan.withValues(alpha: 0.05),
                     shape: BoxShape.circle,
@@ -275,7 +275,9 @@ class _UserFormDialogState extends ConsumerState<UserFormDialog> {
         padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
         decoration: const BoxDecoration(
           color: AppTheme.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(AppTheme.radiusLg)),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppTheme.radiusLg),
+          ),
           border: Border(top: BorderSide(color: AppTheme.borderColor)),
         ),
         child: AnimatedPadding(
@@ -510,9 +512,7 @@ class _ResetPasswordResultDialog extends StatelessWidget {
         ),
         EthnoButton(
           key: const Key('admin-user-reset-password-copy'),
-          onPressed: () {
-            onCopy();
-          },
+          onPressed: onCopy,
           label: 'COPY',
           icon: LucideIcons.copy,
           style: EthnoButtonStyle.primary,

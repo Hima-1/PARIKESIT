@@ -170,7 +170,7 @@ void main() {
   });
 }
 
-class _FakeAdminUserRepository implements IAdminUserRepository {
+class _FakeAdminUserRepository implements AdminUserRepository {
   final List<_UserCall> calls = <_UserCall>[];
   final List<int> triggerReminderIds = <int>[];
   final List<int> resetPasswordIds = <int>[];

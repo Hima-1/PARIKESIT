@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
-import 'package:parikesit/features/assessment/domain/assessment_models.dart';
 
 import '../../../../../core/theme/app_theme.dart';
 
@@ -14,7 +13,6 @@ class WalidataActivityCard extends StatelessWidget {
     required this.correctedCount,
     required this.totalCount,
     required this.percentage,
-    required this.pendingIndicators,
     this.finalCorrectionScore,
     this.onTap,
   });
@@ -24,7 +22,6 @@ class WalidataActivityCard extends StatelessWidget {
   final int correctedCount;
   final int totalCount;
   final double percentage;
-  final List<PendingIndicatorPreview> pendingIndicators;
   final double? finalCorrectionScore;
   final VoidCallback? onTap;
 
@@ -117,7 +114,10 @@ class WalidataActivityCard extends StatelessWidget {
                       ),
                     )
                   else
-                    const Icon(LucideIcons.chevronRight, color: AppTheme.neutral),
+                    const Icon(
+                      LucideIcons.chevronRight,
+                      color: AppTheme.neutral,
+                    ),
                 ],
               ),
               AppSpacing.gapH16,
@@ -153,43 +153,6 @@ class WalidataActivityCard extends StatelessWidget {
                 ),
               ),
               AppSpacing.gapH16,
-              if (pendingIndicators.isNotEmpty) ...[
-                Text(
-                  'Indikator Belum Dikoreksi',
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: AppTheme.sogan,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                AppSpacing.gapH8,
-                Column(
-                  children: [
-                    for (final indicator in pendingIndicators.take(3)) ...[
-                      _IndicatorPreviewTile(
-                        name: indicator.name,
-                        domain: indicator.domain,
-                        aspect: indicator.aspect,
-                      ),
-                      const SizedBox(height: 8),
-                    ],
-                    if (pendingIndicators.length > 3)
-                      _IndicatorPreviewTile(
-                        name: '+${pendingIndicators.length - 3} lainnya',
-                        domain: 'Prioritas lanjutan',
-                        aspect: 'Ketuk kartu untuk detail',
-                      ),
-                  ],
-                ),
-                AppSpacing.gapH12,
-                Text(
-                  'Ketuk kartu untuk membuka daftar OPD dan detail indikator.',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppTheme.neutral.withValues(alpha: 0.72),
-                    height: 1.35,
-                  ),
-                ),
-                AppSpacing.gapH16,
-              ],
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(
@@ -202,9 +165,7 @@ class WalidataActivityCard extends StatelessWidget {
                 child: Row(
                   children: [
                     Icon(
-                      isComplete
-                          ? LucideIcons.checkCircle2
-                          : LucideIcons.info,
+                      isComplete ? LucideIcons.checkCircle2 : LucideIcons.info,
                       size: 16,
                       color: isComplete
                           ? AppTheme.success
@@ -238,55 +199,5 @@ class WalidataActivityCard extends StatelessWidget {
     } catch (_) {
       return DateFormat('yyyy-MM-dd').format(value);
     }
-  }
-}
-
-class _IndicatorPreviewTile extends StatelessWidget {
-  const _IndicatorPreviewTile({
-    required this.name,
-    required this.domain,
-    required this.aspect,
-  });
-
-  final String name;
-  final String domain;
-  final String aspect;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: AppTheme.warning.withValues(alpha: 0.09),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.warning.withValues(alpha: 0.16)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            name,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: AppTheme.sogan,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            '$domain | $aspect',
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: AppTheme.neutral.withValues(alpha: 0.75),
-              height: 1.25,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

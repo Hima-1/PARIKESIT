@@ -41,9 +41,7 @@ void main() {
 
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [
-            authNotifierProvider.overrideWith(() => _FakeAuthNotifier()),
-          ],
+          overrides: [authNotifierProvider.overrideWith(_FakeAuthNotifier.new)],
           child: MaterialApp.router(routerConfig: router),
         ),
       );
@@ -76,7 +74,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          authNotifierProvider.overrideWith(() => _AuthenticatedAuthNotifier()),
+          authNotifierProvider.overrideWith(_AuthenticatedAuthNotifier.new),
         ],
         child: MaterialApp.router(routerConfig: router),
       ),
@@ -108,7 +106,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          authNotifierProvider.overrideWith(() => _AuthenticatedAuthNotifier()),
+          authNotifierProvider.overrideWith(_AuthenticatedAuthNotifier.new),
         ],
         child: MaterialApp.router(routerConfig: router),
       ),

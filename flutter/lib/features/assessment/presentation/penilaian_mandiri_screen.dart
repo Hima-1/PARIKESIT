@@ -17,10 +17,10 @@ import 'package:parikesit/features/assessment/domain/assessment_models.dart';
 import '../../../core/router/route_constants.dart';
 import '../../../core/widgets/app_error_state.dart';
 import '../../../core/widgets/ethno_progress_bar.dart';
+import '../../../core/widgets/skeleton_loader.dart';
 import '../domain/assessment_indikator.dart';
 import 'controller/assessment_controller.dart';
 import 'controller/assessment_list_controller.dart';
-import 'widgets/shimmer_loading.dart';
 
 part 'widgets/penilaian_mandiri_widgets.dart';
 

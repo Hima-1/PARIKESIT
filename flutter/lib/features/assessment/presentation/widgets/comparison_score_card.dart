@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
 
-import '../../../../../core/widgets/maturity_scale_comparison.dart';
+import 'maturity_scale_comparison.dart';
 
 class ComparisonScoreCard extends StatelessWidget {
   const ComparisonScoreCard({

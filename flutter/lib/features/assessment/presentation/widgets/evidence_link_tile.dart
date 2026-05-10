@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -56,9 +57,7 @@ class EvidenceLinkTile extends StatelessWidget {
           style: textTheme.bodySmall?.copyWith(color: AppTheme.neutral),
         ),
         trailing: IconButton(
-          icon: Icon(
-            isImage ? LucideIcons.eye : LucideIcons.externalLink,
-          ),
+          icon: Icon(isImage ? LucideIcons.eye : LucideIcons.externalLink),
           color: AppTheme.gold,
           tooltip: isImage ? 'Lihat gambar' : 'Buka bukti dukung',
           onPressed: () async {
@@ -110,16 +109,15 @@ class EvidenceLinkTile extends StatelessWidget {
               minScale: 0.5,
               maxScale: 4.0,
               child: Center(
-                child: Image.network(
-                  fileUrl,
+                child: CachedNetworkImage(
+                  imageUrl: fileUrl,
                   fit: BoxFit.contain,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return const Center(
-                      child: CircularProgressIndicator(color: AppTheme.gold),
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) => const Column(
+                  fadeInDuration: const Duration(milliseconds: 200),
+                  progressIndicatorBuilder: (context, url, progress) =>
+                      const Center(
+                        child: CircularProgressIndicator(color: AppTheme.gold),
+                      ),
+                  errorWidget: (context, url, error) => const Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:parikesit/features/assessment/domain/assessment_models.dart';
 import 'package:parikesit/features/home/presentation/widgets/walidata/walidata_activity_card.dart';
 
 void main() {
@@ -16,7 +15,6 @@ void main() {
             correctedCount: 8,
             totalCount: 10,
             percentage: 80,
-            pendingIndicators: const <PendingIndicatorPreview>[],
             finalCorrectionScore: 4.25,
           ),
         ),
@@ -42,7 +40,6 @@ void main() {
             correctedCount: 10,
             totalCount: 10,
             percentage: 100,
-            pendingIndicators: const <PendingIndicatorPreview>[],
           ),
         ),
       ),
@@ -53,9 +50,11 @@ void main() {
     expect(find.text('Nilai Akhir'), findsNothing);
   });
 
-  testWidgets('renders preview for pending indicators', (
+  testWidgets('uses tap handler for navigation into activity details', (
     WidgetTester tester,
   ) async {
+    var tapped = false;
+
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -65,35 +64,13 @@ void main() {
             correctedCount: 4,
             totalCount: 8,
             percentage: 50,
-            pendingIndicators: const <PendingIndicatorPreview>[
-              PendingIndicatorPreview(
-                id: 1,
-                name: 'Indikator A',
-                domain: 'Domain A',
-                aspect: 'Aspek A',
-                userId: 5,
-                userName: 'Dinas Kominfo',
-              ),
-              PendingIndicatorPreview(
-                id: 2,
-                name: 'Indikator B',
-                domain: 'Domain B',
-                aspect: 'Aspek B',
-                userId: 6,
-                userName: 'Bappeda',
-              ),
-            ],
+            onTap: () => tapped = true,
           ),
         ),
       ),
     );
 
-    expect(find.text('Indikator Belum Dikoreksi'), findsOneWidget);
-    expect(find.text('Indikator A'), findsOneWidget);
-    expect(find.text('Domain A | Aspek A'), findsOneWidget);
-    expect(
-      find.text('Ketuk kartu untuk membuka daftar OPD dan detail indikator.'),
-      findsOneWidget,
-    );
+    await tester.tap(find.byType(WalidataActivityCard));
+    expect(tapped, isTrue);
   });
 }

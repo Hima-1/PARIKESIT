@@ -256,8 +256,11 @@ void main() {
   });
 }
 
-class _RefreshingAssessmentRepository implements IAssessmentRepository {
+class _RefreshingAssessmentRepository implements AssessmentRepository {
   _RefreshingAssessmentRepository({this.includeNationalDomain = false});
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 
   final bool includeNationalDomain;
   bool _useUpdatedScores = false;
@@ -407,10 +410,8 @@ class _RefreshingAssessmentRepository implements IAssessmentRepository {
   ) async => throw UnimplementedError();
 
   @override
-  Future<Penilaian> submitAdminEvaluation(
-    int assessmentId,
-    Map<String, dynamic> data,
-  ) async => throw UnimplementedError();
+  Future<Penilaian> submitAdminEvaluation(Map<String, dynamic> data) async =>
+      throw UnimplementedError();
 
   @override
   Future<Penilaian> submitPenilaian(
@@ -420,10 +421,8 @@ class _RefreshingAssessmentRepository implements IAssessmentRepository {
   ) async => throw UnimplementedError();
 
   @override
-  Future<Penilaian> submitWalidataCorrection(
-    int assessmentId,
-    Map<String, dynamic> data,
-  ) async => throw UnimplementedError();
+  Future<Penilaian> submitWalidataCorrection(Map<String, dynamic> data) async =>
+      throw UnimplementedError();
 
   @override
   Future<BuktiDukung> uploadBuktiDukung(

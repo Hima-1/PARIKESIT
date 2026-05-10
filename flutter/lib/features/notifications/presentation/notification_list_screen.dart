@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:parikesit/core/helpers/async_view.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
 import 'package:parikesit/core/widgets/ethno_card.dart';
@@ -176,7 +177,10 @@ class _NotificationListScreenState
           ),
         ],
       ),
-      body: notificationsAsync.when(
+      body: asyncView<NotificationInboxState>(
+        notificationsAsync,
+        onRetry: () =>
+            ref.read(notificationControllerProvider.notifier).refresh(),
         data: (inboxState) {
           if (inboxState.notifications.isEmpty) {
             return _buildEmptyState(context, textTheme, inboxState);
@@ -215,17 +219,6 @@ class _NotificationListScreenState
             ),
           );
         },
-        error: (error, _) => Center(
-          child: Text(
-            'Error: $error',
-            style: textTheme.bodyMedium?.copyWith(color: AppTheme.error),
-          ),
-        ),
-        loading: () => const Center(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.sogan),
-          ),
-        ),
       ),
     );
   }
@@ -316,7 +309,7 @@ class _NotificationListScreenState
               .read(notificationControllerProvider.notifier)
               .markAsRead(notification.id);
         },
-        child: Container(
+        child: DecoratedBox(
           decoration: BoxDecoration(
             color: notification.isRead
                 ? Colors.transparent
