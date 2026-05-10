@@ -104,6 +104,42 @@ Map<String, dynamic> _normalizeLaravelPaginatedPayload(
   };
 }
 
+/// Extracts the inner `data` map from a Laravel-style response, falling back
+/// to the response itself when there is no envelope. Throws if the payload is
+/// not a map.
+Map<String, dynamic> extractMapData(dynamic responseData) {
+  if (responseData is Map<String, dynamic>) {
+    final dynamic data = responseData['data'];
+    if (data is Map<String, dynamic>) {
+      return data;
+    }
+    return responseData;
+  }
+  throw const FormatException('Unexpected API response format');
+}
+
+/// Extracts the inner `data` list from a Laravel-style response, returning an
+/// empty list when no list is found.
+List<dynamic> extractListData(dynamic responseData) {
+  if (responseData is List<dynamic>) {
+    return responseData;
+  }
+  if (responseData is Map<String, dynamic>) {
+    final dynamic data = responseData['data'];
+    if (data is List<dynamic>) {
+      return data;
+    }
+  }
+  return const <dynamic>[];
+}
+
+double? parseNullableDouble(dynamic value) {
+  if (value == null) return null;
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value);
+  return null;
+}
+
 T parseLaravelResourceObject<T>(
   dynamic json,
   T Function(Map<String, dynamic>) fromJson, {

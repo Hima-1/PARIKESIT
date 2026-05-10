@@ -45,7 +45,7 @@ class AuthRepository {
       try {
         return await StartupProbe.measureAsync(
           'AuthApiClient.getUser',
-          () => _apiClient.getUser(),
+          _apiClient.getUser,
         );
       } catch (e) {
         StartupProbe.mark('AuthRepository.getUser.error', <String, Object?>{

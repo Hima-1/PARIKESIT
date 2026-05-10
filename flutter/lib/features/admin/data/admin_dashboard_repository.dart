@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:parikesit/core/network/providers/dio_provider.dart';
-import '../../../core/utils/base_repository.dart';
 import '../domain/admin_assessment_progress.dart';
 import '../domain/admin_assessment_progress_query.dart';
 import '../domain/paged_admin_assessment_progress.dart';
@@ -88,108 +87,88 @@ List<AdminAssessmentProgress> _parseAssessmentProgress(dynamic raw) {
   return [];
 }
 
-abstract class IAdminDashboardRepository {
-  Future<AdminDashboardStats> getStatistics();
-  Future<PagedAdminAssessmentProgress> getAssessmentProgressPage(
-    AdminAssessmentProgressQuery query,
-  );
-}
-
-class AdminDashboardRepositoryImpl extends BaseRepository
-    implements IAdminDashboardRepository {
-  AdminDashboardRepositoryImpl(this._dio);
+class AdminDashboardRepository {
+  AdminDashboardRepository(this._dio);
   final Dio _dio;
 
-  @override
   Future<AdminDashboardStats> getStatistics() async {
-    return safeRequest(() async {
-      // Fetch both endpoints in parallel
-      final futures = await Future.wait([
-        _dio.get<dynamic>('/dashboard/stats'),
-        _dio.get<dynamic>('/dashboard/progress-penilaian'),
-      ]);
+    final futures = await Future.wait([
+      _dio.get<dynamic>('/dashboard/stats'),
+      _dio.get<dynamic>('/dashboard/progress-penilaian'),
+    ]);
 
-      final statsResponse = futures[0];
-      final progressResponse = futures[1];
+    final statsResponse = futures[0];
+    final progressResponse = futures[1];
 
-      final statsRoot = statsResponse.data;
-      if (statsRoot is! Map<String, dynamic>) {
-        throw const FormatException(
-          'Unexpected response shape for /dashboard/stats',
-        );
-      }
-
-      final statsData = statsRoot['data'];
-      if (statsData is! Map<String, dynamic>) {
-        throw const FormatException(
-          'Unexpected data shape for /dashboard/stats',
-        );
-      }
-
-      // Parse assessment progress from its dedicated endpoint
-      final progressRoot = progressResponse.data;
-      List<AdminAssessmentProgress> assessmentProgress = [];
-
-      if (progressRoot is Map<String, dynamic> &&
-          progressRoot['data'] is List) {
-        assessmentProgress = _parseAssessmentProgress(progressRoot['data']);
-      } else if (progressRoot is List) {
-        assessmentProgress = _parseAssessmentProgress(progressRoot);
-      }
-
-      // Create stats from combined data
-      final stats = statsData['stats'] as Map<String, dynamic>? ?? {};
-      return AdminDashboardStats(
-        totalOpd: stats['userTerdaftar'] as int? ?? 0,
-        totalKegiatan: stats['jumlahKegiatanPenilaian'] as int? ?? 0,
-        averageScore: (stats['average_score'] as num?)?.toDouble() ?? 0.0,
-        progressDistribution: _parseProgressDistribution(
-          stats['progress_distribution'] ?? statsData['progress_distribution'],
-        ),
-        assessmentProgress: assessmentProgress.isNotEmpty
-            ? assessmentProgress
-            : _parseAssessmentProgress(
-                stats['progress_assessments'] ??
-                    statsData['progress_assessments'],
-              ),
+    final statsRoot = statsResponse.data;
+    if (statsRoot is! Map<String, dynamic>) {
+      throw const FormatException(
+        'Unexpected response shape for /dashboard/stats',
       );
-    }, label: 'getStatistics');
+    }
+
+    final statsData = statsRoot['data'];
+    if (statsData is! Map<String, dynamic>) {
+      throw const FormatException('Unexpected data shape for /dashboard/stats');
+    }
+
+    final progressRoot = progressResponse.data;
+    List<AdminAssessmentProgress> assessmentProgress = [];
+
+    if (progressRoot is Map<String, dynamic> && progressRoot['data'] is List) {
+      assessmentProgress = _parseAssessmentProgress(progressRoot['data']);
+    } else if (progressRoot is List) {
+      assessmentProgress = _parseAssessmentProgress(progressRoot);
+    }
+
+    final stats = statsData['stats'] as Map<String, dynamic>? ?? {};
+    return AdminDashboardStats(
+      totalOpd: stats['userTerdaftar'] as int? ?? 0,
+      totalKegiatan: stats['jumlahKegiatanPenilaian'] as int? ?? 0,
+      averageScore: (stats['average_score'] as num?)?.toDouble() ?? 0.0,
+      progressDistribution: _parseProgressDistribution(
+        stats['progress_distribution'] ?? statsData['progress_distribution'],
+      ),
+      assessmentProgress: assessmentProgress.isNotEmpty
+          ? assessmentProgress
+          : _parseAssessmentProgress(
+              stats['progress_assessments'] ??
+                  statsData['progress_assessments'],
+            ),
+    );
   }
 
-  @override
   Future<PagedAdminAssessmentProgress> getAssessmentProgressPage(
     AdminAssessmentProgressQuery query,
   ) async {
-    return safeRequest(() async {
-      final response = await _dio.get<dynamic>(
-        '/dashboard/progress-penilaian',
-        queryParameters: query.toQueryParameters(),
+    final response = await _dio.get<dynamic>(
+      '/dashboard/progress-penilaian',
+      queryParameters: query.toQueryParameters(),
+    );
+
+    final root = response.data;
+    if (root is! Map<String, dynamic>) {
+      throw const FormatException(
+        'Unexpected response shape for /dashboard/progress-penilaian',
       );
+    }
 
-      final root = response.data;
-      if (root is! Map<String, dynamic>) {
-        throw const FormatException(
-          'Unexpected response shape for /dashboard/progress-penilaian',
-        );
-      }
+    final items = _parseAssessmentProgress(root['data']);
+    final meta = root['meta'] as Map<String, dynamic>? ?? <String, dynamic>{};
 
-      final items = _parseAssessmentProgress(root['data']);
-      final meta = root['meta'] as Map<String, dynamic>? ?? <String, dynamic>{};
-
-      return PagedAdminAssessmentProgress(
-        items: items,
-        currentPage: meta['current_page'] as int? ?? query.page,
-        lastPage: meta['last_page'] as int? ?? 1,
-        perPage: meta['per_page'] as int? ?? query.perPage,
-        total: meta['total'] as int? ?? items.length,
-      );
-    }, label: 'getAssessmentProgressPage');
+    return PagedAdminAssessmentProgress(
+      items: items,
+      currentPage: meta['current_page'] as int? ?? query.page,
+      lastPage: meta['last_page'] as int? ?? 1,
+      perPage: meta['per_page'] as int? ?? query.perPage,
+      total: meta['total'] as int? ?? items.length,
+    );
   }
 }
 
-final adminDashboardRepositoryProvider = Provider<IAdminDashboardRepository>((
+final adminDashboardRepositoryProvider = Provider<AdminDashboardRepository>((
   ref,
 ) {
   final dio = ref.watch(dioProvider);
-  return AdminDashboardRepositoryImpl(dio);
+  return AdminDashboardRepository(dio);
 });
