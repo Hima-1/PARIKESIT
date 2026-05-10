@@ -22,6 +22,33 @@ test('walidata and admin can list available assessments for review', function ()
         ->assertJsonCount(1, 'data');
 });
 
+test('completed assessments include unique participating opd count', function () {
+    $formulir = Formulir::factory()->create();
+    $opdA = User::factory()->create(['role' => 'opd']);
+    $opdB = User::factory()->create(['role' => 'opd']);
+    $walidataReviewer = User::factory()->create(['role' => 'walidata']);
+
+    Penilaian::factory()->count(2)->create([
+        'formulir_id' => $formulir->id,
+        'user_id' => $opdA->id,
+    ]);
+    Penilaian::factory()->create([
+        'formulir_id' => $formulir->id,
+        'user_id' => $opdB->id,
+    ]);
+    Penilaian::factory()->create([
+        'formulir_id' => $formulir->id,
+        'user_id' => $walidataReviewer->id,
+    ]);
+
+    $walidata = User::factory()->create(['role' => 'walidata']);
+
+    loginAs($walidata)->getJson('/api/penilaian-selesai')
+        ->assertOk()
+        ->assertJsonPath('data.0.id', $formulir->id)
+        ->assertJsonPath('data.0.participating_opd_count', 2);
+});
+
 test('opd only sees completed assessments related to self', function () {
     $opd = User::factory()->create(['role' => 'opd']);
     $otherOpd = User::factory()->create(['role' => 'opd']);

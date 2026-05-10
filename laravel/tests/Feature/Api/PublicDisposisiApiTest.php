@@ -111,10 +111,10 @@ test('guest can list public OPD scores for a formulir without exposing internal 
         ->assertJsonPath('meta.total', 1)
         ->assertJsonPath('data.0.id', $opd->id)
         ->assertJsonPath('data.0.name', 'Bappeda')
+        ->assertJsonPath('data.0.email', 'bappeda@example.com')
         ->assertJsonPath('data.0.opd_score', 3)
         ->assertJsonPath('data.0.walidata_score', 4)
         ->assertJsonPath('data.0.admin_score', 5)
-        ->assertJsonMissingPath('data.0.email')
         ->assertJsonMissingPath('data.0.stats');
 });
 

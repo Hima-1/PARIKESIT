@@ -15,6 +15,7 @@ use App\Services\PenilaianSelectionService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class FormulirPenilaianDisposisiController extends Controller
 {
@@ -45,7 +46,17 @@ class FormulirPenilaianDisposisiController extends Controller
         $perPage = $this->resolvePerPage($request->get('per_page'));
         $search = $request->get('search');
 
-        $query = Formulir::operational()->with('creator');
+        $query = Formulir::operational()
+            ->with('creator')
+            ->withCount([
+                'penilaians as participating_opd_count' => function ($penilaianQuery) {
+                    $penilaianQuery
+                        ->select(DB::raw('count(distinct user_id)'))
+                        ->whereHas('user', function ($userQuery) {
+                            $userQuery->where('role', 'opd');
+                        });
+                },
+            ]);
 
         if ($canAccessFullOverview) {
             $query->with(['domains.aspek.indikator.penilaian.user']);
@@ -455,6 +466,7 @@ class FormulirPenilaianDisposisiController extends Controller
      * @return array{
      *   id:int,
      *   name:string,
+     *   email:?string,
      *   opd_score:?float,
      *   walidata_score:?float,
      *   admin_score:?float
@@ -465,6 +477,7 @@ class FormulirPenilaianDisposisiController extends Controller
         return [
             'id' => $user->id,
             'name' => $user->name,
+            'email' => $user->email,
             'opd_score' => $this->calculationService->calculateScore($formulir, $user, 'opd'),
             'walidata_score' => $this->calculationService->calculateScore($formulir, $user, 'walidata'),
             'admin_score' => $this->calculationService->calculateScore($formulir, $user, 'admin'),

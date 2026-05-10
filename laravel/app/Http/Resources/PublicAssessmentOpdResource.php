@@ -17,6 +17,7 @@ class PublicAssessmentOpdResource extends JsonResource
         return [
             'id' => $this['id'] ?? null,
             'name' => $this['name'] ?? '',
+            'email' => $this['email'] ?? null,
             'opd_score' => $this['opd_score'] ?? null,
             'walidata_score' => $this['walidata_score'] ?? null,
             'admin_score' => $this['admin_score'] ?? null,
