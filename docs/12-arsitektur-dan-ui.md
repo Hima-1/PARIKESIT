@@ -25,7 +25,7 @@ lib/
 | `auth` | Login, profil, ganti password, auth provider |
 | `home` | Dashboard per role |
 | `assessment` | Formulir, penilaian mandiri, koreksi, evaluasi |
-| `notifications` | Inbox notifikasi dan FCM |
+| `notifications` | Inbox notifikasi, FCM, dan resolver rute payload notifikasi |
 | `pembinaan` | Dokumentasi kegiatan dan pembinaan |
 | `admin` | Dashboard admin, user management, dokumentasi terpusat |
 
@@ -50,7 +50,7 @@ lib/
 Style visual aplikasi adalah Javanese Modern Heritage:
 
 - warna utama sogan brown
-- surface cream/white
+- surface white dengan aksen cream seperlunya
 - border 1px
 - shadow minimal
 - komponen konsisten melalui token theme
@@ -62,6 +62,8 @@ flutter/lib/core/theme/tokens/
 ```
 
 Gunakan token atau `Theme.of(context)`. Jangan menulis warna mentah seperti `Color(0xFF...)` di screen baru.
+
+Background light theme aplikasi memakai `AppTheme.background` agar halaman publik dan scaffold utama konsisten. Jika mengubah warna dasar, ubah token/theme, bukan screen satu per satu.
 
 ## 6. Komponen UI yang Disarankan
 
@@ -100,3 +102,9 @@ Catatan audit arsitektur sebelumnya menemukan beberapa area yang perlu disederha
 - beberapa widget core belum diadopsi luas
 
 Jangan menambah layer baru hanya karena terlihat rapi. Tambahkan abstraksi hanya jika mengurangi duplikasi nyata atau dipakai lintas fitur.
+
+Helper lintas fitur yang sudah ada:
+
+| Helper | Fungsi |
+| --- | --- |
+| `features/notifications/data/notification_navigation.dart` | Menentukan rute internal dari payload FCM sebelum dipakai `NotificationService` |

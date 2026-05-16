@@ -124,6 +124,19 @@ Di Flutter, pembinaan aktif untuk admin.
 | `DELETE` | `/api/notifications/{notification}` |
 | `DELETE` | `/api/notifications/read` |
 
+Field payload FCM yang dipakai Flutter:
+
+| Field | Keterangan |
+| --- | --- |
+| `type` | Jenis notifikasi, misalnya `incomplete_form_summary` atau `incomplete_form_reminder` |
+| `target_route` | Rute internal Flutter jika backend sudah menentukan tujuan |
+| `formulir_id` | ID formulir untuk reminder per kegiatan |
+| `activity_id` | Fallback legacy untuk ID formulir |
+| `formulir_ids` | JSON array string ID formulir pada summary |
+| `incomplete_form_count` | Jumlah formulir belum lengkap pada summary |
+
+Untuk `incomplete_form_summary`, backend mengirim `target_route=/penilaian-mandiri`. Untuk `incomplete_form_reminder` per formulir, backend mengirim rute detail `/penilaian-kegiatan?formulirId={id}` atau field ID yang bisa diturunkan Flutter.
+
 ## 8. Admin Only
 
 | Method | Endpoint |

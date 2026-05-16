@@ -110,7 +110,25 @@ php artisan reminders:send-opd-form
 
 Hasil yang diharapkan adalah ringkasan jumlah reminder terkirim atau dilewati. Jika muncul warning `Firebase sender skipped because configuration is incomplete.`, env Firebase server belum lengkap.
 
-## 8. Checklist Production
+## 8. Payload dan Navigasi Notifikasi
+
+Payload FCM memakai field `data` untuk menentukan tujuan navigasi Flutter. Resolver rute berada di:
+
+```text
+flutter/lib/features/notifications/data/notification_navigation.dart
+```
+
+Kontrak saat ini:
+
+| `data.type` | Field pendukung | Tujuan Flutter |
+| --- | --- | --- |
+| `incomplete_form_summary` | `formulir_ids`, `incomplete_form_count` | `/penilaian-mandiri` |
+| `incomplete_form_reminder` | `formulir_id` atau `target_route=/penilaian-kegiatan?formulirId={id}` | `/penilaian-kegiatan?formulirId={id}` |
+| `incomplete_form_reminder` tanpa id valid | - | `/penilaian-mandiri` |
+
+Laravel mengirim reminder per formulir ke detail kegiatan jika ada `formulirId`. Summary manual dari admin diarahkan ke daftar penilaian mandiri agar OPD dapat memilih formulir yang belum lengkap.
+
+## 9. Checklist Production
 
 - `google-services.json` cocok dengan app Firebase production.
 - `firebase_options.dart` berasal dari project yang sama.
@@ -118,4 +136,6 @@ Hasil yang diharapkan adalah ringkasan jumlah reminder terkirim atau dilewati. J
 - Login Android ke API production berhasil.
 - Token FCM tersimpan di backend production.
 - Command reminder manual berhasil.
+- Tap push notification summary membuka Penilaian Mandiri.
+- Tap push notification reminder per formulir membuka detail kegiatan dengan `formulirId`.
 - Cron Laravel scheduler aktif.

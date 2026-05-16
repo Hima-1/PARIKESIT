@@ -34,6 +34,12 @@ Jika test butuh API lokal:
 flutter test --dart-define=API_BASE_URL=http://127.0.0.1:8000
 ```
 
+Untuk fokus navigasi payload notifikasi:
+
+```powershell
+flutter test test/features/notifications/data/notification_navigation_test.dart
+```
+
 ## 3. Integration Test Android
 
 Jalankan backend dulu:
@@ -94,5 +100,19 @@ Setelah aplikasi berjalan:
 7. Admin membuka hasil dan memberi evaluasi.
 8. Upload satu file bukti dukung kecil.
 9. Buka notifikasi.
+10. Tap notifikasi summary reminder dan pastikan masuk ke Penilaian Mandiri.
+11. Tap notifikasi reminder per formulir dan pastikan masuk ke detail kegiatan sesuai `formulirId`.
 
 Jika alur ini lolos, setup lokal sudah cukup sehat untuk development.
+
+## 6. Test Terarah Reminder OPD
+
+Setelah mengubah payload atau rute reminder:
+
+```powershell
+cd laravel
+php artisan test --filter=OpdFormReminderServiceTest
+php artisan test --filter=UserManagementApiTest
+```
+
+Kedua test ini mengunci payload reminder Laravel dan endpoint admin untuk trigger reminder OPD.
