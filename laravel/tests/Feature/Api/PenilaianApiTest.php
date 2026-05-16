@@ -437,7 +437,7 @@ test('admin cannot store penilaian for any formulir', function () {
     ]);
 
     $response->assertStatus(403)
-        ->assertJsonPath('message', 'This action is unauthorized.');
+        ->assertJsonPath('message', 'Anda tidak memiliki akses untuk melakukan aksi ini.');
 });
 
 test('penilaian store returns 401 when unauthenticated', function () {
@@ -523,7 +523,7 @@ test('walidata cannot store penilaian for any formulir', function () {
     ]);
 
     $response->assertStatus(403)
-        ->assertJsonPath('message', 'This action is unauthorized.');
+        ->assertJsonPath('message', 'Anda tidak memiliki akses untuk melakukan aksi ini.');
 });
 
 test('opd cannot get indicators for another user formulir', function () {

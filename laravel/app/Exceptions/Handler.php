@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
@@ -63,19 +64,22 @@ class Handler extends ExceptionHandler
     {
         if ($e instanceof NotFoundHttpException) {
             return response()->json([
-                'message' => $e->getMessage() ?: 'Resource not found'
+                'message' => 'Data yang diminta tidak ditemukan.',
             ], 404);
         }
 
         if ($e instanceof AuthenticationException) {
             return response()->json([
-                'message' => 'Unauthenticated'
+                'message' => 'Unauthenticated',
             ], 401);
         }
 
-        if ($e instanceof AccessDeniedHttpException) {
+        if (
+            $e instanceof AccessDeniedHttpException
+            || $e instanceof AuthorizationException
+        ) {
             return response()->json([
-                'message' => 'This action is unauthorized.'
+                'message' => 'Anda tidak memiliki akses untuk melakukan aksi ini.',
             ], 403);
         }
 
@@ -88,7 +92,9 @@ class Handler extends ExceptionHandler
 
         // General Fallback
         $response = [
-            'message' => config('app.debug') ? $e->getMessage() : 'Internal Server Error'
+            'message' => config('app.debug')
+                ? $e->getMessage()
+                : 'Server sedang mengalami gangguan. Silakan coba lagi nanti.',
         ];
 
         if (config('app.debug')) {
