@@ -36,7 +36,7 @@ test('user can get indicators for their formulir', function () {
         ->assertJsonPath('data.domains.0.aspek.0.scores.opd', 4);
 });
 
-test('user indicators endpoint returns the newest filled penilaian when duplicates exist', function () {
+test('storing the same penilaian twice updates the existing row', function () {
     $user = User::factory()->create(['role' => 'opd']);
     $formulir = Formulir::factory()->create(['created_by_id' => $user->id]);
 
@@ -45,31 +45,38 @@ test('user indicators endpoint returns the newest filled penilaian when duplicat
     $aspek = Aspek::factory()->create(['domain_id' => $domain->id]);
     $indikator = Indikator::factory()->create(['aspek_id' => $aspek->id]);
 
-    Penilaian::create([
-        'formulir_id' => $formulir->id,
-        'user_id' => $user->id,
-        'indikator_id' => $indikator->id,
-        'nilai' => 3,
-        'tanggal_penilaian' => now()->subDays(2),
-        'created_at' => now()->subDays(2),
-        'updated_at' => now()->subDays(2),
-    ]);
+    loginAs($user)
+        ->postJson("/api/formulir/{$formulir->id}/indikator/{$indikator->id}/penilaian", [
+            'nilai' => 3,
+            'catatan' => 'Nilai awal',
+        ])
+        ->assertCreated();
 
-    $filled = Penilaian::create([
-        'formulir_id' => $formulir->id,
-        'user_id' => $user->id,
-        'indikator_id' => $indikator->id,
-        'nilai' => 5,
-        'tanggal_penilaian' => now(),
-        'created_at' => now(),
-        'updated_at' => now(),
-    ]);
+    loginAs($user)
+        ->postJson("/api/formulir/{$formulir->id}/indikator/{$indikator->id}/penilaian", [
+            'nilai' => 5,
+            'catatan' => 'Nilai terbaru',
+        ])
+        ->assertCreated();
+
+    $filled = Penilaian::query()
+        ->where('formulir_id', $formulir->id)
+        ->where('indikator_id', $indikator->id)
+        ->where('user_id', $user->id)
+        ->firstOrFail();
 
     loginAs($user)
         ->getJson("/api/formulir/{$formulir->id}/indicators")
         ->assertStatus(200)
         ->assertJsonPath('data.domains.0.aspek.0.indikator.0.penilaian.id', $filled->id)
-        ->assertJsonPath('data.domains.0.aspek.0.indikator.0.penilaian.nilai', '5.00');
+        ->assertJsonPath('data.domains.0.aspek.0.indikator.0.penilaian.nilai', '5.00')
+        ->assertJsonPath('data.domains.0.aspek.0.indikator.0.penilaian.catatan', 'Nilai terbaru');
+
+    expect(Penilaian::query()
+        ->where('formulir_id', $formulir->id)
+        ->where('indikator_id', $indikator->id)
+        ->where('user_id', $user->id)
+        ->count())->toBe(1);
 });
 
 test('user indicators endpoint returns null penilaian when only empty records exist', function () {

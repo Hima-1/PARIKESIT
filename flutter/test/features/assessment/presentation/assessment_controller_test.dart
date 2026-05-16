@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:parikesit/core/network/paginated_response.dart';
@@ -90,6 +92,51 @@ void main() {
       expect(repository.uploadBuktiDukungCalled, isFalse);
     },
   );
+
+  test(
+    'concurrent draft saves merge into the latest assessment state',
+    () async {
+      final firstSave = Completer<void>();
+      final secondSave = Completer<void>();
+      final repository = _FakeAssessmentRepository()
+        ..submitCompleters = <int, Completer<void>>{
+          101: firstSave,
+          202: secondSave,
+        };
+      final container = ProviderContainer(
+        overrides: [assessmentRepositoryProvider.overrideWithValue(repository)],
+      );
+      addTearDown(container.dispose);
+
+      await container.read(assessmentFormControllerProvider(12).future);
+      final notifier = container.read(
+        assessmentFormControllerProvider(12).notifier,
+      );
+
+      final firstFuture = notifier.saveDraftAssessment(
+        indikatorId: 101,
+        nilai: 3,
+      );
+      final secondFuture = notifier.saveDraftAssessment(
+        indikatorId: 202,
+        nilai: 4,
+      );
+
+      secondSave.complete();
+      await secondFuture;
+      firstSave.complete();
+      await firstFuture;
+
+      final drafts = container
+          .read(assessmentFormControllerProvider(12))
+          .requireValue
+          .draftsByIndikatorId;
+
+      expect(drafts.keys, containsAll(<int>[101, 202]));
+      expect(drafts[101]?.nilai, 3);
+      expect(drafts[202]?.nilai, 4);
+    },
+  );
 }
 
 class _FakeAssessmentRepository implements AssessmentRepository {
@@ -103,6 +150,7 @@ class _FakeAssessmentRepository implements AssessmentRepository {
   Map<String, dynamic>? lastCorrectionPayload;
   bool uploadBuktiDukungCalled = false;
   Map<int, Penilaian> myPenilaians = <int, Penilaian>{};
+  Map<int, Completer<void>> submitCompleters = <int, Completer<void>>{};
 
   @override
   Future<List<AssessmentFormModel>> getActivities() async =>
@@ -159,6 +207,11 @@ class _FakeAssessmentRepository implements AssessmentRepository {
     int indikatorId,
     Map<String, dynamic> data,
   ) async {
+    final completer = submitCompleters[indikatorId];
+    if (completer != null) {
+      await completer.future;
+    }
+
     lastSubmittedFormulirId = formulirId;
     lastSubmittedIndikatorId = indikatorId;
     lastSubmitPayload = Map<String, dynamic>.from(data);

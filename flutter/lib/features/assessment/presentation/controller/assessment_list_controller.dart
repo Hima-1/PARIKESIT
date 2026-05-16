@@ -1,4 +1,4 @@
-﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:parikesit/core/network/paginated_response.dart';
 import 'package:parikesit/features/assessment/data/assessment_repository.dart';
 import 'package:parikesit/features/assessment/domain/assessment_models.dart';
@@ -8,6 +8,7 @@ class AssessmentListController
     extends AsyncNotifier<PaginatedResponse<AssessmentFormModel>> {
   static const int _perPage = 15;
   int _page = 1;
+  int _requestVersion = 0;
 
   @override
   Future<PaginatedResponse<AssessmentFormModel>> build() async {
@@ -20,14 +21,18 @@ class AssessmentListController
     final AssessmentRepository repository = ref.read(
       assessmentRepositoryProvider,
     );
+    final requestVersion = ++_requestVersion;
 
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
+    final nextState = await AsyncValue.guard(() async {
       await mutation(repository);
       return _fetch(repository: repository);
     });
+    if (requestVersion == _requestVersion) {
+      state = nextState;
+    }
 
-    return state.maybeWhen(
+    return nextState.maybeWhen(
       data: (data) => data,
       orElse: () => const PaginatedResponse<AssessmentFormModel>(
         data: <AssessmentFormModel>[],
@@ -54,8 +59,7 @@ class AssessmentListController
       domains: <DomainModel>[],
     );
 
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
+    await _runLatest(() async {
       await repository.addActivity(activity, useTemplate: useTemplate);
       _page = 1;
       return _fetch(repository: repository);
@@ -71,8 +75,7 @@ class AssessmentListController
       assessmentRepositoryProvider,
     );
 
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
+    await _runLatest(() async {
       await repository.addDomain(activityId, domainName, aspects);
 
       final AssessmentFormModel refreshed = await repository.getFormulir(
@@ -119,8 +122,7 @@ class AssessmentListController
     }
 
     _page += 1;
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(_fetch);
+    await _runLatest(_fetch);
   }
 
   Future<void> previousPage() async {
@@ -129,13 +131,11 @@ class AssessmentListController
     }
 
     _page -= 1;
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(_fetch);
+    await _runLatest(_fetch);
   }
 
   Future<void> refreshActivities() async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(_fetch);
+    await _runLatest(_fetch);
   }
 
   Future<PaginatedResponse<AssessmentFormModel>> _fetch({
@@ -144,6 +144,17 @@ class AssessmentListController
     final AssessmentRepository resolvedRepository =
         repository ?? ref.read(assessmentRepositoryProvider);
     return resolvedRepository.getActivitiesPage(page: _page, perPage: _perPage);
+  }
+
+  Future<void> _runLatest(
+    Future<PaginatedResponse<AssessmentFormModel>> Function() fetch,
+  ) async {
+    final requestVersion = ++_requestVersion;
+    state = const AsyncLoading();
+    final nextState = await AsyncValue.guard(fetch);
+    if (requestVersion == _requestVersion) {
+      state = nextState;
+    }
   }
 }
 
@@ -156,6 +167,7 @@ final assessmentListControllerProvider =
 abstract class _BaseCompletedAssessmentListController
     extends AsyncNotifier<PaginatedResponse<AssessmentFormModel>> {
   CompletedAssessmentQuery _query = const CompletedAssessmentQuery();
+  int _requestVersion = 0;
 
   @override
   Future<PaginatedResponse<AssessmentFormModel>> build() async {
@@ -199,14 +211,23 @@ abstract class _BaseCompletedAssessmentListController
   }
 
   Future<void> refreshCompletedActivities() async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(_fetch);
+    await _runLatest(_fetch);
   }
 
   Future<void> _updateQuery(CompletedAssessmentQuery query) async {
     _query = query;
+    await _runLatest(_fetch);
+  }
+
+  Future<void> _runLatest(
+    Future<PaginatedResponse<AssessmentFormModel>> Function() fetch,
+  ) async {
+    final requestVersion = ++_requestVersion;
     state = const AsyncLoading();
-    state = await AsyncValue.guard(_fetch);
+    final nextState = await AsyncValue.guard(fetch);
+    if (requestVersion == _requestVersion) {
+      state = nextState;
+    }
   }
 
   Future<PaginatedResponse<AssessmentFormModel>> _fetch();

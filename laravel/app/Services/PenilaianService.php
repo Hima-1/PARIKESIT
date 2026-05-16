@@ -8,10 +8,12 @@ use App\Models\Penilaian;
 use App\Support\UploadSecurity;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use RuntimeException;
+use Throwable;
 
 class PenilaianService
 {
@@ -20,11 +22,6 @@ class PenilaianService
         $savedFileNames = [];
         $disk = Storage::disk('public');
         $normalizedFiles = $this->normalizeFiles($files);
-        $existingPenilaian = Penilaian::query()
-            ->where('indikator_id', $indikator->id)
-            ->where('formulir_id', $formulir->id)
-            ->where('user_id', Auth::id())
-            ->first();
 
         if ($normalizedFiles !== []) {
             foreach ($normalizedFiles as $index => $file) {
@@ -41,25 +38,53 @@ class PenilaianService
             }
         }
 
-        $existingBuktiDukung = $this->resolveExistingEvidencePaths(
-            data: $data,
-            existingPenilaian: $existingPenilaian,
-        );
-        $finalBuktiDukung = $savedFileNames !== [] ? $savedFileNames : $existingBuktiDukung;
+        try {
+            return DB::transaction(function () use ($formulir, $indikator, $data, $savedFileNames) {
+                $userId = Auth::id();
 
-        return Penilaian::updateOrCreate(
-            [
-                'indikator_id' => $indikator->id,
-                'formulir_id' => $formulir->id,
-                'user_id' => Auth::id(),
-            ],
-            [
-                'nilai' => $data['nilai'],
-                'tanggal_penilaian' => now()->format('Y-m-d'),
-                'catatan' => $data['catatan'] ?? null,
-                'bukti_dukung' => $finalBuktiDukung !== [] ? $finalBuktiDukung : null,
-            ]
-        );
+                $formulir->newQuery()
+                    ->whereKey($formulir->id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                $existingPenilaian = Penilaian::query()
+                    ->where('indikator_id', $indikator->id)
+                    ->where('formulir_id', $formulir->id)
+                    ->where('user_id', $userId)
+                    ->lockForUpdate()
+                    ->first();
+
+                $existingBuktiDukung = $this->resolveExistingEvidencePaths(
+                    data: $data,
+                    existingPenilaian: $existingPenilaian,
+                );
+                $finalBuktiDukung = $savedFileNames !== [] ? $savedFileNames : $existingBuktiDukung;
+
+                $attributes = [
+                    'nilai' => $data['nilai'],
+                    'tanggal_penilaian' => now()->format('Y-m-d'),
+                    'catatan' => $data['catatan'] ?? null,
+                    'bukti_dukung' => $finalBuktiDukung !== [] ? $finalBuktiDukung : null,
+                ];
+
+                if ($existingPenilaian instanceof Penilaian) {
+                    $existingPenilaian->fill($attributes)->save();
+
+                    return $existingPenilaian->refresh();
+                }
+
+                return Penilaian::query()->create([
+                    'indikator_id' => $indikator->id,
+                    'formulir_id' => $formulir->id,
+                    'user_id' => $userId,
+                    ...$attributes,
+                ]);
+            }, 3);
+        } catch (Throwable $exception) {
+            $this->deleteStoredFiles($savedFileNames);
+
+            throw $exception;
+        }
     }
 
     /**
@@ -159,5 +184,17 @@ class PenilaianService
     private function uniqueStoredFileName(UploadedFile $file): string
     {
         return Str::ulid().'.'.UploadSecurity::safeExtension($file);
+    }
+
+    /**
+     * @param  array<int, string>  $paths
+     */
+    private function deleteStoredFiles(array $paths): void
+    {
+        if ($paths === []) {
+            return;
+        }
+
+        Storage::disk('public')->delete($paths);
     }
 }

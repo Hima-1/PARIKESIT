@@ -7,6 +7,7 @@ import 'notification_inbox_state.dart';
 
 class NotificationController extends AsyncNotifier<NotificationInboxState> {
   static const _perPage = 10;
+  int _requestVersion = 0;
 
   @override
   Future<NotificationInboxState> build() async {
@@ -14,8 +15,12 @@ class NotificationController extends AsyncNotifier<NotificationInboxState> {
   }
 
   Future<void> refresh() async {
+    final requestVersion = ++_requestVersion;
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(_fetchInitialPage);
+    final nextState = await AsyncValue.guard(_fetchInitialPage);
+    if (requestVersion == _requestVersion) {
+      state = nextState;
+    }
   }
 
   Future<void> markAsRead(String id) async {
@@ -27,9 +32,14 @@ class NotificationController extends AsyncNotifier<NotificationInboxState> {
       return;
     }
 
+    final requestVersion = ++_requestVersion;
     final updated = await ref
         .read(notificationRepositoryProvider)
         .markAsRead(id);
+    if (requestVersion != _requestVersion) {
+      return;
+    }
+
     final newList = currentList
         .map((notif) => notif.id == id ? updated : notif)
         .toList();
@@ -47,7 +57,12 @@ class NotificationController extends AsyncNotifier<NotificationInboxState> {
       return;
     }
 
+    final requestVersion = ++_requestVersion;
     await ref.read(notificationRepositoryProvider).markAllAsRead();
+    if (requestVersion != _requestVersion) {
+      return;
+    }
+
     final newList = currentState.notifications
         .map((notif) => notif.copyWith(isRead: true))
         .toList();
@@ -73,6 +88,7 @@ class NotificationController extends AsyncNotifier<NotificationInboxState> {
       return;
     }
 
+    final requestVersion = ++_requestVersion;
     state = AsyncValue.data(
       currentState.copyWith(
         page: _copyPageWithItems(
@@ -86,19 +102,28 @@ class NotificationController extends AsyncNotifier<NotificationInboxState> {
 
     try {
       await ref.read(notificationRepositoryProvider).deleteNotification(id);
+      if (requestVersion != _requestVersion) {
+        return;
+      }
+
       final latestState = state.value;
       if (latestState != null &&
           latestState.notifications.isEmpty &&
           latestState.currentPage > 1) {
-        state = await AsyncValue.guard(
+        final nextState = await AsyncValue.guard(
           () => _reloadLoadedPages(
             targetPageCount: latestState.currentPage - 1,
             hasMutated: true,
           ),
         );
+        if (requestVersion == _requestVersion) {
+          state = nextState;
+        }
       }
     } catch (_) {
-      state = AsyncValue.data(currentState);
+      if (requestVersion == _requestVersion) {
+        state = AsyncValue.data(currentState);
+      }
       rethrow;
     }
   }
@@ -109,13 +134,17 @@ class NotificationController extends AsyncNotifier<NotificationInboxState> {
       return;
     }
 
+    final requestVersion = ++_requestVersion;
     await ref.read(notificationRepositoryProvider).deleteReadNotifications();
-    state = await AsyncValue.guard(
+    final nextState = await AsyncValue.guard(
       () => _reloadLoadedPages(
         targetPageCount: currentState.currentPage,
         hasMutated: true,
       ),
     );
+    if (requestVersion == _requestVersion) {
+      state = nextState;
+    }
   }
 
   Future<void> loadMore() async {
@@ -126,6 +155,7 @@ class NotificationController extends AsyncNotifier<NotificationInboxState> {
       return;
     }
 
+    final requestVersion = ++_requestVersion;
     state = AsyncValue.data(currentState.copyWith(isLoadingMore: true));
     try {
       final nextPage = await ref
@@ -134,6 +164,10 @@ class NotificationController extends AsyncNotifier<NotificationInboxState> {
             page: currentState.currentPage + 1,
             perPage: _perPage,
           );
+      if (requestVersion != _requestVersion) {
+        return;
+      }
+
       final mergedPage = nextPage.copyWith(
         data: [...currentState.notifications, ...nextPage.items],
       );
@@ -141,7 +175,9 @@ class NotificationController extends AsyncNotifier<NotificationInboxState> {
         currentState.copyWith(page: mergedPage, isLoadingMore: false),
       );
     } catch (_) {
-      state = AsyncValue.data(currentState.copyWith(isLoadingMore: false));
+      if (requestVersion == _requestVersion) {
+        state = AsyncValue.data(currentState.copyWith(isLoadingMore: false));
+      }
       rethrow;
     }
   }

@@ -13,6 +13,7 @@ class OpdSelectionController
   static const int _perPage = 10;
   final OpdListArgs args;
   int _page = 1;
+  int _requestVersion = 0;
 
   @override
   Future<PaginatedResponse<OpdModel>> build() async {
@@ -26,8 +27,7 @@ class OpdSelectionController
     }
 
     _page += 1;
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(_fetch);
+    await _runLatest(_fetch);
   }
 
   Future<void> previousPage() async {
@@ -36,13 +36,11 @@ class OpdSelectionController
     }
 
     _page -= 1;
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(_fetch);
+    await _runLatest(_fetch);
   }
 
   Future<void> refreshOpds() async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(_fetch);
+    await _runLatest(_fetch);
   }
 
   Future<PaginatedResponse<OpdModel>> _fetch() {
@@ -60,6 +58,17 @@ class OpdSelectionController
       page: _page,
       perPage: _perPage,
     );
+  }
+
+  Future<void> _runLatest(
+    Future<PaginatedResponse<OpdModel>> Function() fetch,
+  ) async {
+    final requestVersion = ++_requestVersion;
+    state = const AsyncLoading();
+    final nextState = await AsyncValue.guard(fetch);
+    if (requestVersion == _requestVersion) {
+      state = nextState;
+    }
   }
 }
 

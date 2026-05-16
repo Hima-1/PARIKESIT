@@ -464,7 +464,7 @@ test('walidata can get comparison summary for each opd with real scores', functi
         ->assertJsonPath('0.skor_bps', 5);
 });
 
-test('summary prefers walidata score from the most relevant correction record', function () {
+test('summary returns opd walidata and admin scores from the unique assessment record', function () {
     $formulir = Formulir::factory()->create();
     $domain = \App\Models\Domain::factory()->create(['bobot_domain' => 100]);
     $formulir->domains()->attach($domain);
@@ -478,20 +478,9 @@ test('summary prefers walidata score from the most relevant correction record', 
         'indikator_id' => $indikator->id,
         'formulir_id' => $formulir->id,
         'user_id' => $opd->id,
-        'nilai' => 2,
+        'nilai' => 3,
         'nilai_diupdate' => 4,
         'nilai_koreksi' => 5,
-        'updated_at' => now()->subMinute(),
-    ]);
-
-    Penilaian::factory()->create([
-        'indikator_id' => $indikator->id,
-        'formulir_id' => $formulir->id,
-        'user_id' => $opd->id,
-        'nilai' => 3,
-        'nilai_diupdate' => null,
-        'nilai_koreksi' => null,
-        'updated_at' => now(),
     ]);
 
     $response = loginAs($walidata)->getJson("/api/penilaian-selesai/{$formulir->id}/summary");
@@ -531,7 +520,7 @@ test('walidata can get review domain summary for an opd with real scores', funct
         ->assertJsonPath('0.admin_score', 5);
 });
 
-test('opd stats prefer walidata score from the most relevant correction record', function () {
+test('opd stats return opd walidata and admin scores from the unique assessment record', function () {
     $formulir = Formulir::factory()->create();
     $domain = \App\Models\Domain::factory()->create(['nama_domain' => 'Kelembagaan', 'bobot_domain' => 100]);
     $formulir->domains()->attach($domain);
@@ -545,20 +534,9 @@ test('opd stats prefer walidata score from the most relevant correction record',
         'indikator_id' => $indikator->id,
         'formulir_id' => $formulir->id,
         'user_id' => $opd->id,
-        'nilai' => 2,
+        'nilai' => 3,
         'nilai_diupdate' => 4,
         'nilai_koreksi' => 5,
-        'updated_at' => now()->subMinute(),
-    ]);
-
-    Penilaian::factory()->create([
-        'indikator_id' => $indikator->id,
-        'formulir_id' => $formulir->id,
-        'user_id' => $opd->id,
-        'nilai' => 3,
-        'nilai_diupdate' => null,
-        'nilai_koreksi' => null,
-        'updated_at' => now(),
     ]);
 
     $response = loginAs($walidata)->getJson("/api/penilaian-selesai/{$formulir->id}/opd/{$opd->id}/stats");

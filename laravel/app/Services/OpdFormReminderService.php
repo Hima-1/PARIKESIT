@@ -7,6 +7,7 @@ use App\Models\AuditLog;
 use App\Models\InboxNotification;
 use App\Models\OpdFormReminderLog;
 use App\Models\User;
+use Illuminate\Database\QueryException;
 
 class OpdFormReminderService
 {
@@ -34,7 +35,7 @@ class OpdFormReminderService
 
                     foreach ($items as $item) {
                         $formulirId = (int) ($item['id'] ?? 0);
-                        if ($formulirId === 0 || $this->wasAlreadySentToday($user->id, $formulirId, self::AUTOMATIC_REMINDER_TYPE)) {
+                        if ($formulirId === 0) {
                             $skipped++;
 
                             continue;
@@ -153,6 +154,11 @@ class OpdFormReminderService
         );
         $percentage = (float) data_get($item, 'progress_per_indikator.persentase', 0);
         $payload = $this->buildAutomaticReminderPayload($item, $remaining, $percentage);
+
+        if (! $this->claimAutomaticReminder($user->id, $formulirId, $percentage, $remaining)) {
+            return ['sent' => 0, 'skipped' => 1];
+        }
+
         $result = $tokens === []
             ? ['success_count' => 0, 'failure_count' => 0]
             : $this->sender->sendToTokens($tokens, $payload['notification'], $payload['data']);
@@ -164,16 +170,6 @@ class OpdFormReminderService
             type: self::AUTOMATIC_REMINDER_TYPE,
             data: $payload['data'],
         );
-
-        OpdFormReminderLog::create([
-            'user_id' => $user->id,
-            'formulir_id' => $formulirId,
-            'reminder_type' => self::AUTOMATIC_REMINDER_TYPE,
-            'reminder_date' => now()->toDateString(),
-            'progress_percentage' => $percentage,
-            'remaining_indicators' => $remaining,
-            'sent_at' => now(),
-        ]);
 
         return [
             'sent' => (int) ($result['success_count'] ?? 0),
@@ -245,13 +241,31 @@ class OpdFormReminderService
         ]);
     }
 
-    private function wasAlreadySentToday(int $userId, int $formulirId, string $reminderType): bool
+    private function claimAutomaticReminder(int $userId, int $formulirId, float $percentage, int $remaining): bool
     {
-        return OpdFormReminderLog::query()
-            ->where('user_id', $userId)
-            ->where('formulir_id', $formulirId)
-            ->where('reminder_type', $reminderType)
-            ->whereDate('reminder_date', now()->toDateString())
-            ->exists();
+        try {
+            OpdFormReminderLog::create([
+                'user_id' => $userId,
+                'formulir_id' => $formulirId,
+                'reminder_type' => self::AUTOMATIC_REMINDER_TYPE,
+                'reminder_date' => now()->toDateString(),
+                'progress_percentage' => $percentage,
+                'remaining_indicators' => $remaining,
+                'sent_at' => now(),
+            ]);
+
+            return true;
+        } catch (QueryException $exception) {
+            if ($this->isUniqueConstraintViolation($exception)) {
+                return false;
+            }
+
+            throw $exception;
+        }
+    }
+
+    private function isUniqueConstraintViolation(QueryException $exception): bool
+    {
+        return in_array($exception->errorInfo[0] ?? null, ['23000', '23505'], true);
     }
 }

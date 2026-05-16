@@ -8,6 +8,7 @@ import '../../domain/admin_user_query.dart';
 
 class UserAdminController extends AsyncNotifier<PaginatedResponse<AppUser>> {
   AdminUserQuery _query = const AdminUserQuery();
+  int _requestVersion = 0;
 
   AdminUserQuery get query => _query;
 
@@ -21,22 +22,17 @@ class UserAdminController extends AsyncNotifier<PaginatedResponse<AppUser>> {
       search: (search ?? _query.search).trim(),
       page: page,
     );
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      return _loadUsers();
-    });
+    await _runLatest(_loadUsers);
   }
 
   Future<void> setSearch(String search) async {
     _query = _query.copyWith(search: search.trim(), page: 1);
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(_loadUsers);
+    await _runLatest(_loadUsers);
   }
 
   Future<void> setSort(UserSortField sort) async {
     _query = _query.copyWith(sort: sort, page: 1);
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(_loadUsers);
+    await _runLatest(_loadUsers);
   }
 
   Future<void> toggleSortDirection() async {
@@ -46,8 +42,7 @@ class UserAdminController extends AsyncNotifier<PaginatedResponse<AppUser>> {
           : SortDirection.asc,
       page: 1,
     );
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(_loadUsers);
+    await _runLatest(_loadUsers);
   }
 
   Future<void> nextPage() async {
@@ -57,8 +52,7 @@ class UserAdminController extends AsyncNotifier<PaginatedResponse<AppUser>> {
     }
 
     _query = _query.copyWith(page: _query.page + 1);
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(_loadUsers);
+    await _runLatest(_loadUsers);
   }
 
   Future<void> previousPage() async {
@@ -67,8 +61,7 @@ class UserAdminController extends AsyncNotifier<PaginatedResponse<AppUser>> {
     }
 
     _query = _query.copyWith(page: _query.page - 1);
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(_loadUsers);
+    await _runLatest(_loadUsers);
   }
 
   Future<void> createUser(Map<String, dynamic> userData) async {
@@ -76,7 +69,7 @@ class UserAdminController extends AsyncNotifier<PaginatedResponse<AppUser>> {
     try {
       await ref.read(adminUserRepositoryProvider).createUser(userData);
       _query = _query.copyWith(page: 1);
-      state = await AsyncValue.guard(_loadUsers);
+      await _runLatest(_loadUsers, showLoading: false);
     } catch (_) {
       state = previousState;
       rethrow;
@@ -87,7 +80,7 @@ class UserAdminController extends AsyncNotifier<PaginatedResponse<AppUser>> {
     final previousState = state;
     try {
       await ref.read(adminUserRepositoryProvider).updateUser(id, userData);
-      state = await AsyncValue.guard(_loadUsers);
+      await _runLatest(_loadUsers, showLoading: false);
     } catch (_) {
       state = previousState;
       rethrow;
@@ -100,7 +93,7 @@ class UserAdminController extends AsyncNotifier<PaginatedResponse<AppUser>> {
       final result = await ref
           .read(adminUserRepositoryProvider)
           .resetPassword(id);
-      state = await AsyncValue.guard(_loadUsers);
+      await _runLatest(_loadUsers, showLoading: false);
       return result;
     } catch (_) {
       state = previousState;
@@ -116,7 +109,7 @@ class UserAdminController extends AsyncNotifier<PaginatedResponse<AppUser>> {
       if ((current?.items.length ?? 0) <= 1 && _query.page > 1) {
         _query = _query.copyWith(page: _query.page - 1);
       }
-      state = await AsyncValue.guard(_loadUsers);
+      await _runLatest(_loadUsers, showLoading: false);
     } catch (_) {
       state = previousState;
       rethrow;
@@ -140,6 +133,20 @@ class UserAdminController extends AsyncNotifier<PaginatedResponse<AppUser>> {
           direction: _query.direction,
           perPage: _query.perPage,
         );
+  }
+
+  Future<void> _runLatest(
+    Future<PaginatedResponse<AppUser>> Function() fetch, {
+    bool showLoading = true,
+  }) async {
+    final requestVersion = ++_requestVersion;
+    if (showLoading) {
+      state = const AsyncValue.loading();
+    }
+    final nextState = await AsyncValue.guard(fetch);
+    if (requestVersion == _requestVersion) {
+      state = nextState;
+    }
   }
 }
 

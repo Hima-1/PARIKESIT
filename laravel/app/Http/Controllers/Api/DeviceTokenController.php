@@ -12,19 +12,36 @@ class DeviceTokenController extends Controller
     public function store(RegisterFcmTokenRequest $request)
     {
         $user = $request->user();
+        $token = $request->string('token')->toString();
+        $now = now();
 
-        $deviceToken = DeviceToken::updateOrCreate(
-            ['token' => $request->string('token')->toString()],
-            [
+        DeviceToken::query()->upsert(
+            [[
+                'token' => $token,
                 'user_id' => $user->id,
                 'personal_access_token_id' => $user->currentAccessToken()?->id,
                 'platform' => $request->string('platform')->toString(),
                 'device_name' => $request->input('device_name'),
                 'app_version' => $request->input('app_version'),
-                'last_seen_at' => now(),
+                'last_seen_at' => $now,
                 'is_active' => true,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]],
+            ['token'],
+            [
+                'user_id',
+                'personal_access_token_id',
+                'platform',
+                'device_name',
+                'app_version',
+                'last_seen_at',
+                'is_active',
+                'updated_at',
             ],
         );
+
+        $deviceToken = DeviceToken::query()->where('token', $token)->firstOrFail();
 
         return response()->json([
             'message' => 'FCM token tersimpan',

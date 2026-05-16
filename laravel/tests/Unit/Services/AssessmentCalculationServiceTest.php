@@ -11,7 +11,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(Tests\TestCase::class, RefreshDatabase::class);
 
-test('it resolves layer scores from the most relevant record for each field', function () {
+test('it resolves layer scores from one unique assessment record', function () {
     $service = new AssessmentCalculationService;
 
     $formulir = Formulir::factory()->create();
@@ -31,20 +31,9 @@ test('it resolves layer scores from the most relevant record for each field', fu
         'indikator_id' => $indikator->id,
         'formulir_id' => $formulir->id,
         'user_id' => $opd->id,
-        'nilai' => 2,
+        'nilai' => 3,
         'nilai_diupdate' => 4,
         'nilai_koreksi' => 5,
-        'updated_at' => now()->subMinute(),
-    ]);
-
-    Penilaian::factory()->create([
-        'indikator_id' => $indikator->id,
-        'formulir_id' => $formulir->id,
-        'user_id' => $opd->id,
-        'nilai' => 3,
-        'nilai_diupdate' => null,
-        'nilai_koreksi' => null,
-        'updated_at' => now(),
     ]);
 
     expect($service->calculateScore($formulir, $opd, 'opd'))->toBe(3.0)

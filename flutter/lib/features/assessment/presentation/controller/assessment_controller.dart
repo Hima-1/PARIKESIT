@@ -27,6 +27,7 @@ class AssessmentFormController extends AsyncNotifier<AssessmentFormState> {
   AssessmentFormController(this._formulirId);
 
   final int _formulirId;
+  int _loadRequestVersion = 0;
 
   @override
   Future<AssessmentFormState> build() async {
@@ -57,9 +58,10 @@ class AssessmentFormController extends AsyncNotifier<AssessmentFormState> {
   }) async {
     final AssessmentFormState previous =
         state.value ?? AssessmentFormState(formulirId: _formulirId);
+    final requestVersion = ++_loadRequestVersion;
 
     state = const AsyncValue<AssessmentFormState>.loading();
-    state = await AsyncValue.guard(() async {
+    final nextState = await AsyncValue.guard(() async {
       final List<AssessmentIndikator> indikators = await _getIndikators(
         domainId: domainId,
         aspekId: aspekId,
@@ -72,11 +74,15 @@ class AssessmentFormController extends AsyncNotifier<AssessmentFormState> {
         indikators: indikators,
       );
     });
+    if (requestVersion == _loadRequestVersion) {
+      state = nextState;
+    }
   }
 
   Future<void> loadIndicatorsForOpd(int opdId) async {
     final AssessmentFormState previous =
         state.value ?? AssessmentFormState(formulirId: _formulirId);
+    final requestVersion = ++_loadRequestVersion;
 
     // Fetch first without setting loading state — this avoids a rapid double
     // rebuild (loading → data) on a heavy widget tree that can cause ANR.
@@ -88,11 +94,18 @@ class AssessmentFormController extends AsyncNotifier<AssessmentFormState> {
           .read(assessmentRepositoryProvider)
           .getIndicatorsForOpd(_formulirId, opdId);
 
-      state = AsyncValue<AssessmentFormState>.data(
-        previous.copyWith(formulir: formulir, draftsByIndikatorId: assessments),
-      );
+      if (requestVersion == _loadRequestVersion) {
+        state = AsyncValue<AssessmentFormState>.data(
+          previous.copyWith(
+            formulir: formulir,
+            draftsByIndikatorId: assessments,
+          ),
+        );
+      }
     } catch (error, stackTrace) {
-      state = AsyncValue<AssessmentFormState>.error(error, stackTrace);
+      if (requestVersion == _loadRequestVersion) {
+        state = AsyncValue<AssessmentFormState>.error(error, stackTrace);
+      }
     }
   }
 
@@ -135,12 +148,14 @@ class AssessmentFormController extends AsyncNotifier<AssessmentFormState> {
           .read(assessmentRepositoryProvider)
           .submitPenilaian(_formulirId, indikatorId, payload);
 
+      final AssessmentFormState latest =
+          state.value ?? AssessmentFormState(formulirId: _formulirId);
       final Map<int, Penilaian> nextDrafts = Map<int, Penilaian>.from(
-        previous.draftsByIndikatorId,
+        latest.draftsByIndikatorId,
       )..[savedDraft.indikatorId] = savedDraft;
 
       state = AsyncValue<AssessmentFormState>.data(
-        previous.copyWith(draftsByIndikatorId: nextDrafts),
+        latest.copyWith(draftsByIndikatorId: nextDrafts),
       );
       return savedDraft;
     } catch (error, stackTrace) {
@@ -183,12 +198,14 @@ class AssessmentFormController extends AsyncNotifier<AssessmentFormState> {
           .read(assessmentRepositoryProvider)
           .submitWalidataCorrection(payload);
 
+      final AssessmentFormState latest =
+          state.value ?? AssessmentFormState(formulirId: _formulirId);
       final Map<int, Penilaian> nextDrafts = Map<int, Penilaian>.from(
-        previous.draftsByIndikatorId,
+        latest.draftsByIndikatorId,
       )..[corrected.indikatorId] = corrected;
 
       state = AsyncValue<AssessmentFormState>.data(
-        previous.copyWith(draftsByIndikatorId: nextDrafts),
+        latest.copyWith(draftsByIndikatorId: nextDrafts),
       );
     } catch (error, stackTrace) {
       state = AsyncValue<AssessmentFormState>.error(error, stackTrace);
@@ -229,12 +246,14 @@ class AssessmentFormController extends AsyncNotifier<AssessmentFormState> {
           .read(assessmentRepositoryProvider)
           .submitAdminEvaluation(payload);
 
+      final AssessmentFormState latest =
+          state.value ?? AssessmentFormState(formulirId: _formulirId);
       final Map<int, Penilaian> nextDrafts = Map<int, Penilaian>.from(
-        previous.draftsByIndikatorId,
+        latest.draftsByIndikatorId,
       )..[evaluated.indikatorId] = evaluated;
 
       state = AsyncValue<AssessmentFormState>.data(
-        previous.copyWith(draftsByIndikatorId: nextDrafts),
+        latest.copyWith(draftsByIndikatorId: nextDrafts),
       );
     } catch (error, stackTrace) {
       state = AsyncValue<AssessmentFormState>.error(error, stackTrace);
@@ -246,23 +265,22 @@ class AssessmentFormController extends AsyncNotifier<AssessmentFormState> {
     required int penilaianId,
     required String filePath,
   }) async {
-    final AssessmentFormState previous =
-        state.value ?? AssessmentFormState(formulirId: _formulirId);
-
     try {
       final BuktiDukung uploaded = await ref
           .read(assessmentRepositoryProvider)
           .uploadBuktiDukung(penilaianId, filePath);
 
+      final AssessmentFormState latest =
+          state.value ?? AssessmentFormState(formulirId: _formulirId);
       final Map<int, List<BuktiDukung>> nextBuktiByPenilaian =
-          Map<int, List<BuktiDukung>>.from(previous.buktiDukungByPenilaianId);
+          Map<int, List<BuktiDukung>>.from(latest.buktiDukungByPenilaianId);
       final List<BuktiDukung> nextBukti = List<BuktiDukung>.from(
         nextBuktiByPenilaian[penilaianId] ?? const <BuktiDukung>[],
       )..add(uploaded);
       nextBuktiByPenilaian[penilaianId] = nextBukti;
 
       state = AsyncValue<AssessmentFormState>.data(
-        previous.copyWith(buktiDukungByPenilaianId: nextBuktiByPenilaian),
+        latest.copyWith(buktiDukungByPenilaianId: nextBuktiByPenilaian),
       );
       return uploaded;
     } catch (error, stackTrace) {

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:parikesit/core/auth/app_user.dart';
@@ -168,6 +170,38 @@ void main() {
     expect(state.hasError, isFalse);
     expect(state.requireValue.meta.currentPage, 2);
   });
+
+  test('stale search response cannot overwrite the newest state', () async {
+    final slowSearch = Completer<void>();
+    final fastSearch = Completer<void>();
+    final repository = _FakeAdminUserRepository()
+      ..loadCompleters = <String, Completer<void>>{
+        'slow': slowSearch,
+        'fast': fastSearch,
+      };
+    final container = ProviderContainer(
+      overrides: [adminUserRepositoryProvider.overrideWithValue(repository)],
+    );
+    addTearDown(container.dispose);
+
+    await container.read(userAdminControllerProvider.future);
+    final notifier = container.read(userAdminControllerProvider.notifier);
+
+    final slowFuture = notifier.setSearch('slow');
+    final fastFuture = notifier.setSearch('fast');
+
+    fastSearch.complete();
+    await fastFuture;
+    slowSearch.complete();
+    await slowFuture;
+
+    final state = container.read(userAdminControllerProvider).requireValue;
+    expect(state.items.single.name, 'Hasil fast');
+    expect(
+      repository.calls.map((call) => call.search),
+      containsAll(['slow', 'fast']),
+    );
+  });
 }
 
 class _FakeAdminUserRepository implements AdminUserRepository {
@@ -177,6 +211,7 @@ class _FakeAdminUserRepository implements AdminUserRepository {
   final List<Map<String, dynamic>> createdUsers = <Map<String, dynamic>>[];
   final List<Map<String, dynamic>> updatedUsers = <Map<String, dynamic>>[];
   bool createShouldFail = false;
+  Map<String, Completer<void>> loadCompleters = <String, Completer<void>>{};
 
   @override
   Future<PaginatedResponse<AppUser>> getUsers({
@@ -186,6 +221,11 @@ class _FakeAdminUserRepository implements AdminUserRepository {
     SortDirection? direction,
     int? perPage,
   }) async {
+    final completer = loadCompleters[search ?? ''];
+    if (completer != null) {
+      await completer.future;
+    }
+
     calls.add(
       _UserCall(
         page: page,
