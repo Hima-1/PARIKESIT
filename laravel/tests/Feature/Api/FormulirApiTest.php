@@ -49,6 +49,30 @@ test('user can create a formulir', function () {
     $this->assertDatabaseCount('formulir_domains', 5);
 });
 
+test('formulir inputs are stored as sanitized plain text', function () {
+    $user = User::factory()->create(['role' => 'opd']);
+
+    loginAs($user)->postJson('/api/formulir', [
+        'nama_formulir' => "  <script>alert(1)</script> Form\tA  ",
+        'use_template' => false,
+    ])->assertCreated()
+        ->assertJsonPath('data.nama_formulir', 'alert(1) Form A');
+
+    $this->assertDatabaseHas('formulirs', [
+        'nama_formulir' => 'alert(1) Form A',
+    ]);
+});
+
+test('formulir list sanitizes invalid sort and clamps per page', function () {
+    Formulir::factory()->count(60)->create();
+
+    loginAsAdmin()
+        ->getJson('/api/formulir?sort=raw_sql&direction=drop&per_page=9999')
+        ->assertOk()
+        ->assertJsonCount(50, 'data')
+        ->assertJsonPath('meta.per_page', 50);
+});
+
 test('admin and walidata cannot create formulir through api endpoint', function () {
     loginAsAdmin()->postJson('/api/formulir', [
         'nama_formulir' => 'Form Admin',
@@ -294,6 +318,21 @@ test('opd can add custom domain with aspects to their formulir', function () {
     $this->assertDatabaseHas('aspeks', [
         'nama_aspek' => 'Aspek B',
     ]);
+});
+
+test('custom domain and aspects are stored as sanitized plain text', function () {
+    $user = User::factory()->create(['role' => 'opd']);
+    $formulir = Formulir::factory()->create(['created_by_id' => $user->id]);
+
+    loginAs($user)->postJson("/api/formulir/{$formulir->id}/domains", [
+        'nama_domain' => ' <b>Domain</b>   Baru ',
+        'nama_aspek' => [' <i>Aspek</i>  A ', "Aspek\tB"],
+    ])->assertCreated()
+        ->assertJsonPath('data.nama_domain', 'Domain Baru');
+
+    $this->assertDatabaseHas('domains', ['nama_domain' => 'Domain Baru']);
+    $this->assertDatabaseHas('aspeks', ['nama_aspek' => 'Aspek A']);
+    $this->assertDatabaseHas('aspeks', ['nama_aspek' => 'Aspek B']);
 });
 
 test('opd cannot add the same custom domain twice to one formulir', function () {

@@ -33,7 +33,9 @@ void main() {
     expect(repository.createdUsers, isEmpty);
   });
 
-  testWidgets('create form trims payload before submit', (tester) async {
+  testWidgets('create form trims non-password payload before submit', (
+    tester,
+  ) async {
     _setSurfaceSize(tester);
     final repository = _FakeAdminUserRepository();
     await tester.pumpWidget(_buildApp(repository));
@@ -68,7 +70,7 @@ void main() {
     expect(repository.createdUsers.single, {
       'name': 'Admin Baru',
       'email': 'adminbaru@example.com',
-      'password': 'password123',
+      'password': '  password123  ',
       'role': 'opd',
       'nomor_telepon': '08123456789',
       'alamat': 'Kantor Pusat',

@@ -7,6 +7,7 @@ use App\Http\Requests\StoreDokumentasiRequest;
 use App\Http\Requests\UpdateDokumentasiRequest;
 use App\Models\DokumentasiKegiatan;
 use App\Services\ActivityService;
+use App\Support\InputSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -23,16 +24,17 @@ class DokumentasiKegiatanController extends Controller
             return $response;
         }
 
-        $sortBy = $request->get('sort', 'created_at');
-        $sortDirection = $request->get('direction', 'desc');
-        $perPage = $request->get('per_page', 10);
+        $sortBy = InputSanitizer::sortBy($request->get('sort'), ['created_at', 'judul_dokumentasi'], 'created_at');
+        $sortDirection = InputSanitizer::sortDirection($request->get('direction'));
+        $perPage = InputSanitizer::safeIntRange($request->get('per_page'), 10, 1, 50);
+        $search = InputSanitizer::safeSearch($request->get('search'));
 
         $query = DokumentasiKegiatan::query()
             ->with('profile:id,name')
             ->orderBy($sortBy, $sortDirection);
 
-        if ($request->has('search')) {
-            $query->where('judul_dokumentasi', 'like', '%'.$request->search.'%');
+        if ($search !== '') {
+            $query->where('judul_dokumentasi', 'like', "%{$search}%");
         }
 
         return response()->json(
@@ -44,14 +46,15 @@ class DokumentasiKegiatanController extends Controller
 
     public function store(StoreDokumentasiRequest $request)
     {
-        $slug = $this->uniqueActivityDirectory($request->judul_dokumentasi);
+        $validated = $request->validated();
+        $slug = $this->uniqueActivityDirectory($validated['judul_dokumentasi']);
         $basePath = 'file-dokumentasi';
 
         $fileData = $this->activityService->handleFileUploads($request, $basePath, $slug);
 
         $dokumentasi = DokumentasiKegiatan::create([
             'created_by_id' => Auth::id(),
-            'judul_dokumentasi' => $request->judul_dokumentasi,
+            'judul_dokumentasi' => $validated['judul_dokumentasi'],
             'directory_dokumentasi' => $slug,
             'bukti_dukung_undangan_dokumentasi' => $fileData['bukti_dukung_undangan_dokumentasi'],
             'daftar_hadir_dokumentasi' => $fileData['daftar_hadir_dokumentasi'],
@@ -80,6 +83,8 @@ class DokumentasiKegiatanController extends Controller
 
     public function update(UpdateDokumentasiRequest $request, DokumentasiKegiatan $dokumentasi)
     {
+        $validated = $request->validated();
+
         if ($dokumentasi->created_by_id !== Auth::id() && Auth::user()->role !== 'admin') {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
@@ -95,7 +100,7 @@ class DokumentasiKegiatanController extends Controller
         ]);
 
         $dokumentasi->update([
-            'judul_dokumentasi' => $request->judul_dokumentasi,
+            'judul_dokumentasi' => $validated['judul_dokumentasi'],
             'bukti_dukung_undangan_dokumentasi' => $fileData['bukti_dukung_undangan_dokumentasi'],
             'daftar_hadir_dokumentasi' => $fileData['daftar_hadir_dokumentasi'],
             'materi_dokumentasi' => $fileData['materi_dokumentasi'],
@@ -176,7 +181,7 @@ class DokumentasiKegiatanController extends Controller
             return $response;
         }
 
-        $ids = $request->get('ids', []);
+        $ids = InputSanitizer::intArray($request->get('ids', []));
         if (empty($ids)) {
             return response()->json(['message' => 'ID dokumentasi tidak boleh kosong'], 400);
         }

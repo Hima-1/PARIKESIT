@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Resources\UserResource;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
+use App\Support\InputSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
@@ -25,11 +26,18 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
+        $request->merge([
+            'name' => InputSanitizer::plainText($request->input('name'), 255),
+            'email' => InputSanitizer::email($request->input('email')),
+            'alamat' => InputSanitizer::nullablePlainText($request->input('alamat'), 1000),
+            'nomor_telepon' => InputSanitizer::nullablePhone($request->input('nomor_telepon')),
+        ]);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'alamat' => 'nullable|string',
-            'nomor_telepon' => 'nullable|string|max:20',
+            'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
+            'alamat' => 'nullable|string|max:1000',
+            'nomor_telepon' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+()\-\s]{6,20}$/'],
             'current_password' => 'nullable|required_with:password|current_password',
             'password' => ['nullable', 'confirmed', Password::defaults()],
         ]);
@@ -48,7 +56,7 @@ class ProfileController extends Controller
         $user->save();
 
         return (new UserResource($user))->additional([
-            'message' => 'Profil berhasil diperbarui'
+            'message' => 'Profil berhasil diperbarui',
         ]);
     }
 }

@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Services\AssessmentCalculationService;
 use App\Services\OpdAssessmentAccessService;
 use App\Services\PenilaianSelectionService;
+use App\Support\InputSanitizer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -44,7 +45,7 @@ class FormulirPenilaianDisposisiController extends Controller
         $sortBy = $this->sanitizeSortBy($request->get('sort'));
         $sortDirection = $this->sanitizeSortDirection($request->get('direction'));
         $perPage = $this->resolvePerPage($request->get('per_page'));
-        $search = $request->get('search');
+        $search = InputSanitizer::safeSearch($request->get('search'));
 
         $query = Formulir::operational()
             ->with('creator')
@@ -73,7 +74,7 @@ class FormulirPenilaianDisposisiController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        if ($search) {
+        if ($search !== '') {
             $query->where('nama_formulir', 'like', "%{$search}%");
         }
 
@@ -101,12 +102,12 @@ class FormulirPenilaianDisposisiController extends Controller
         $sortBy = $this->sanitizeSortBy($request->get('sort'));
         $sortDirection = $this->sanitizeSortDirection($request->get('direction'));
         $perPage = $this->resolvePerPage($request->get('per_page'));
-        $search = $request->get('search');
+        $search = InputSanitizer::safeSearch($request->get('search'));
 
         $query = Formulir::operational()->withCount('domains');
         $this->applyHasOpdParticipantFilter($query);
 
-        if ($search) {
+        if ($search !== '') {
             $query->where('nama_formulir', 'like', "%{$search}%");
         }
 
@@ -120,10 +121,14 @@ class FormulirPenilaianDisposisiController extends Controller
      */
     public function storeKoreksi(Request $request)
     {
+        $request->merge([
+            'catatan_koreksi' => InputSanitizer::nullablePlainText($request->input('catatan_koreksi'), 2000),
+        ]);
+
         $request->validate([
             'penilaian_id' => 'required|exists:penilaians,id',
             'nilai' => 'required|numeric|min:0|max:5',
-            'catatan_koreksi' => 'nullable|string',
+            'catatan_koreksi' => 'nullable|string|max:2000',
         ]);
 
         $penilaian = Penilaian::find($request->penilaian_id);
@@ -154,10 +159,14 @@ class FormulirPenilaianDisposisiController extends Controller
      */
     public function updateEvaluasi(Request $request)
     {
+        $request->merge([
+            'evaluasi' => InputSanitizer::nullablePlainText($request->input('evaluasi'), 2000),
+        ]);
+
         $request->validate([
             'penilaian_id' => 'required|exists:penilaians,id',
             'nilai_evaluasi' => 'required|numeric|min:0|max:5',
-            'evaluasi' => 'nullable|string',
+            'evaluasi' => 'nullable|string|max:2000',
         ]);
 
         $penilaian = Penilaian::find($request->penilaian_id);
@@ -402,25 +411,17 @@ class FormulirPenilaianDisposisiController extends Controller
 
     private function sanitizeSortBy(?string $sortBy): string
     {
-        return in_array($sortBy, ['created_at', 'nama_formulir'], true)
-            ? $sortBy
-            : 'created_at';
+        return InputSanitizer::sortBy($sortBy, ['created_at', 'nama_formulir'], 'created_at');
     }
 
     private function sanitizeSortDirection(?string $direction): string
     {
-        return $direction === 'asc' ? 'asc' : 'desc';
+        return InputSanitizer::sortDirection($direction);
     }
 
     private function resolvePerPage(mixed $perPage): int
     {
-        $resolved = (int) $perPage;
-
-        if ($resolved <= 0) {
-            return 10;
-        }
-
-        return min($resolved, 50);
+        return InputSanitizer::safeIntRange($perPage, 10, 1, 50);
     }
 
     private function applyHasOpdParticipantFilter(Builder $query): void

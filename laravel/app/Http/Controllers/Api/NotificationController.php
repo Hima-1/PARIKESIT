@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\InboxNotification;
+use App\Support\InputSanitizer;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 
@@ -11,7 +12,7 @@ class NotificationController extends Controller
 {
     public function index(Request $request)
     {
-        $perPage = max(1, (int) $request->get('per_page', 10));
+        $perPage = InputSanitizer::safeIntRange($request->get('per_page'), 10, 1, 50);
         $notifications = $request->user()
             ->inboxNotifications()
             ->whereNull('hidden_at')

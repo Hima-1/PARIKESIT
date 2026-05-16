@@ -7,6 +7,7 @@ use App\Http\Requests\StorePembinaanRequest;
 use App\Http\Requests\UpdatePembinaanRequest;
 use App\Models\Pembinaan;
 use App\Services\ActivityService;
+use App\Support\InputSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -26,16 +27,17 @@ class PembinaanController extends Controller
             return $response;
         }
 
-        $sortBy = $request->get('sort', 'created_at');
-        $sortDirection = $request->get('direction', 'desc');
-        $perPage = $request->get('per_page', 10);
+        $sortBy = InputSanitizer::sortBy($request->get('sort'), ['created_at', 'judul_pembinaan'], 'created_at');
+        $sortDirection = InputSanitizer::sortDirection($request->get('direction'));
+        $perPage = InputSanitizer::safeIntRange($request->get('per_page'), 10, 1, 50);
+        $search = InputSanitizer::safeSearch($request->get('search'));
 
         $query = Pembinaan::query()
             ->with('profile:id,name')
             ->orderBy($sortBy, $sortDirection);
 
-        if ($request->has('search')) {
-            $query->where('judul_pembinaan', 'like', '%'.$request->search.'%');
+        if ($search !== '') {
+            $query->where('judul_pembinaan', 'like', "%{$search}%");
         }
 
         return response()->json(
@@ -47,14 +49,15 @@ class PembinaanController extends Controller
 
     public function store(StorePembinaanRequest $request)
     {
-        $slug = $this->uniqueActivityDirectory($request->judul_pembinaan);
+        $validated = $request->validated();
+        $slug = $this->uniqueActivityDirectory($validated['judul_pembinaan']);
         $basePath = 'file-pembinaan';
 
         $fileData = $this->activityService->handleFileUploads($request, $basePath, $slug);
 
         $pembinaan = Pembinaan::create([
             'created_by_id' => Auth::id(),
-            'judul_pembinaan' => $request->judul_pembinaan,
+            'judul_pembinaan' => $validated['judul_pembinaan'],
             'directory_pembinaan' => $slug,
             'bukti_dukung_undangan_pembinaan' => $fileData['bukti_dukung_undangan_pembinaan'],
             'daftar_hadir_pembinaan' => $fileData['daftar_hadir_pembinaan'],
@@ -95,6 +98,8 @@ class PembinaanController extends Controller
 
     public function update(UpdatePembinaanRequest $request, Pembinaan $pembinaan)
     {
+        $validated = $request->validated();
+
         if ($pembinaan->created_by_id !== Auth::id() && Auth::user()->role !== 'admin') {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
@@ -110,7 +115,7 @@ class PembinaanController extends Controller
         ]);
 
         $pembinaan->update([
-            'judul_pembinaan' => $request->judul_pembinaan,
+            'judul_pembinaan' => $validated['judul_pembinaan'],
             'bukti_dukung_undangan_pembinaan' => $fileData['bukti_dukung_undangan_pembinaan'],
             'daftar_hadir_pembinaan' => $fileData['daftar_hadir_pembinaan'],
             'materi_pembinaan' => $fileData['materi_pembinaan'],
@@ -191,7 +196,7 @@ class PembinaanController extends Controller
             return $response;
         }
 
-        $ids = $request->get('ids', []);
+        $ids = InputSanitizer::intArray($request->get('ids', []));
         if (empty($ids)) {
             return response()->json(['message' => 'ID pembinaan tidak boleh kosong'], 400);
         }

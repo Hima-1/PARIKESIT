@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:parikesit/core/storage/token_storage.dart';
+import 'package:parikesit/core/utils/input_sanitizer.dart';
 import 'package:parikesit/core/utils/startup_probe.dart';
 import 'package:parikesit/features/auth/data/auth_api_client.dart';
 import 'package:parikesit/features/auth/data/auth_exceptions.dart';
@@ -13,7 +14,7 @@ class AuthRepository {
   Future<User> login(String email, String password) async {
     try {
       final response = await _apiClient.login({
-        'email': email,
+        'email': InputSanitizer.normalizeEmail(email),
         'password': password,
       });
 
@@ -68,12 +69,15 @@ class AuthRepository {
     String? password,
     String? passwordConfirmation,
   }) async {
-    final payload = <String, dynamic>{'name': name, 'email': email};
+    final payload = <String, dynamic>{
+      'name': InputSanitizer.trimPlainText(name, maxLength: 255),
+      'email': InputSanitizer.normalizeEmail(email),
+    };
     if (alamat != null) {
-      payload['alamat'] = alamat;
+      payload['alamat'] = InputSanitizer.trimPlainText(alamat, maxLength: 1000);
     }
     if (nomorTelepon != null) {
-      payload['nomor_telepon'] = nomorTelepon;
+      payload['nomor_telepon'] = InputSanitizer.normalizePhone(nomorTelepon);
     }
     if (currentPassword != null &&
         password != null &&

@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Support\InputSanitizer;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -14,6 +14,10 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
+        $request->merge([
+            'email' => InputSanitizer::email($request->input('email')),
+        ]);
+
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
@@ -56,7 +60,7 @@ class AuthController extends Controller
         }
 
         return response()->json([
-            'message' => 'Berhasil logout'
+            'message' => 'Berhasil logout',
         ]);
     }
 }

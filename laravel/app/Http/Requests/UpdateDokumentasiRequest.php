@@ -2,13 +2,18 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\SanitizesInput;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
 class UpdateDokumentasiRequest extends FormRequest
 {
+    use SanitizesInput;
+
     protected function prepareForValidation(): void
     {
+        $this->sanitizePlainTextFields(['judul_dokumentasi' => 255]);
+
         if ($this->hasFile('files') && ! is_array($this->file('files'))) {
             $files = [$this->file('files')];
             $this->merge(['files' => $files]);
@@ -31,13 +36,13 @@ class UpdateDokumentasiRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'judul_dokumentasi' => 'required',
-            'bukti_dukung_undangan' => 'nullable|mimes:pdf|max:5120',
-            'daftar_hadir' => 'nullable|mimes:pdf|max:5120',
-            'materi' => 'nullable|mimes:pdf|max:5120',
-            'notula' => 'nullable|mimes:pdf|max:5120',
+            'judul_dokumentasi' => 'required|string|max:255',
+            'bukti_dukung_undangan' => 'nullable|file|mimes:pdf|max:5120',
+            'daftar_hadir' => 'nullable|file|mimes:pdf|max:5120',
+            'materi' => 'nullable|file|mimes:pdf|max:5120',
+            'notula' => 'nullable|file|mimes:pdf|max:5120',
             'files' => 'nullable',
-            'files.*' => 'required|mimes:jpeg,png,jpg,gif,mp4,mp3,avi,flv|max:5120',
+            'files.*' => 'required|file|mimes:jpeg,png,jpg,gif,mp4,mp3,avi,flv|max:5120',
         ];
     }
 
@@ -49,7 +54,7 @@ class UpdateDokumentasiRequest extends FormRequest
             if ($files && ! is_array($files)) {
                 $singleFileValidator = validator(
                     ['file' => $files],
-                    ['file' => 'required|mimes:jpeg,png,jpg,gif,mp4,mp3,avi,flv|max:5120'],
+                    ['file' => 'required|file|mimes:jpeg,png,jpg,gif,mp4,mp3,avi,flv|max:5120'],
                     [
                         'file.required' => 'File harus diisi',
                         'file.mimes' => 'File harus berupa gambar atau video',

@@ -4,6 +4,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
 import 'package:parikesit/core/utils/app_error_mapper.dart';
+import 'package:parikesit/core/utils/input_sanitizer.dart';
 import 'package:parikesit/core/widgets/app_text_field.dart';
 import 'package:parikesit/core/widgets/ethno_button.dart';
 import 'package:parikesit/core/widgets/ethno_card.dart';
@@ -52,6 +53,7 @@ class _AddMediaButton extends StatelessWidget {
 
 class _DokumentasiFormState extends ConsumerState<DokumentasiForm> {
   static const List<String> _documentExtensions = ['pdf'];
+  static const int _maxUploadBytes = 5 * 1024 * 1024;
   static const List<String> _mediaExtensions = [
     'jpg',
     'jpeg',
@@ -109,6 +111,7 @@ class _DokumentasiFormState extends ConsumerState<DokumentasiForm> {
         label: label,
         initialPath: initialPath,
         allowedExtensions: _documentExtensions,
+        maxBytes: _maxUploadBytes,
         onChanged: onChanged,
       ),
     );
@@ -121,6 +124,7 @@ class _DokumentasiFormState extends ConsumerState<DokumentasiForm> {
         label: 'Media Baru ${index + 1}',
         initialPath: _mediaPaths[index].isEmpty ? null : _mediaPaths[index],
         allowedExtensions: _mediaExtensions,
+        maxBytes: _maxUploadBytes,
         onChanged: (path) => _updateMediaPath(index, path),
       ),
     );
@@ -166,7 +170,12 @@ class _DokumentasiFormState extends ConsumerState<DokumentasiForm> {
   }
 
   void _submit() async {
-    if (_judulController.text.isEmpty) {
+    final title = InputSanitizer.trimPlainText(
+      _judulController.text,
+      maxLength: 255,
+    );
+
+    if (title.isEmpty) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Judul tidak boleh kosong')));
@@ -179,8 +188,7 @@ class _DokumentasiFormState extends ConsumerState<DokumentasiForm> {
           .where((path) => path.isNotEmpty)
           .toList();
       final Map<String, dynamic> data = {
-        widget.isPembinaan ? 'judul_pembinaan' : 'judul_dokumentasi':
-            _judulController.text,
+        widget.isPembinaan ? 'judul_pembinaan' : 'judul_dokumentasi': title,
         'bukti_dukung_undangan': _undanganPath ?? '',
         'daftar_hadir': _daftarHadirPath ?? '',
         'materi': _materiPath ?? '',
@@ -294,6 +302,7 @@ class _DokumentasiFormState extends ConsumerState<DokumentasiForm> {
                 label: 'Judul ${widget.isPembinaan ? 'Pembinaan' : 'Kegiatan'}',
                 hint: 'Contoh: Rapat Koordinasi SDI',
                 prefixIcon: const Icon(LucideIcons.type),
+                maxLength: 255,
               ),
               AppSpacing.gapH32,
               _buildSectionHeader(context, 'DOKUMEN UTAMA (PDF)'),

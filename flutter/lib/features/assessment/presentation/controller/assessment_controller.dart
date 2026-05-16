@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:parikesit/core/utils/input_sanitizer.dart';
 import 'package:parikesit/features/assessment/data/assessment_repository.dart';
 import 'package:parikesit/features/assessment/domain/assessment_indikator.dart';
 import 'package:parikesit/features/assessment/domain/assessment_models.dart';
@@ -118,11 +119,17 @@ class AssessmentFormController extends AsyncNotifier<AssessmentFormState> {
     }
 
     try {
-      final Map<String, dynamic> payload = <String, dynamic>{
-        'nilai': nilai,
-        if (catatan != null && catatan.isNotEmpty) 'catatan': catatan,
-        if (filePaths.isNotEmpty) 'bukti_dukung_file_paths': filePaths,
-      };
+      final sanitizedNote = InputSanitizer.nullableTrimmed(
+        catatan ?? '',
+        maxLength: 2000,
+      );
+      final Map<String, dynamic> payload = <String, dynamic>{'nilai': nilai};
+      if (sanitizedNote != null) {
+        payload['catatan'] = sanitizedNote;
+      }
+      if (filePaths.isNotEmpty) {
+        payload['bukti_dukung_file_paths'] = filePaths;
+      }
 
       final Penilaian savedDraft = await ref
           .read(assessmentRepositoryProvider)
@@ -168,7 +175,8 @@ class AssessmentFormController extends AsyncNotifier<AssessmentFormState> {
       final Map<String, dynamic> payload = <String, dynamic>{
         'penilaian_id': existing.id,
         'nilai': score,
-        'catatan_koreksi': note ?? '',
+        'catatan_koreksi':
+            InputSanitizer.nullableTrimmed(note ?? '', maxLength: 2000) ?? '',
       };
 
       final Penilaian corrected = await ref
@@ -213,7 +221,8 @@ class AssessmentFormController extends AsyncNotifier<AssessmentFormState> {
       final Map<String, dynamic> payload = <String, dynamic>{
         'penilaian_id': existing.id,
         'nilai_evaluasi': score,
-        'evaluasi': note ?? '',
+        'evaluasi':
+            InputSanitizer.nullableTrimmed(note ?? '', maxLength: 2000) ?? '',
       };
 
       final Penilaian evaluated = await ref

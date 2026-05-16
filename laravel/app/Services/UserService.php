@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Support\InputSanitizer;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -13,9 +14,14 @@ class UserService
      */
     public function getAllUsers($search = '', $sortBy = 'created_at', $sortDirection = 'desc', $perPage = 15)
     {
+        $search = InputSanitizer::safeSearch($search);
+        $sortBy = InputSanitizer::sortBy($sortBy, ['created_at', 'name', 'email', 'role'], 'created_at');
+        $sortDirection = InputSanitizer::sortDirection($sortDirection);
+        $perPage = InputSanitizer::safeIntRange($perPage, 15, 1, 50);
+
         $query = User::query();
 
-        if (!empty($search)) {
+        if ($search !== '') {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
@@ -46,7 +52,7 @@ class UserService
      */
     public function updateUser(User $user, array $data)
     {
-        if (isset($data['password']) && !empty($data['password'])) {
+        if (isset($data['password']) && ! empty($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         } else {
             unset($data['password']);

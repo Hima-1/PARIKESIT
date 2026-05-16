@@ -2,12 +2,17 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\SanitizesInput;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreDokumentasiRequest extends FormRequest
 {
+    use SanitizesInput;
+
     protected function prepareForValidation(): void
     {
+        $this->sanitizePlainTextFields(['judul_dokumentasi' => 255]);
+
         if ($this->hasFile('files') && ! is_array($this->file('files'))) {
             $files = [$this->file('files')];
             $this->merge(['files' => $files]);
@@ -23,13 +28,13 @@ class StoreDokumentasiRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'judul_dokumentasi' => 'required',
-            'bukti_dukung_undangan' => 'required|mimes:pdf|max:5120',
-            'daftar_hadir' => 'required|mimes:pdf|max:5120',
-            'materi' => 'required|mimes:pdf|max:5120',
-            'notula' => 'required|mimes:pdf|max:5120',
+            'judul_dokumentasi' => 'required|string|max:255',
+            'bukti_dukung_undangan' => 'required|file|mimes:pdf|max:5120',
+            'daftar_hadir' => 'required|file|mimes:pdf|max:5120',
+            'materi' => 'required|file|mimes:pdf|max:5120',
+            'notula' => 'required|file|mimes:pdf|max:5120',
             'files' => 'nullable',
-            'files.*' => 'required|mimes:jpeg,png,jpg,gif,mp4,mp3,avi,flv|max:5120',
+            'files.*' => 'required|file|mimes:jpeg,png,jpg,gif,mp4,mp3,avi,flv|max:5120',
         ];
     }
 
@@ -41,7 +46,7 @@ class StoreDokumentasiRequest extends FormRequest
             if ($files && ! is_array($files)) {
                 $singleFileValidator = validator(
                     ['file' => $files],
-                    ['file' => 'required|mimes:jpeg,png,jpg,gif,mp4,mp3,avi,flv|max:5120'],
+                    ['file' => 'required|file|mimes:jpeg,png,jpg,gif,mp4,mp3,avi,flv|max:5120'],
                     [
                         'file.required' => 'File harus diisi',
                         'file.mimes' => 'File harus berupa gambar atau video',

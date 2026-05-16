@@ -34,6 +34,8 @@ class IndicatorDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _IndicatorDetailScreenState extends ConsumerState<IndicatorDetailScreen> {
+  static const int _maxEvidenceBytes = 2 * 1024 * 1024;
+
   double _selectedScore = 1.0;
   final _catatanController = TextEditingController();
   List<String> _evidencePaths = const <String>[];
@@ -155,6 +157,7 @@ class _IndicatorDetailScreenState extends ConsumerState<IndicatorDetailScreen> {
                         ],
                         allowMultiple: true,
                         maxFiles: 3,
+                        maxBytes: _maxEvidenceBytes,
                         onChanged: (_) {},
                         onFilesChanged: _updateEvidencePaths,
                       ),
@@ -480,6 +483,7 @@ class _IndicatorDetailScreenState extends ConsumerState<IndicatorDetailScreen> {
         TextField(
           controller: _catatanController,
           maxLines: 4,
+          maxLength: 2000,
           enabled: !isLocked,
           decoration: InputDecoration(
             hintText: 'Masukkan penjelasan mengenai penilaian indikator ini...',

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Support\PublicFile;
+use App\Support\UploadSecurity;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -41,6 +42,8 @@ class ActivityService
                 $file = $request->file($fieldKey) ?? $request->file($field);
 
                 if ($file) {
+                    UploadSecurity::validate($file, ['pdf'], $fieldKey);
+
                     $existingPath = $existingData[$fieldKey] ?? ($existingData[$field] ?? null);
                     $filSaved = $this->uniqueStoredFileName($field, $file);
                     $path = $basePath.'/'.$slug;
@@ -98,8 +101,10 @@ class ActivityService
                 continue;
             }
 
+            UploadSecurity::validate($file, ['jpeg', 'png', 'jpg', 'gif', 'mp4', 'mp3', 'avi', 'flv'], 'files.'.$index);
+
             $filSaved = $this->uniqueStoredFileName('media-'.$index, $file);
-            $fileext = $file->getClientOriginalExtension();
+            $fileext = UploadSecurity::safeExtension($file);
             $storedPath = $disk->putFileAs($path, $file, $filSaved);
 
             if ($storedPath === false) {
@@ -296,7 +301,7 @@ class ActivityService
 
     private function uniqueStoredFileName(string $prefix, $file): string
     {
-        return $prefix.'-'.Str::ulid().'.'.strtolower($file->getClientOriginalExtension());
+        return $prefix.'-'.Str::ulid().'.'.UploadSecurity::safeExtension($file);
     }
 
     private function zipFileName(string $name, string $type): string

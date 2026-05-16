@@ -66,6 +66,7 @@ class _AspectFieldRow extends StatelessWidget {
           Expanded(
             child: TextField(
               controller: controller,
+              maxLength: 255,
               decoration: InputDecoration(
                 labelText: 'Nama Aspek ${index + 1}',
                 hintText: 'Masukkan nama aspek',

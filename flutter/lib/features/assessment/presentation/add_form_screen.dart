@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
+import 'package:parikesit/core/utils/input_sanitizer.dart';
 import 'package:parikesit/core/widgets/ethno_button.dart';
 import 'package:parikesit/features/assessment/domain/assessment_models.dart';
 
@@ -55,14 +56,15 @@ class _AddFormScreenState extends ConsumerState<AddFormScreen> {
     if (_formKey.currentState!.validate()) {
       await HapticFeedback.mediumImpact();
       final controller = ref.read(assessmentListControllerProvider.notifier);
+      final name = InputSanitizer.trimPlainText(
+        _formNameController.text,
+        maxLength: 255,
+      );
       if (widget.formulir != null) {
-        await controller.updateActivity(
-          widget.formulir!.id,
-          _formNameController.text,
-        );
+        await controller.updateActivity(widget.formulir!.id, name);
       } else {
         await controller.addActivity(
-          _formNameController.text,
+          name,
           useTemplate: _selectedTemplate == _templateBps2022Id,
         );
       }
@@ -114,6 +116,7 @@ class _AddFormScreenState extends ConsumerState<AddFormScreen> {
                         controller: _formNameController,
                         textInputAction: TextInputAction.done,
                         autofocus: true,
+                        maxLength: 255,
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {

@@ -17,6 +17,7 @@ class FileUploadField extends StatefulWidget {
     this.isLoading = false,
     this.allowMultiple = false,
     this.maxFiles,
+    this.maxBytes,
   });
 
   final String label;
@@ -28,6 +29,7 @@ class FileUploadField extends StatefulWidget {
   final bool isLoading;
   final bool allowMultiple;
   final int? maxFiles;
+  final int? maxBytes;
 
   @override
   State<FileUploadField> createState() => _FileUploadFieldState();
@@ -64,6 +66,19 @@ class _FileUploadFieldState extends State<FileUploadField> {
       );
 
       if (result == null) {
+        return;
+      }
+
+      final String? validationError = _validateSelection(result.files);
+      if (validationError != null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(validationError),
+              backgroundColor: AppTheme.error,
+            ),
+          );
+        }
         return;
       }
 
@@ -127,6 +142,36 @@ class _FileUploadFieldState extends State<FileUploadField> {
     widget.onFilesChanged?.call(const <String>[]);
   }
 
+  String? _validateSelection(List<PlatformFile> files) {
+    final List<String>? allowedExtensions = widget.allowedExtensions
+        ?.map((String extension) => extension.toLowerCase())
+        .toList(growable: false);
+
+    for (final PlatformFile file in files) {
+      final String extension = (file.extension ?? '').toLowerCase();
+      if (allowedExtensions != null && !allowedExtensions.contains(extension)) {
+        return 'Format file tidak didukung.';
+      }
+
+      final int? maxBytes = widget.maxBytes;
+      if (maxBytes != null && file.size > maxBytes) {
+        return 'Ukuran file maksimal ${_formatBytes(maxBytes)}.';
+      }
+    }
+
+    return null;
+  }
+
+  String _formatBytes(int bytes) {
+    final double megaBytes = bytes / (1024 * 1024);
+    if (megaBytes >= 1) {
+      return '${megaBytes.toStringAsFixed(megaBytes.truncateToDouble() == megaBytes ? 0 : 1)} MB';
+    }
+
+    final double kiloBytes = bytes / 1024;
+    return '${kiloBytes.toStringAsFixed(kiloBytes.truncateToDouble() == kiloBytes ? 0 : 1)} KB';
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -142,6 +187,13 @@ class _FileUploadFieldState extends State<FileUploadField> {
               ? 'Pilih Berkas...'
               : '${fileNames.length} berkas dipilih')
         : (_filePath != null ? fileName! : 'Pilih Berkas...');
+    final String? helperText = widget.allowedExtensions == null
+        ? null
+        : [
+            'Format: ${widget.allowedExtensions!.join(", ").toUpperCase()}',
+            if (widget.maxFiles != null) 'Maks ${widget.maxFiles}',
+            if (widget.maxBytes != null) _formatBytes(widget.maxBytes!),
+          ].join(' - ');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,9 +267,7 @@ class _FileUploadFieldState extends State<FileUploadField> {
                         ),
                       if (!hasSelection && widget.allowedExtensions != null)
                         Text(
-                          widget.allowMultiple
-                              ? 'Format: ${widget.allowedExtensions!.join(", ").toUpperCase()}${widget.maxFiles != null ? ' • Maks ${widget.maxFiles}' : ''}'
-                              : 'Format: ${widget.allowedExtensions!.join(", ").toUpperCase()}',
+                          helperText!,
                           style: textTheme.labelSmall?.copyWith(
                             color: AppTheme.neutral.withValues(alpha: 0.6),
                             fontSize: 10,

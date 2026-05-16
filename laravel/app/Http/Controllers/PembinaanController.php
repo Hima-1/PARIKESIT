@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pembinaan;
+use App\Support\InputSanitizer;
+use App\Support\UploadSecurity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
@@ -18,7 +20,7 @@ class PembinaanController extends Controller
         $query = Pembinaan::with('file_pembinaan')->latest();
 
         if ($request->has('search')) {
-            $search = $request->input('search');
+            $search = InputSanitizer::safeSearch($request->input('search'));
             $query->where('judul_pembinaan', 'like', '%'.$search.'%');
         }
 
@@ -48,13 +50,13 @@ class PembinaanController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'judul_pembinaan' => 'required',
-            'bukti_dukung_undangan' => 'required|mimes:pdf|max:5120',
-            'daftar_hadir' => 'required|mimes:pdf|max:5120',
-            'materi' => 'required|mimes:pdf|max:5120',
-            'notula' => 'required|mimes:pdf|max:5120',
+            'judul_pembinaan' => 'required|string|max:255',
+            'bukti_dukung_undangan' => 'required|file|mimes:pdf|max:5120',
+            'daftar_hadir' => 'required|file|mimes:pdf|max:5120',
+            'materi' => 'required|file|mimes:pdf|max:5120',
+            'notula' => 'required|file|mimes:pdf|max:5120',
             'files' => 'nullable|array',
-            'files.*' => 'required|mimes:jpeg,png,jpg,gif,mp4,mp3,avi,flv|max:5120',
+            'files.*' => 'required|file|mimes:jpeg,png,jpg,gif,mp4,mp3,avi,flv|max:5120',
         ], [
             'judul_pembinaan.required' => 'Nama pembinaan harus diisi',
             'bukti_dukung_undangan.required' => 'Bukti Dukung harus diisi',
@@ -74,14 +76,15 @@ class PembinaanController extends Controller
             'files.*.max' => 'File maximal 5mb',
         ]);
 
-        $judul = $this->uniqueActivityDirectory($request->judul_pembinaan);
+        $judulPembinaan = InputSanitizer::plainText($request->judul_pembinaan, 255);
+        $judul = $this->uniqueActivityDirectory($judulPembinaan);
         $path = 'file-pembinaan/'.$judul;
         if (! file_exists($path)) {
             mkdir($path, 0777, true);
         }
 
         $data = [];
-        $data['judul_pembinaan'] = $request->judul_pembinaan;
+        $data['judul_pembinaan'] = $judulPembinaan;
 
         $fileFields = [
             'bukti_dukung_undangan',
@@ -93,6 +96,7 @@ class PembinaanController extends Controller
         foreach ($fileFields as $field) {
             $file = $request->file($field);
             if ($file) {
+                UploadSecurity::validate($file, ['pdf'], $field);
                 $filSaved = $this->uniqueStoredFileName($field, $file);
                 $path = $file->move('file-pembinaan/'.$judul.'/', $filSaved);
                 $data[$field] = $path;
@@ -103,7 +107,7 @@ class PembinaanController extends Controller
 
         $kegiatan = Pembinaan::create([
             'created_by_id' => Auth::user()->id,
-            'judul_pembinaan' => $request->judul_pembinaan,
+            'judul_pembinaan' => $judulPembinaan,
             'directory_pembinaan' => $judul,
             'bukti_dukung_undangan_pembinaan' => $data['bukti_dukung_undangan'],
             'daftar_hadir_pembinaan' => $data['daftar_hadir'],
@@ -115,8 +119,9 @@ class PembinaanController extends Controller
         if ($files && is_array($files)) {
             foreach ($files as $index => $file) {
                 if ($file) {
+                    UploadSecurity::validate($file, ['jpeg', 'png', 'jpg', 'gif', 'mp4', 'mp3', 'avi', 'flv'], 'files.'.$index);
                     $filSaved = $this->uniqueStoredFileName('media-'.$index, $file);
-                    $fileext = $file->getClientOriginalExtension();
+                    $fileext = UploadSecurity::safeExtension($file);
                     $file->move('file-pembinaan/'.$judul.'/media', $filSaved);
 
                     $kegiatan->file_pembinaan()->create([
@@ -159,11 +164,11 @@ class PembinaanController extends Controller
         $pembinaan->load('file_pembinaan');
 
         $request->validate([
-            'judul_pembinaan' => 'required',
-            'bukti_dukung_undangan' => 'mimes:pdf|max:5120',
-            'daftar_hadir' => 'mimes:pdf|max:5120',
-            'materi' => 'mimes:pdf|max:5120',
-            'notula' => 'mimes:pdf|max:5120',
+            'judul_pembinaan' => 'required|string|max:255',
+            'bukti_dukung_undangan' => 'nullable|file|mimes:pdf|max:5120',
+            'daftar_hadir' => 'nullable|file|mimes:pdf|max:5120',
+            'materi' => 'nullable|file|mimes:pdf|max:5120',
+            'notula' => 'nullable|file|mimes:pdf|max:5120',
 
         ], [
             'judul_pembinaan.required' => 'Nama pembinaan harus diisi',
@@ -184,7 +189,7 @@ class PembinaanController extends Controller
         $judul = $pembinaan->directory_pembinaan;
         $path = 'file-pembinaan/'.$judul;
         $data = [];
-        $data['judul_pembinaan'] = $request->judul_pembinaan;
+        $data['judul_pembinaan'] = InputSanitizer::plainText($request->judul_pembinaan, 255);
 
         $dataFiles = [
             'bukti_dukung_undangan' => [
@@ -210,6 +215,7 @@ class PembinaanController extends Controller
             $localFile = $field['local_file'];
 
             if ($file) {
+                UploadSecurity::validate($file, ['pdf'], $indexName);
                 $fileSaved = $this->uniqueStoredFileName($indexName, $file);
                 $path = $file->move('file-pembinaan/'.$judul.'/', $fileSaved);
                 $data[$indexName] = $path;
@@ -222,7 +228,7 @@ class PembinaanController extends Controller
 
         $pembinaan->update([
             'created_by_id' => Auth::user()->id,
-            'judul_pembinaan' => $request->judul_pembinaan,
+            'judul_pembinaan' => $data['judul_pembinaan'],
             'bukti_dukung_undangan_pembinaan' => $data['bukti_dukung_undangan'] ?? $pembinaan->bukti_dukung_undangan_pembinaan,
             'daftar_hadir_pembinaan' => $data['daftar_hadir'] ?? $pembinaan->daftar_hadir_pembinaan,
             'materi_pembinaan' => $data['materi'] ?? $pembinaan->materi_pembinaan,
@@ -302,7 +308,7 @@ class PembinaanController extends Controller
 
     private function uniqueStoredFileName(string $prefix, $file): string
     {
-        return $prefix.'-'.Str::ulid().'.'.strtolower($file->getClientOriginalExtension());
+        return $prefix.'-'.Str::ulid().'.'.UploadSecurity::safeExtension($file);
     }
 
     private function zipFileName(string $name, string $type): string

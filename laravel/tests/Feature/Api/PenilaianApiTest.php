@@ -171,6 +171,64 @@ test('user can store a penilaian with file upload', function () {
 
 });
 
+test('penilaian note is sanitized and nilai is range validated', function () {
+    $user = User::factory()->create(['role' => 'opd']);
+    $formulir = Formulir::factory()->create(['created_by_id' => $user->id]);
+    $domain = Domain::factory()->create();
+    $formulir->domains()->attach($domain);
+    $aspek = Aspek::factory()->create(['domain_id' => $domain->id]);
+    $indikator = Indikator::factory()->create(['aspek_id' => $aspek->id]);
+
+    loginAs($user)
+        ->postJson("/api/formulir/{$formulir->id}/indikator/{$indikator->id}/penilaian", [
+            'nilai' => 6,
+            'catatan' => 'Invalid',
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['nilai']);
+
+    loginAs($user)
+        ->postJson("/api/formulir/{$formulir->id}/indikator/{$indikator->id}/penilaian", [
+            'nilai' => 4,
+            'catatan' => '  <b>Catatan</b>   aman ',
+        ])
+        ->assertCreated()
+        ->assertJsonPath('data.catatan', 'Catatan aman');
+
+    $this->assertDatabaseHas('penilaians', [
+        'formulir_id' => $formulir->id,
+        'indikator_id' => $indikator->id,
+        'user_id' => $user->id,
+        'catatan' => 'Catatan aman',
+    ]);
+});
+
+test('penilaian rejects existing bukti dukung paths that are not owned by the record', function () {
+    $user = User::factory()->create(['role' => 'opd']);
+    $formulir = Formulir::factory()->create(['created_by_id' => $user->id]);
+    $domain = Domain::factory()->create();
+    $formulir->domains()->attach($domain);
+    $aspek = Aspek::factory()->create(['domain_id' => $domain->id]);
+    $indikator = Indikator::factory()->create(['aspek_id' => $aspek->id]);
+
+    Penilaian::query()->create([
+        'formulir_id' => $formulir->id,
+        'indikator_id' => $indikator->id,
+        'user_id' => $user->id,
+        'nilai' => 3,
+        'bukti_dukung' => ['bukti-dukung/owned.pdf'],
+        'tanggal_penilaian' => now(),
+    ]);
+
+    loginAs($user)
+        ->postJson("/api/formulir/{$formulir->id}/indikator/{$indikator->id}/penilaian", [
+            'nilai' => 4,
+            'existing_bukti_dukung' => 'bukti-dukung/other-user.pdf',
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['existing_bukti_dukung']);
+});
+
 test('user can store a penilaian with single file upload field', function () {
     Storage::fake('public');
 
@@ -220,7 +278,7 @@ test('user can store a penilaian with multiple file upload field', function () {
     $indikator = Indikator::factory()->create(['aspek_id' => $aspek->id]);
 
     $fileOne = UploadedFile::fake()->create('multi-bukti-1.pdf', 100);
-    $fileTwo = UploadedFile::fake()->create('multi-bukti-2.jpg', 100);
+    $fileTwo = UploadedFile::fake()->image('multi-bukti-2.jpg');
 
     $response = loginAs($user)->post("/api/formulir/{$formulir->id}/indikator/{$indikator->id}/penilaian", [
         'nilai' => 4,
@@ -276,8 +334,8 @@ test('penilaian bukti dukung uploads use unique sanitized names for duplicate or
 
     expect($savedFiles)->toHaveCount(2);
     expect(array_unique($savedFiles))->toHaveCount(2);
-    expect($savedFiles[0])->toEndWith('-bukti-sama.pdf');
-    expect($savedFiles[1])->toEndWith('-bukti-sama.pdf');
+    expect($savedFiles[0])->toMatch('/^bukti-dukung\/[0-9A-HJKMNP-TV-Z]{26}\.pdf$/');
+    expect($savedFiles[1])->toMatch('/^bukti-dukung\/[0-9A-HJKMNP-TV-Z]{26}\.pdf$/');
     Storage::disk('public')->assertExists($savedFiles[0]);
     Storage::disk('public')->assertExists($savedFiles[1]);
 });

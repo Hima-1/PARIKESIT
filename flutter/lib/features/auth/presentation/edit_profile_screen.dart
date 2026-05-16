@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -12,6 +13,7 @@ import 'package:parikesit/features/auth/presentation/controller/auth_provider.da
 
 import '../../../core/utils/app_error_mapper.dart';
 import '../../../core/utils/app_snackbar.dart';
+import '../../../core/utils/input_sanitizer.dart';
 import '../../../core/widgets/ethno_patterns.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
@@ -61,17 +63,26 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     });
 
     try {
+      final sanitizedAlamat = InputSanitizer.nullableTrimmed(
+        _alamatController.text,
+        maxLength: 1000,
+      );
+      final sanitizedPhone = InputSanitizer.nullableTrimmed(
+        _nomorTeleponController.text,
+        maxLength: 20,
+      );
       final updatedUser = await ref
           .read(authRepositoryProvider)
           .updateProfile(
-            name: _nameController.text,
-            email: _emailController.text,
-            alamat: _alamatController.text.isEmpty
+            name: InputSanitizer.trimPlainText(
+              _nameController.text,
+              maxLength: 255,
+            ),
+            email: InputSanitizer.normalizeEmail(_emailController.text),
+            alamat: sanitizedAlamat,
+            nomorTelepon: sanitizedPhone == null
                 ? null
-                : _alamatController.text,
-            nomorTelepon: _nomorTeleponController.text.isEmpty
-                ? null
-                : _nomorTeleponController.text,
+                : InputSanitizer.normalizePhone(_nomorTeleponController.text),
           );
 
       // Also update via notifier so AuthState reflects new user data
@@ -165,8 +176,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             label: 'Nama Lengkap',
                             prefixIcon: const Icon(LucideIcons.badge),
                             textCapitalization: TextCapitalization.words,
+                            maxLength: 255,
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
+                              if (value == null || value.trim().isEmpty) {
                                 return 'Nama tidak boleh kosong';
                               }
                               return null;
@@ -178,13 +190,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             label: 'Email',
                             prefixIcon: const Icon(LucideIcons.mail),
                             keyboardType: TextInputType.emailAddress,
+                            maxLength: 255,
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
+                              final email = InputSanitizer.normalizeEmail(
+                                value ?? '',
+                              );
+                              if (email.isEmpty) {
                                 return 'Email tidak boleh kosong';
                               }
                               if (!RegExp(
                                 r'^[^@]+@[^@]+\.[^@]+',
-                              ).hasMatch(value)) {
+                              ).hasMatch(email)) {
                                 return 'Format email tidak valid';
                               }
                               return null;
@@ -198,6 +214,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             maxLines: 3,
                             minLines: 1,
                             keyboardType: TextInputType.streetAddress,
+                            maxLength: 1000,
                           ),
                           AppSpacing.gapH16,
                           AppTextField(
@@ -205,6 +222,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             label: 'Nomor Telepon',
                             prefixIcon: const Icon(LucideIcons.phone),
                             keyboardType: TextInputType.phone,
+                            maxLength: 20,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r'[0-9+()\-\s]'),
+                              ),
+                            ],
                           ),
                           AppSpacing.gapH24,
                           EthnoButton(

@@ -3,15 +3,16 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreFormulirRequest;
 use App\Http\Requests\StoreFormulirDomainRequest;
+use App\Http\Requests\StoreFormulirRequest;
 use App\Http\Requests\UpdateFormulirRequest;
 use App\Http\Resources\FormulirResource;
 use App\Http\Resources\FormulirSummaryResource;
 use App\Models\Formulir;
 use App\Services\AssessmentCalculationService;
-use App\Services\FormulirSetupService;
 use App\Services\FormulirService;
+use App\Services\FormulirSetupService;
+use App\Support\InputSanitizer;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,7 +22,9 @@ class FormulirController extends Controller
     use ApiResponse;
 
     protected $setupService;
+
     protected $formulirService;
+
     protected $calculationService;
 
     public function __construct(
@@ -49,7 +52,7 @@ class FormulirController extends Controller
 
     private function abortIfTemplate(Formulir $formulir): void
     {
-        if (!$formulir->isOperational()) {
+        if (! $formulir->isOperational()) {
             abort(404);
         }
     }
@@ -58,10 +61,10 @@ class FormulirController extends Controller
     {
         $user = Auth::user();
 
-        $sortBy = $request->get('sort', 'created_at');
-        $sortDirection = $request->get('direction', 'desc');
-        $perPage = $request->get('per_page', 15);
-        $search = $request->get('search');
+        $sortBy = InputSanitizer::sortBy($request->get('sort'), ['created_at', 'nama_formulir'], 'created_at');
+        $sortDirection = InputSanitizer::sortDirection($request->get('direction'));
+        $perPage = InputSanitizer::safeIntRange($request->get('per_page'), 15, 1, 50);
+        $search = InputSanitizer::safeSearch($request->get('search'));
 
         $query = Formulir::operational()->with(['creator']);
 
@@ -71,7 +74,7 @@ class FormulirController extends Controller
             $query->where('created_by_id', $user->id);
         }
 
-        if ($search) {
+        if ($search !== '') {
             $query->where('nama_formulir', 'like', "%{$search}%");
         }
 

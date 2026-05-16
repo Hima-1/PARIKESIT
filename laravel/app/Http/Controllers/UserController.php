@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Services\OpdFormReminderService;
 use App\Services\UserService;
+use App\Support\InputSanitizer;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,9 +25,9 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-        $sortBy = $request->get('sort', 'created_at');
-        $sortDirection = $request->get('direction', 'desc');
-        $search = $request->get('search', '');
+        $sortBy = InputSanitizer::sortBy($request->get('sort'), ['created_at', 'name', 'email', 'role'], 'created_at');
+        $sortDirection = InputSanitizer::sortDirection($request->get('direction'));
+        $search = InputSanitizer::safeSearch($request->get('search', ''));
 
         $users = $this->userService->getAllUsers($search, $sortBy, $sortDirection);
 
@@ -58,13 +59,20 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+        $request->merge([
+            'name' => InputSanitizer::plainText($request->input('name'), 255),
+            'email' => InputSanitizer::email($request->input('email')),
+            'alamat' => InputSanitizer::plainText($request->input('alamat'), 1000),
+            'nomor_telepon' => InputSanitizer::phone($request->input('nomor_telepon')),
+        ]);
+
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string',
+            'password' => 'required|string|min:8',
             'role' => 'required|string|in:admin,opd,walidata',
-            'alamat' => 'required|string',
-            'nomor_telepon' => 'required|string',
+            'alamat' => 'required|string|max:1000',
+            'nomor_telepon' => ['required', 'string', 'max:20', 'regex:/^[0-9+()\-\s]{6,20}$/'],
         ]);
 
         $this->userService->createUser($data);
@@ -84,13 +92,20 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
+        $request->merge([
+            'name' => InputSanitizer::plainText($request->input('name'), 255),
+            'email' => InputSanitizer::email($request->input('email')),
+            'alamat' => InputSanitizer::plainText($request->input('alamat'), 1000),
+            'nomor_telepon' => InputSanitizer::phone($request->input('nomor_telepon')),
+        ]);
+
         $data = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
             'password' => 'nullable|string|min:8',
             'role' => 'required|string|in:admin,opd,walidata',
-            'alamat' => 'required|string',
-            'nomor_telepon' => 'required|string',
+            'alamat' => 'required|string|max:1000',
+            'nomor_telepon' => ['required', 'string', 'max:20', 'regex:/^[0-9+()\-\s]{6,20}$/'],
         ]);
 
         $this->userService->updateUser($user, $data);
@@ -111,7 +126,7 @@ class UserController extends Controller
 
         return redirect()->back()->with(
             'success',
-            'Password sementara user: ' . $temporaryPassword . '. Seluruh token aktif telah dicabut.',
+            'Password sementara user: '.$temporaryPassword.'. Seluruh token aktif telah dicabut.',
         );
     }
 
@@ -157,8 +172,9 @@ class UserController extends Controller
         foreach ($selectedIds as $userId) {
             $user = $users->get($userId);
 
-            if (!$user || $user->role !== 'opd') {
+            if (! $user || $user->role !== 'opd') {
                 $skipped++;
+
                 continue;
             }
 

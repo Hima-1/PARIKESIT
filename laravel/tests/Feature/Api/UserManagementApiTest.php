@@ -92,7 +92,7 @@ test('create user returns 422 when payload invalid', function () {
         ->assertJsonValidationErrors(['email', 'role', 'alamat', 'nomor_telepon']);
 });
 
-test('admin can create user with short password like web user management', function () {
+test('admin cannot create user with short password', function () {
     $response = loginAsAdmin()->postJson('/api/users', [
         'name' => 'Short Password User',
         'email' => 'short-password@example.com',
@@ -102,12 +102,44 @@ test('admin can create user with short password like web user management', funct
         'nomor_telepon' => '08123456789',
     ]);
 
-    $response->assertStatus(201)
-        ->assertJsonPath('data.email', 'short-password@example.com');
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors(['password']);
 
-    $this->assertDatabaseHas('users', [
+    $this->assertDatabaseMissing('users', [
         'email' => 'short-password@example.com',
     ]);
+});
+
+test('admin user create strips html and normalizes text fields', function () {
+    $response = loginAsAdmin()->postJson('/api/users', [
+        'name' => '  <b>New</b>   User  ',
+        'email' => '  SANITIZED@example.COM ',
+        'password' => 'password123',
+        'role' => 'opd',
+        'alamat' => "  Jalan\tStatistik  ",
+        'nomor_telepon' => ' 0812-3456<script>bad</script> ',
+    ]);
+
+    $response->assertCreated()
+        ->assertJsonPath('data.name', 'New User')
+        ->assertJsonPath('data.email', 'sanitized@example.com');
+
+    $this->assertDatabaseHas('users', [
+        'name' => 'New User',
+        'email' => 'sanitized@example.com',
+        'alamat' => 'Jalan Statistik',
+        'nomor_telepon' => '0812-3456',
+    ]);
+});
+
+test('admin user list sanitizes invalid sort and clamps per page', function () {
+    User::factory()->count(60)->create();
+
+    loginAsAdmin()
+        ->getJson('/api/users?sort=not_a_column&direction=drop&per_page=9999')
+        ->assertOk()
+        ->assertJsonCount(50, 'data')
+        ->assertJsonPath('meta.per_page', 50);
 });
 
 test('create user returns 422 when email already exists', function () {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DokumentasiKegiatan;
 use App\Services\ActivityService;
+use App\Support\InputSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -23,7 +24,7 @@ class DokumentasiKegiatanController extends Controller
 
         // Jika ada parameter pencarian
         if ($request->has('search')) {
-            $search = $request->input('search');
+            $search = InputSanitizer::safeSearch($request->input('search'));
             $query->where('judul_dokumentasi', 'like', '%'.$search.'%');
         }
 
@@ -54,13 +55,13 @@ class DokumentasiKegiatanController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'judul_dokumentasi' => 'required',
-            'bukti_dukung_undangan' => 'required|mimes:pdf|max:5120',
-            'daftar_hadir' => 'required|mimes:pdf|max:5120',
-            'materi' => 'required|mimes:pdf|max:5120',
-            'notula' => 'required|mimes:pdf|max:5120',
+            'judul_dokumentasi' => 'required|string|max:255',
+            'bukti_dukung_undangan' => 'required|file|mimes:pdf|max:5120',
+            'daftar_hadir' => 'required|file|mimes:pdf|max:5120',
+            'materi' => 'required|file|mimes:pdf|max:5120',
+            'notula' => 'required|file|mimes:pdf|max:5120',
             'files' => 'nullable|array',
-            'files.*' => 'required|mimes:jpeg,png,jpg,gif,mp4,mp3,avi,flv|max:5120',
+            'files.*' => 'required|file|mimes:jpeg,png,jpg,gif,mp4,mp3,avi,flv|max:5120',
         ], [
             'judul_dokumentasi.required' => 'Nama Dokumentasi harus diisi',
             'bukti_dukung_undangan.required' => 'Bukti Dukung harus diisi',
@@ -80,13 +81,14 @@ class DokumentasiKegiatanController extends Controller
             'files.*.max' => 'File maximal 5mb',
         ]);
 
-        $slug = $this->uniqueActivityDirectory($request->judul_dokumentasi);
+        $judulDokumentasi = InputSanitizer::plainText($request->judul_dokumentasi, 255);
+        $slug = $this->uniqueActivityDirectory($judulDokumentasi);
         $basePath = 'file-dokumentasi';
         $fileData = $this->activityService->handleFileUploads($request, $basePath, $slug);
 
         $kegiatan = DokumentasiKegiatan::create([
             'created_by_id' => Auth::user()->id,
-            'judul_dokumentasi' => $request->judul_dokumentasi,
+            'judul_dokumentasi' => $judulDokumentasi,
             'directory_dokumentasi' => $slug,
             'bukti_dukung_undangan_dokumentasi' => $fileData['bukti_dukung_undangan_dokumentasi'],
             'daftar_hadir_dokumentasi' => $fileData['daftar_hadir_dokumentasi'],
@@ -128,11 +130,11 @@ class DokumentasiKegiatanController extends Controller
         $this->authorizeOwnership($dokumentasiKegiatan);
 
         $request->validate([
-            'judul_dokumentasi' => 'required',
-            'bukti_dukung_undangan' => 'mimes:pdf|max:5120',
-            'daftar_hadir' => 'mimes:pdf|max:5120',
-            'materi' => 'mimes:pdf|max:5120',
-            'notula' => 'mimes:pdf|max:5120',
+            'judul_dokumentasi' => 'required|string|max:255',
+            'bukti_dukung_undangan' => 'nullable|file|mimes:pdf|max:5120',
+            'daftar_hadir' => 'nullable|file|mimes:pdf|max:5120',
+            'materi' => 'nullable|file|mimes:pdf|max:5120',
+            'notula' => 'nullable|file|mimes:pdf|max:5120',
         ], [
             'judul_dokumentasi.required' => 'Nama Dokumentasi harus diisi',
             'bukti_dukung_undangan.required' => 'Bukti Dukung harus diisi',
@@ -160,7 +162,7 @@ class DokumentasiKegiatanController extends Controller
         ]);
 
         $dokumentasiKegiatan->update([
-            'judul_dokumentasi' => $request->judul_dokumentasi,
+            'judul_dokumentasi' => InputSanitizer::plainText($request->judul_dokumentasi, 255),
             'bukti_dukung_undangan_dokumentasi' => $fileData['bukti_dukung_undangan_dokumentasi'],
             'daftar_hadir_dokumentasi' => $fileData['daftar_hadir_dokumentasi'],
             'materi_dokumentasi' => $fileData['materi_dokumentasi'],

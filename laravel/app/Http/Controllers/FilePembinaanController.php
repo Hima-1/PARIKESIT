@@ -3,19 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\FilePembinaan;
+use App\Support\UploadSecurity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 
 class FilePembinaanController extends Controller
 {
     public function store(Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:pdf,jpg,png,jpeg|max:2048',
+            'file' => 'required|file|mimes:pdf,jpg,png,jpeg|max:2048',
         ]);
 
         $file = $request->file('file');
+        UploadSecurity::validate($file, ['pdf', 'jpg', 'png', 'jpeg']);
         $nama_file = $this->uniqueStoredFileName($file);
 
         $tujuan_upload = 'data_file';
@@ -54,12 +55,6 @@ class FilePembinaanController extends Controller
 
     private function uniqueStoredFileName($file): string
     {
-        $safeBaseName = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
-        $extension = strtolower($file->getClientOriginalExtension());
-        $readableName = $safeBaseName !== '' && $extension !== ''
-            ? '-'.$safeBaseName.'.'.$extension
-            : ($extension !== '' ? '.'.$extension : '');
-
-        return Str::ulid().$readableName;
+        return Str::ulid().'.'.UploadSecurity::safeExtension($file);
     }
 }

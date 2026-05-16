@@ -2,11 +2,19 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\SanitizesInput;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
 class StoreFormulirRequest extends FormRequest
 {
+    use SanitizesInput;
+
+    protected function prepareForValidation(): void
+    {
+        $this->sanitizePlainTextFields(['nama_formulir' => 255]);
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      */

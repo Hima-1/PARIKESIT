@@ -71,6 +71,7 @@ class _AuditInteractionPanelState extends State<AuditInteractionPanel> {
         TextField(
           controller: _controller,
           maxLines: 4,
+          maxLength: 2000,
           enabled: isInteractive,
           decoration: InputDecoration(
             hintText: 'Tuliskan catatan evaluasi atau alasan koreksi...',

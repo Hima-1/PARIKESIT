@@ -9,6 +9,7 @@ import 'package:parikesit/core/network/providers/dio_provider.dart';
 import '../../../core/utils/file_saver.dart';
 import '../../../core/utils/file_type.dart';
 import '../../../core/utils/image_to_pdf.dart';
+import '../../../core/utils/input_sanitizer.dart';
 import '../../../core/utils/logger.dart';
 import '../../admin/data/admin_user_repository.dart';
 import '../../admin/domain/admin_activity_query.dart';
@@ -139,6 +140,7 @@ class PembinaanRepository {
 
   Future<Pembinaan> createActivity(Map<String, dynamic> data) async {
     final Map<String, dynamic> formDataMap = {...data};
+    _sanitizeActivityPayload(formDataMap);
 
     final fileFields = [
       'bukti_dukung_undangan',
@@ -184,6 +186,7 @@ class PembinaanRepository {
 
   Future<Pembinaan> updateActivity(String id, Map<String, dynamic> data) async {
     final Map<String, dynamic> formDataMap = {...data};
+    _sanitizeActivityPayload(formDataMap);
 
     final fileFields = [
       'bukti_dukung_undangan',
@@ -234,6 +237,16 @@ class PembinaanRepository {
 
   Future<void> deleteActivity(String id) async {
     await _client.delete<dynamic>('/pembinaan/$id');
+  }
+
+  void _sanitizeActivityPayload(Map<String, dynamic> payload) {
+    final title = payload['judul_pembinaan'];
+    if (title is String) {
+      payload['judul_pembinaan'] = InputSanitizer.trimPlainText(
+        title,
+        maxLength: 255,
+      );
+    }
   }
 }
 

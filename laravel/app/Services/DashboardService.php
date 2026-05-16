@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Formulir;
 use App\Models\User;
+use App\Support\InputSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
@@ -90,7 +91,7 @@ class DashboardService
         $user = $user ?: Auth::user();
         $progressData = collect($this->getProgressData($user));
 
-        $search = trim((string) $request->get('search', ''));
+        $search = InputSanitizer::plainText($request->get('search', ''), 100);
         if ($search !== '') {
             $searchLower = mb_strtolower($search);
             $progressData = $progressData->filter(function (array $item) use ($searchLower) {
@@ -101,11 +102,8 @@ class DashboardService
             })->values();
         }
 
-        $sortBy = (string) $request->get('sort_by', 'tanggal');
-        $sortDirection = strtolower((string) $request->get('sort_direction', 'desc'));
-        if (! in_array($sortDirection, ['asc', 'desc'], true)) {
-            $sortDirection = 'desc';
-        }
+        $sortBy = InputSanitizer::sortBy($request->get('sort_by'), ['nama', 'progress_opd', 'progress_walidata', 'tanggal'], 'tanggal');
+        $sortDirection = InputSanitizer::sortDirection($request->get('sort_direction'));
 
         $sortResolver = match ($sortBy) {
             'nama' => fn (array $item) => mb_strtolower((string) ($item['nama'] ?? '')),
@@ -117,8 +115,8 @@ class DashboardService
 
         $sorted = $progressData->sortBy($sortResolver, SORT_NATURAL, $sortDirection === 'desc')->values();
 
-        $perPage = max(1, (int) $request->get('per_page', 10));
-        $page = max(1, (int) $request->get('page', 1));
+        $perPage = InputSanitizer::safeIntRange($request->get('per_page'), 10, 1, 50);
+        $page = InputSanitizer::safeIntRange($request->get('page'), 1, 1, PHP_INT_MAX);
         $total = $sorted->count();
 
         $items = $sorted->forPage($page, $perPage)->values();

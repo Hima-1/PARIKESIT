@@ -2,17 +2,27 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\SanitizesInput;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
 class StoreFormulirDomainRequest extends FormRequest
 {
+    use SanitizesInput;
+
+    protected function prepareForValidation(): void
+    {
+        $this->sanitizePlainTextFields(['nama_domain' => 255]);
+        $this->sanitizePlainTextArrayField('nama_aspek');
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
         $formulir = $this->route('formulir');
+
         return Auth::user()->role === 'opd' && $formulir->created_by_id === Auth::id();
     }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../theme/app_theme.dart';
 
@@ -20,6 +21,9 @@ class AppTextField extends StatefulWidget {
     this.onTap,
     this.textCapitalization = TextCapitalization.none,
     this.onSubmitted,
+    this.inputFormatters,
+    this.maxLength,
+    this.autovalidateMode,
   });
 
   final TextEditingController? controller;
@@ -37,6 +41,9 @@ class AppTextField extends StatefulWidget {
   final bool readOnly;
   final VoidCallback? onTap;
   final TextCapitalization textCapitalization;
+  final List<TextInputFormatter>? inputFormatters;
+  final int? maxLength;
+  final AutovalidateMode? autovalidateMode;
 
   @override
   State<AppTextField> createState() => _AppTextFieldState();
@@ -65,6 +72,9 @@ class _AppTextFieldState extends State<AppTextField> {
       onTap: widget.onTap,
       onFieldSubmitted: widget.onSubmitted,
       textCapitalization: widget.textCapitalization,
+      inputFormatters: widget.inputFormatters,
+      maxLength: widget.maxLength,
+      autovalidateMode: widget.autovalidateMode,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
         fontWeight: FontWeight.w600,
         color: AppTheme.sogan,

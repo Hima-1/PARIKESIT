@@ -5,10 +5,12 @@ namespace App\Services;
 use App\Models\Formulir;
 use App\Models\Indikator;
 use App\Models\Penilaian;
+use App\Support\UploadSecurity;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use RuntimeException;
 
 class PenilaianService
@@ -25,7 +27,9 @@ class PenilaianService
             ->first();
 
         if ($normalizedFiles !== []) {
-            foreach ($normalizedFiles as $file) {
+            foreach ($normalizedFiles as $index => $file) {
+                UploadSecurity::validate($file, ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'], 'bukti_dukung.'.$index);
+
                 $savedFileName = $this->uniqueStoredFileName($file);
                 $storedPath = $disk->putFileAs('bukti-dukung', $file, $savedFileName);
 
@@ -64,7 +68,19 @@ class PenilaianService
     private function resolveExistingEvidencePaths(array $data, ?Penilaian $existingPenilaian): array
     {
         if (array_key_exists('existing_bukti_dukung', $data)) {
-            return $this->normalizeExistingEvidence($data['existing_bukti_dukung']);
+            $requestedPaths = $this->normalizeExistingEvidence($data['existing_bukti_dukung']);
+            $existingPaths = $existingPenilaian?->normalizedBuktiDukung() ?? [];
+            $existingLookup = array_flip($existingPaths);
+
+            foreach ($requestedPaths as $path) {
+                if (! $this->isValidEvidencePath($path) || ! isset($existingLookup[$path])) {
+                    throw ValidationException::withMessages([
+                        'existing_bukti_dukung' => 'Bukti dukung lama tidak valid untuk penilaian ini.',
+                    ]);
+                }
+            }
+
+            return $requestedPaths;
         }
 
         if (! $existingPenilaian instanceof Penilaian) {
@@ -132,27 +148,16 @@ class PenilaianService
         ));
     }
 
-    private function uniqueStoredFileName(UploadedFile $file): string
+    private function isValidEvidencePath(string $path): bool
     {
-        $safeOriginalName = $this->safeOriginalName($file);
-
-        if ($safeOriginalName === '') {
-            return Str::ulid().'.'.strtolower($file->getClientOriginalExtension());
-        }
-
-        return Str::ulid().'-'.$safeOriginalName;
+        return str_starts_with($path, 'bukti-dukung/')
+            && ! str_contains($path, '..')
+            && ! str_starts_with($path, '/')
+            && preg_match('/^[A-Za-z]:[\/\\\\]/', $path) !== 1;
     }
 
-    private function safeOriginalName(UploadedFile $file): string
+    private function uniqueStoredFileName(UploadedFile $file): string
     {
-        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $extension = strtolower($file->getClientOriginalExtension());
-        $safeBaseName = Str::slug($originalName);
-
-        if ($safeBaseName === '' || $extension === '') {
-            return '';
-        }
-
-        return $safeBaseName.'.'.$extension;
+        return Str::ulid().'.'.UploadSecurity::safeExtension($file);
     }
 }

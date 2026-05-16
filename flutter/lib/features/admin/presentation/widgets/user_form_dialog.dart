@@ -7,6 +7,7 @@ import 'package:parikesit/core/auth/user_role.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/utils/app_error_mapper.dart';
 import 'package:parikesit/core/utils/app_snackbar.dart';
+import 'package:parikesit/core/utils/input_sanitizer.dart';
 import 'package:parikesit/core/widgets/ethno_button.dart';
 import 'package:parikesit/features/admin/domain/admin_password_reset_result.dart';
 
@@ -132,6 +133,7 @@ class _UserFormDialogState extends ConsumerState<UserFormDialog> {
                 controller: _nameController,
                 label: 'Nama Lengkap',
                 prefixIcon: const Icon(LucideIcons.userCheck),
+                maxLength: 255,
                 validator: (v) => _validateRequiredText(v, 'Nama wajib diisi'),
               ),
               AppSpacing.gapH16,
@@ -141,8 +143,9 @@ class _UserFormDialogState extends ConsumerState<UserFormDialog> {
                 label: 'Email Instansi / Pribadi',
                 prefixIcon: const Icon(LucideIcons.atSign),
                 keyboardType: TextInputType.emailAddress,
+                maxLength: 255,
                 validator: (v) {
-                  final trimmed = v?.trim() ?? '';
+                  final trimmed = InputSanitizer.normalizeEmail(v ?? '');
                   if (trimmed.isEmpty || !trimmed.contains('@')) {
                     return 'Email tidak valid';
                   }
@@ -158,7 +161,7 @@ class _UserFormDialogState extends ConsumerState<UserFormDialog> {
                   prefixIcon: const Icon(LucideIcons.key),
                   obscureText: true,
                   validator: (v) {
-                    if ((v?.trim().length ?? 0) < 8) {
+                    if ((v?.length ?? 0) < 8) {
                       return 'Password minimal 8 karakter';
                     }
                     return null;
@@ -188,6 +191,10 @@ class _UserFormDialogState extends ConsumerState<UserFormDialog> {
                 label: 'Nomor WhatsApp Aktif',
                 prefixIcon: const Icon(LucideIcons.phone),
                 keyboardType: TextInputType.phone,
+                maxLength: 20,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9+()\-\s]')),
+                ],
                 validator: (v) =>
                     _validateRequiredText(v, 'Nomor telepon wajib diisi'),
               ),
@@ -198,6 +205,7 @@ class _UserFormDialogState extends ConsumerState<UserFormDialog> {
                 label: 'Alamat / Kantor',
                 prefixIcon: const Icon(LucideIcons.map),
                 maxLines: 2,
+                maxLength: 1000,
                 validator: (v) =>
                     _validateRequiredText(v, 'Alamat wajib diisi'),
               ),
@@ -339,15 +347,21 @@ class _UserFormDialogState extends ConsumerState<UserFormDialog> {
         }
       } else {
         final userData = <String, dynamic>{
-          'name': _nameController.text.trim(),
-          'email': _emailController.text.trim(),
+          'name': InputSanitizer.trimPlainText(
+            _nameController.text,
+            maxLength: 255,
+          ),
+          'email': InputSanitizer.normalizeEmail(_emailController.text),
           'role': _selectedRole.name,
-          'nomor_telepon': _phoneController.text.trim(),
-          'alamat': _addressController.text.trim(),
+          'nomor_telepon': InputSanitizer.normalizePhone(_phoneController.text),
+          'alamat': InputSanitizer.trimPlainText(
+            _addressController.text,
+            maxLength: 1000,
+          ),
         };
 
         if (widget.user == null) {
-          userData['password'] = _passwordController.text.trim();
+          userData['password'] = _passwordController.text;
           await notifier.createUser(userData);
           if (!mounted) {
             return;

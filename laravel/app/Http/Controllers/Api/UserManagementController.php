@@ -9,6 +9,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\OpdFormReminderService;
 use App\Services\UserService;
+use App\Support\InputSanitizer;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 
@@ -30,10 +31,10 @@ class UserManagementController extends Controller
 
     public function index(Request $request)
     {
-        $sortBy = $request->get('sort', 'created_at');
-        $sortDirection = $request->get('direction', 'desc');
-        $search = $request->get('search', '');
-        $perPage = $request->get('per_page', 15);
+        $sortBy = InputSanitizer::sortBy($request->get('sort'), ['created_at', 'name', 'email', 'role'], 'created_at');
+        $sortDirection = InputSanitizer::sortDirection($request->get('direction'));
+        $search = InputSanitizer::safeSearch($request->get('search', ''));
+        $perPage = InputSanitizer::safeIntRange($request->get('per_page'), 15, 1, 50);
 
         $users = $this->userService->getAllUsers($search, $sortBy, $sortDirection, $perPage);
 

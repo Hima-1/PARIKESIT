@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:parikesit/core/network/laravel_response.dart';
 import 'package:parikesit/core/network/paginated_response.dart';
 import 'package:parikesit/core/network/providers/dio_provider.dart';
+import 'package:parikesit/core/utils/input_sanitizer.dart';
 import 'package:parikesit/features/assessment/data/assessment_mappers.dart';
 import 'package:parikesit/features/assessment/domain/assessment_disposisi.dart';
 import 'package:parikesit/features/assessment/domain/assessment_models.dart';
@@ -79,7 +80,10 @@ class AssessmentRepository {
     final Response<dynamic> response = await _client.post<dynamic>(
       '/formulir',
       data: <String, dynamic>{
-        'nama_formulir': activity.title,
+        'nama_formulir': InputSanitizer.trimPlainText(
+          activity.title,
+          maxLength: 255,
+        ),
         'tanggal_dibuat': activity.date.toIso8601String(),
         'use_template': useTemplate,
       },
@@ -93,7 +97,9 @@ class AssessmentRepository {
   ) async {
     final Response<dynamic> response = await _client.patch<dynamic>(
       '/formulir/$formulirId',
-      data: <String, dynamic>{'nama_formulir': name},
+      data: <String, dynamic>{
+        'nama_formulir': InputSanitizer.trimPlainText(name, maxLength: 255),
+      },
     );
     return mapFormulir(extractMapData(response.data));
   }
@@ -109,7 +115,13 @@ class AssessmentRepository {
   ) async {
     await _client.post<dynamic>(
       '/formulir/$activityId/domains',
-      data: <String, dynamic>{'nama_domain': domainName, 'nama_aspek': aspects},
+      data: <String, dynamic>{
+        'nama_domain': InputSanitizer.trimPlainText(domainName, maxLength: 255),
+        'nama_aspek': aspects
+            .map((value) => InputSanitizer.trimPlainText(value, maxLength: 255))
+            .where((value) => value.isNotEmpty)
+            .toList(growable: false),
+      },
     );
   }
 

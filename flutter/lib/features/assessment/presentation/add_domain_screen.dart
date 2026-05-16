@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 
 import 'package:parikesit/core/theme/app_theme.dart';
+import 'package:parikesit/core/utils/input_sanitizer.dart';
 import 'package:parikesit/core/widgets/ethno_button.dart';
 import 'controller/assessment_list_controller.dart';
 import 'widgets/dynamic_aspect_fields.dart';
@@ -51,9 +52,15 @@ class _AddDomainScreenState extends ConsumerState<AddDomainScreen> {
   }
 
   Future<void> _save() async {
-    final String domainName = _domainNameController.text.trim();
+    final String domainName = InputSanitizer.trimPlainText(
+      _domainNameController.text,
+      maxLength: 255,
+    );
     final List<String> aspects = _aspectControllers
-        .map((TextEditingController controller) => controller.text.trim())
+        .map(
+          (TextEditingController controller) =>
+              InputSanitizer.trimPlainText(controller.text, maxLength: 255),
+        )
         .where((String value) => value.isNotEmpty)
         .toList();
 
@@ -123,6 +130,7 @@ class _AddDomainScreenState extends ConsumerState<AddDomainScreen> {
                 TextField(
                   controller: _domainNameController,
                   textInputAction: TextInputAction.next,
+                  maxLength: 255,
                   decoration: InputDecoration(
                     hintText: 'Masukkan nama domain',
                     filled: true,

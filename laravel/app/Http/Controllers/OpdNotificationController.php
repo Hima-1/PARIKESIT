@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Support\InputSanitizer;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -12,18 +13,9 @@ class OpdNotificationController extends Controller
     {
         abort_unless($request->user()?->role === 'admin', 403);
 
-        $sortBy = $request->get('sort', 'created_at');
-        $sortDirection = $request->get('direction', 'desc');
-        $search = $request->get('search', '');
-
-        $allowedSorts = ['name', 'email', 'created_at'];
-        if (! in_array($sortBy, $allowedSorts, true)) {
-            $sortBy = 'created_at';
-        }
-
-        if (! in_array($sortDirection, ['asc', 'desc'], true)) {
-            $sortDirection = 'desc';
-        }
+        $sortBy = InputSanitizer::sortBy($request->get('sort'), ['name', 'email', 'created_at'], 'created_at');
+        $sortDirection = InputSanitizer::sortDirection($request->get('direction'));
+        $search = InputSanitizer::safeSearch($request->get('search', ''));
 
         $users = User::query()
             ->where('role', 'opd')

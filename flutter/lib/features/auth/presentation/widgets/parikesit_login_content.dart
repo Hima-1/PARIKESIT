@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
+import 'package:parikesit/core/utils/input_sanitizer.dart';
 import 'package:parikesit/core/utils/startup_probe.dart';
 import 'package:parikesit/core/widgets/app_text_field.dart';
 import 'package:parikesit/core/widgets/ethno_button.dart';
@@ -52,7 +53,7 @@ class _ParikesitLoginContentState extends ConsumerState<ParikesitLoginContent> {
   }
 
   void _login() {
-    final String email = _emailController.text;
+    final String email = InputSanitizer.normalizeEmail(_emailController.text);
     final String password = _passwordController.text;
 
     if (email.isNotEmpty && password.isNotEmpty) {
