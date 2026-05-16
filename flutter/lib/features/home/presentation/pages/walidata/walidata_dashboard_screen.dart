@@ -52,77 +52,87 @@ class _WalidataDashboardScreenState
     final user = authState.user;
 
     return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await HapticFeedback.mediumImpact();
-          await activitiesNotifier.refreshCompletedActivities();
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: AppSpacing.pPage,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              WelcomeProfileCard(
-                userName: user?.name ?? 'Walidata',
-                email: user?.email ?? '-',
-                phoneNumber: user?.nomorTelepon,
-              ),
-              AppSpacing.gapH24,
-              const SectionHeader(title: 'Progress Penilaian'),
-              AppSpacing.gapH12,
-              ValueListenableBuilder<TextEditingValue>(
-                valueListenable: _searchController,
-                builder: (context, value, child) {
-                  return TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Cari progress penilaian',
-                      prefixIcon: const Icon(LucideIcons.search),
-                      border: const OutlineInputBorder(),
-                      suffixIcon: value.text.isEmpty
-                          ? null
-                          : IconButton(
-                              onPressed: () {
-                                _searchController.clear();
-                                _onSearchChanged('');
-                              },
-                              icon: const Icon(LucideIcons.x),
-                            ),
-                    ),
-                    onChanged: _onSearchChanged,
-                  );
-                },
-              ),
-              AppSpacing.gapH12,
-              _buildFilterChips(),
-              AppSpacing.gapH16,
-              activitiesAsync.when(
-                data: (activities) {
-                  final filteredActivities = activities.items
-                      .where((activity) {
-                        final progress =
-                            activity.reviewProgress ??
-                            const ReviewProgressSummary(
-                              totalIndicators: 0,
-                              correctedCount: 0,
-                              percentage: 0,
-                              pendingIndicatorPreview:
-                                  <PendingIndicatorPreview>[],
-                            );
-                        return switch (_filter) {
-                          _FilterStatus.all => true,
-                          _FilterStatus.pending => progress.correctedCount == 0,
-                          _FilterStatus.process =>
-                            progress.correctedCount > 0 &&
-                                progress.percentage < 100,
-                          _FilterStatus.done => progress.percentage >= 100,
-                        };
-                      })
-                      .toList(growable: false);
+      body: activitiesAsync.when(
+        data: (activities) => _buildDataView(
+          context: context,
+          activities: activities,
+          userName: user?.name ?? 'Walidata',
+          email: user?.email ?? '-',
+          phoneNumber: user?.nomorTelepon,
+          onRefresh: activitiesNotifier.refreshCompletedActivities,
+          onPrevious: activitiesNotifier.previousPage,
+          onNext: activitiesNotifier.nextPage,
+        ),
+        loading: () => _buildScrollableState(
+          userName: user?.name ?? 'Walidata',
+          email: user?.email ?? '-',
+          phoneNumber: user?.nomorTelepon,
+          onRefresh: activitiesNotifier.refreshCompletedActivities,
+          child: const Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 40),
+              child: CircularProgressIndicator(),
+            ),
+          ),
+        ),
+        error: (err, stack) => _buildScrollableState(
+          userName: user?.name ?? 'Walidata',
+          email: user?.email ?? '-',
+          phoneNumber: user?.nomorTelepon,
+          onRefresh: activitiesNotifier.refreshCompletedActivities,
+          child: AppErrorState(
+            message: AppErrorMapper.toMessage(
+              err,
+              fallbackMessage: 'Gagal memuat data kegiatan. Silakan coba lagi.',
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
-                  if (filteredActivities.isEmpty) {
-                    return const Padding(
+  Widget _buildDataView({
+    required BuildContext context,
+    required PaginatedResponse<AssessmentFormModel> activities,
+    required String userName,
+    required String email,
+    required String? phoneNumber,
+    required Future<void> Function() onRefresh,
+    required VoidCallback onPrevious,
+    required VoidCallback onNext,
+  }) {
+    final filteredActivities = activities.items
+        .where((activity) {
+          final progress = activity.reviewProgress ?? _emptyReviewProgress;
+          return switch (_filter) {
+            _FilterStatus.all => true,
+            _FilterStatus.pending => progress.correctedCount == 0,
+            _FilterStatus.process =>
+              progress.correctedCount > 0 && progress.percentage < 100,
+            _FilterStatus.done => progress.percentage >= 100,
+          };
+        })
+        .toList(growable: false);
+
+    return Column(
+      children: [
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: () => _refreshWithFeedback(onRefresh),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: AppSpacing.pPage,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(
+                    userName: userName,
+                    email: email,
+                    phoneNumber: phoneNumber,
+                  ),
+                  AppSpacing.gapH16,
+                  if (filteredActivities.isEmpty)
+                    const Padding(
                       padding: EdgeInsets.symmetric(vertical: 8),
                       child: AppEmptyState(
                         icon: LucideIcons.searchX,
@@ -130,78 +140,146 @@ class _WalidataDashboardScreenState
                         message:
                             'Coba ubah filter untuk melihat data progress yang tersedia.',
                       ),
-                    );
-                  }
-
-                  return Column(
-                    children: [
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: filteredActivities.length,
-                        itemBuilder: (context, index) {
-                          final activity = filteredActivities[index];
-                          final progress =
-                              activity.reviewProgress ??
-                              const ReviewProgressSummary(
-                                totalIndicators: 0,
-                                correctedCount: 0,
-                                percentage: 0,
-                                pendingIndicatorPreview:
-                                    <PendingIndicatorPreview>[],
-                              );
-
-                          return WalidataActivityCard(
-                            title: activity.title,
-                            date: activity.date,
-                            correctedCount: progress.correctedCount,
-                            totalCount: progress.totalIndicators,
-                            percentage: progress.percentage,
-                            finalCorrectionScore: progress.finalCorrectionScore,
-                            onTap: () {
-                              HapticFeedback.lightImpact();
-                              context.push(
-                                RouteConstants.assessmentOpdSelection
-                                    .replaceFirst(':activityId', activity.id),
-                                extra: activity,
-                              );
-                            },
-                          );
-                        },
+                    )
+                  else
+                    ...filteredActivities.map(
+                      (activity) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _buildActivityCard(context, activity),
                       ),
-                      AppSpacing.gapH16,
-                      AppPaginationFooter(
-                        currentPage: activities.meta.currentPage,
-                        lastPage: activities.meta.lastPage,
-                        hasPreviousPage: activities.hasPreviousPage,
-                        hasNextPage: activities.hasNextPage,
-                        onPrevious: activitiesNotifier.previousPage,
-                        onNext: activitiesNotifier.nextPage,
-                      ),
-                    ],
-                  );
-                },
-                loading: () => const Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 40),
-                    child: CircularProgressIndicator(),
-                  ),
-                ),
-                error: (err, stack) => AppErrorState(
-                  message: AppErrorMapper.toMessage(
-                    err,
-                    fallbackMessage:
-                        'Gagal memuat data kegiatan. Silakan coba lagi.',
-                  ),
-                ),
+                    ),
+                ],
               ),
-              AppSpacing.gapH48,
-            ],
+            ),
           ),
         ),
+        if (filteredActivities.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            child: Align(
+              alignment: Alignment.center,
+              child: AppPaginationFooter(
+                currentPage: activities.meta.currentPage,
+                lastPage: activities.meta.lastPage,
+                hasPreviousPage: activities.hasPreviousPage,
+                hasNextPage: activities.hasNextPage,
+                onPrevious: onPrevious,
+                onNext: onNext,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildScrollableState({
+    required String userName,
+    required String email,
+    required String? phoneNumber,
+    required Future<void> Function() onRefresh,
+    required Widget child,
+  }) {
+    return RefreshIndicator(
+      onRefresh: () => _refreshWithFeedback(onRefresh),
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: AppSpacing.pPage,
+        children: [
+          _buildHeader(
+            userName: userName,
+            email: email,
+            phoneNumber: phoneNumber,
+          ),
+          AppSpacing.gapH16,
+          child,
+        ],
       ),
     );
   }
+
+  Widget _buildHeader({
+    required String userName,
+    required String email,
+    required String? phoneNumber,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        WelcomeProfileCard(
+          userName: userName,
+          email: email,
+          phoneNumber: phoneNumber,
+        ),
+        AppSpacing.gapH24,
+        const SectionHeader(title: 'Progress Penilaian'),
+        AppSpacing.gapH12,
+        ValueListenableBuilder<TextEditingValue>(
+          valueListenable: _searchController,
+          builder: (context, value, child) {
+            return TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Cari progress penilaian',
+                prefixIcon: const Icon(LucideIcons.search),
+                border: const OutlineInputBorder(),
+                suffixIcon: value.text.isEmpty
+                    ? null
+                    : IconButton(
+                        onPressed: () {
+                          _searchController.clear();
+                          _onSearchChanged('');
+                        },
+                        icon: const Icon(LucideIcons.x),
+                      ),
+              ),
+              onChanged: _onSearchChanged,
+            );
+          },
+        ),
+        AppSpacing.gapH12,
+        _buildFilterChips(),
+      ],
+    );
+  }
+
+  Widget _buildActivityCard(
+    BuildContext context,
+    AssessmentFormModel activity,
+  ) {
+    final progress = activity.reviewProgress ?? _emptyReviewProgress;
+
+    return WalidataActivityCard(
+      title: activity.title,
+      date: activity.date,
+      correctedCount: progress.correctedCount,
+      totalCount: progress.totalIndicators,
+      percentage: progress.percentage,
+      finalCorrectionScore: progress.finalCorrectionScore,
+      onTap: () {
+        HapticFeedback.lightImpact();
+        context.push(
+          RouteConstants.assessmentOpdSelection.replaceFirst(
+            ':activityId',
+            activity.id,
+          ),
+          extra: activity,
+        );
+      },
+    );
+  }
+
+  Future<void> _refreshWithFeedback(Future<void> Function() onRefresh) async {
+    await HapticFeedback.mediumImpact();
+    await onRefresh();
+  }
+
+  static const ReviewProgressSummary _emptyReviewProgress =
+      ReviewProgressSummary(
+        totalIndicators: 0,
+        correctedCount: 0,
+        percentage: 0,
+        pendingIndicatorPreview: <PendingIndicatorPreview>[],
+      );
 
   void _onSearchChanged(String value) {
     _searchDebounce?.cancel();

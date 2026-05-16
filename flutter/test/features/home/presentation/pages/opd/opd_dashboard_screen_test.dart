@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:parikesit/core/auth/app_user.dart';
 import 'package:parikesit/core/network/paginated_response.dart';
+import 'package:parikesit/core/widgets/app_pagination_footer.dart';
 import 'package:parikesit/features/home/domain/opd_dashboard_progress.dart';
 import 'package:parikesit/features/home/presentation/pages/opd/controller/opd_dashboard_controller.dart';
 import 'package:parikesit/features/home/presentation/pages/opd/opd_dashboard_screen.dart';
@@ -82,6 +83,13 @@ void main() {
       );
       expect(find.text('Evaluasi Lama'), findsOneWidget);
       expect(find.text('LANJUTKAN PENGISIAN'), findsOneWidget);
+
+      final footerCenter = tester
+          .getCenter(find.byType(AppPaginationFooter))
+          .dx;
+      final viewCenter =
+          tester.view.physicalSize.width / tester.view.devicePixelRatio / 2;
+      expect((footerCenter - viewCenter).abs(), lessThan(1));
     },
   );
 

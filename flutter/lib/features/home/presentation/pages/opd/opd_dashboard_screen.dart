@@ -107,13 +107,16 @@ class OpdDashboardScreen extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    AppPaginationFooter(
-                      currentPage: progressPage.meta.currentPage,
-                      lastPage: progressPage.meta.lastPage,
-                      hasPreviousPage: progressPage.hasPreviousPage,
-                      hasNextPage: progressPage.hasNextPage,
-                      onPrevious: opdProgressNotifier.previousPage,
-                      onNext: opdProgressNotifier.nextPage,
+                    Align(
+                      alignment: Alignment.center,
+                      child: AppPaginationFooter(
+                        currentPage: progressPage.meta.currentPage,
+                        lastPage: progressPage.meta.lastPage,
+                        hasPreviousPage: progressPage.hasPreviousPage,
+                        hasNextPage: progressPage.hasNextPage,
+                        onPrevious: opdProgressNotifier.previousPage,
+                        onNext: opdProgressNotifier.nextPage,
+                      ),
                     ),
                   ],
                 );
@@ -133,7 +136,6 @@ class OpdDashboardScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            AppSpacing.gapH48,
           ],
         ),
       ),

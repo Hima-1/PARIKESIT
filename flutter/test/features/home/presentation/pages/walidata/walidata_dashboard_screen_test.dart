@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:parikesit/core/network/paginated_response.dart';
+import 'package:parikesit/core/widgets/app_pagination_footer.dart';
 import 'package:parikesit/features/assessment/domain/assessment_models.dart';
 import 'package:parikesit/features/assessment/presentation/controller/assessment_list_controller.dart';
 import 'package:parikesit/features/home/presentation/pages/walidata/walidata_dashboard_screen.dart';
@@ -134,6 +135,12 @@ void main() {
     expect(find.text('Indikator Belum Dikoreksi'), findsNothing);
     expect(find.text('Indikator A'), findsNothing);
     expect(find.text('Riwayat'), findsNothing);
+
+    final footerCenter = tester.getCenter(find.byType(AppPaginationFooter)).dx;
+    expect(
+      (footerCenter - tester.view.physicalSize.width / 2).abs(),
+      lessThan(1),
+    );
   });
 
   testWidgets('shows empty progress state without indicator preview copy', (

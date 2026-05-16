@@ -40,10 +40,15 @@ class AdminDashboardScreen extends ConsumerWidget {
       data: (stats) => Scaffold(
         body: RefreshIndicator(
           onRefresh: () => _handleRefresh(ref, progressController),
-          color: Colors.brown,
+          color: Theme.of(context).colorScheme.primary,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: AppSpacing.pPage,
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              AppSpacing.md,
+              AppSpacing.md,
+              0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -97,13 +102,16 @@ class AdminDashboardScreen extends ConsumerWidget {
                           },
                         ),
                         AppSpacing.gapH12,
-                        AppPaginationFooter(
-                          currentPage: page.currentPage,
-                          lastPage: page.lastPage,
-                          hasPreviousPage: page.hasPreviousPage,
-                          hasNextPage: page.hasNextPage,
-                          onPrevious: progressController.previousPage,
-                          onNext: progressController.nextPage,
+                        Align(
+                          alignment: Alignment.center,
+                          child: AppPaginationFooter(
+                            currentPage: page.currentPage,
+                            lastPage: page.lastPage,
+                            hasPreviousPage: page.hasPreviousPage,
+                            hasNextPage: page.hasNextPage,
+                            onPrevious: progressController.previousPage,
+                            onNext: progressController.nextPage,
+                          ),
                         ),
                       ],
                     );
@@ -114,7 +122,6 @@ class AdminDashboardScreen extends ConsumerWidget {
                     message: 'Gagal memuat progress penilaian.',
                   ),
                 ),
-                AppSpacing.gapH32,
               ],
             ),
           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:parikesit/core/auth/app_user.dart';
+import 'package:parikesit/core/widgets/app_pagination_footer.dart';
 import 'package:parikesit/features/admin/data/admin_dashboard_repository.dart';
 import 'package:parikesit/features/admin/domain/admin_assessment_progress.dart';
 import 'package:parikesit/features/admin/domain/admin_assessment_progress_query.dart';
@@ -43,6 +44,12 @@ void main() {
     expect(find.text('Urutkan'), findsOneWidget);
     expect(find.text('Halaman 1 dari 3'), findsOneWidget);
     expect(find.text('Progress 1'), findsOneWidget);
+
+    final footerCenter = tester.getCenter(find.byType(AppPaginationFooter)).dx;
+    expect(
+      (footerCenter - tester.view.physicalSize.width / 2).abs(),
+      lessThan(1),
+    );
   });
 
   testWidgets('pagination buttons drive page changes', (
