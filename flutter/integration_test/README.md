@@ -32,13 +32,13 @@ flutter test integration_test/admin_user_management_test.dart
 
 Run a smoke test on Android with explicit API base URL:
 ```bash
-flutter test integration_test/api_journey_test.dart -d <android_device_id> --dart-define=API_BASE_URL=http://10.0.2.2:8000 --dart-define=LOGIN_PROBE_SKIP_NOTIFICATION_INIT=true
+flutter test integration_test/api_journey_test.dart -d <android_device_id> --dart-define-from-file=.env --dart-define=LOGIN_PROBE_SKIP_NOTIFICATION_INIT=true
 ```
 
 ## Guardrails
 
 - Integration tests are environment-dependent and should be run on Android targets.
 - Laravel API backend must be running and reachable by the target device.
-- Use `--dart-define=API_BASE_URL=...` for every integration run.
+- Set `API_BASE_URL` in `.env` and use `--dart-define-from-file=.env` for every integration run.
 - Use `--dart-define=LOGIN_PROBE_SKIP_NOTIFICATION_INIT=true` for automated Android runs so the notification permission dialog cannot block the first screen.
 - Prefer fresh seed data before smoke suites: `php artisan migrate:fresh --seed --force`.

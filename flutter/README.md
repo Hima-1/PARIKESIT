@@ -21,25 +21,25 @@ Aplikasi Flutter Android-only untuk workflow penilaian statistik sektoral PARIKE
 ## Menjalankan Proyek
 
 1. `flutter pub get`
-2. Siapkan backend Laravel dan base URL API sesuai environment
+2. Salin `.env.example` menjadi `.env`, lalu isi `API_BASE_URL` sesuai domain backend
 3. Pastikan konfigurasi Firebase Android tersedia di `android/app/google-services.json`
 4. Jika notifikasi dipakai, verifikasi `lib/firebase_options.dart` sesuai project Firebase Android
-5. Jalankan: `flutter run`
+5. Jalankan: `flutter run --dart-define-from-file=.env`
 
 ## Testing
 
-- Default lane (unit/widget): `flutter test`
-- Satu file: `flutter test test/path/to/file_test.dart`
+- Default lane (unit/widget): `flutter test --dart-define-from-file=.env`
+- Satu file: `flutter test test/path/to/file_test.dart --dart-define-from-file=.env`
 - Filter nama test: `flutter test --plain-name "name pattern"`
-- Integration test: `flutter test integration_test`
+- Integration test: `flutter test integration_test --dart-define-from-file=.env`
 - Integration test (single file + Android device):
-  `flutter test integration_test/api_journey_test.dart --dart-define=API_BASE_URL=http://127.0.0.1:8000 -d <android_device_id>`
+  `flutter test integration_test/api_journey_test.dart --dart-define-from-file=.env -d <android_device_id>`
 
 ### Guardrails Integration Test
 
 - Jalankan di perangkat Android (emulator/fisik), bukan desktop/web.
 - Backend Laravel harus aktif dan akun seed test harus tersedia.
-- Selalu set `--dart-define=API_BASE_URL=...` ke host backend yang dapat diakses device.
+- Selalu isi `API_BASE_URL` di `.env` ke host backend yang dapat diakses device.
 
 ## Dokumentasi
 

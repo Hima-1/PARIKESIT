@@ -25,14 +25,13 @@ Dokumen ini menjelaskan input yang wajib tersedia untuk build Android production
 
 `lib/core/config/app_config.dart` memakai aturan berikut:
 
-- `API_BASE_URL` dibaca dari `--dart-define`
-- default lokal adalah `http://127.0.0.1:8000`
+- `API_BASE_URL` dibaca dari `--dart-define-from-file=.env` atau `--dart-define`
 - `API_PREFIX` default adalah `/api`
 - `fullApiUrl` dibentuk dari `API_BASE_URL + API_PREFIX`
 
 Implikasinya:
 
-- production build **wajib** mengisi `--dart-define=API_BASE_URL=https://domain-api-production`
+- production build **wajib** mengisi `API_BASE_URL` lewat `.env` atau `--dart-define`
 - tidak perlu menambahkan `/api` di `API_BASE_URL` jika `API_PREFIX` tetap default
 
 ## Contoh Command Build
@@ -40,19 +39,21 @@ Implikasinya:
 ### APK release
 
 ```bash
-flutter build apk --release --dart-define=API_BASE_URL=https://api.example.com
+flutter build apk --release --dart-define-from-file=.env
 ```
 
 ### App Bundle release
 
 ```bash
-flutter build appbundle --release --dart-define=API_BASE_URL=https://api.example.com
+flutter build appbundle --release --dart-define-from-file=.env
 ```
 
 ### Jika prefix API berbeda
 
+Ubah `API_PREFIX` di `.env`, lalu build dengan file env yang sama:
+
 ```bash
-flutter build apk --release --dart-define=API_BASE_URL=https://api.example.com --dart-define=API_PREFIX=/backend-api
+flutter build apk --release --dart-define-from-file=.env
 ```
 
 ## Device Fisik vs Emulator
@@ -64,8 +65,8 @@ flutter build apk --release --dart-define=API_BASE_URL=https://api.example.com -
 
 ### Android emulator
 
-- emulator lokal biasanya memakai `http://10.0.2.2:8000` untuk backend di mesin host
-- ini hanya relevan untuk development, bukan production
+- emulator lokal tetap harus memakai `API_BASE_URL` yang dapat dijangkau emulator
+- konfigurasi ini hanya relevan untuk development, bukan production
 
 ### Production
 
@@ -82,8 +83,8 @@ Mencegah build production yang secara teknis berhasil tetapi mengarah ke environ
 
 1. Pastikan `google-services.json` sesuai project Firebase production.
 2. Pastikan `lib/firebase_options.dart` sinkron dengan project yang sama.
-3. Tentukan `API_BASE_URL` production.
-4. Build APK/AAB dengan `--dart-define=API_BASE_URL=...`.
+3. Tentukan `API_BASE_URL` production di `.env`.
+4. Build APK/AAB dengan `--dart-define-from-file=.env`.
 5. Install hasil build ke device uji.
 6. Login ke backend production.
 7. Uji registrasi token FCM dan penerimaan notifikasi.
@@ -127,7 +128,7 @@ Dokumen ini tidak mengubah konfigurasi tersebut; hanya mendokumentasikan kondisi
 
 ### App mengarah ke server lokal
 
-- Penyebab umum: build dilakukan tanpa `--dart-define=API_BASE_URL=...`
+- Penyebab umum: build dilakukan tanpa `--dart-define-from-file=.env` atau tanpa `API_BASE_URL`
 - Cek: log konfigurasi atau perilaku request saat app dibuka
 
 ## Acceptance Checklist

@@ -69,9 +69,5 @@ String resolveEvidencePublicUrl(String path) {
 }
 
 String _resolveBaseUrl() {
-  try {
-    return AppConfig.baseUrl;
-  } on StateError {
-    return 'http://127.0.0.1:8000';
-  }
+  return AppConfig.baseUrl;
 }

@@ -40,7 +40,7 @@ Flutter saat ini **tidak** di-host sebagai web, sehingga tidak ada cakupan Fireb
 | Kredensial Firebase server | Laravel scheduler dan push notification | Push FCM gagal walau token device tersimpan |
 | `google-services.json` | Build Android | FCM client gagal inisialisasi |
 | `lib/firebase_options.dart` | Inisialisasi Firebase di Flutter | Aplikasi gagal menghubungkan project Firebase yang benar |
-| `--dart-define=API_BASE_URL` | Flutter production build | APK mengarah ke backend yang salah |
+| `--dart-define-from-file=.env` | Flutter production build | APK mengarah ke backend yang salah |
 
 ## Source of Truth yang Dipakai Dokumen Ini
 

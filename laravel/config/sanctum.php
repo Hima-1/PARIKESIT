@@ -1,6 +1,9 @@
 <?php
 
-use Laravel\Sanctum\Sanctum;
+$statefulDomains = env('SANCTUM_STATEFUL_DOMAINS');
+if ($statefulDomains === null) {
+    $statefulDomains = parse_url((string) env('APP_URL', ''), PHP_URL_HOST) ?: 'localhost';
+}
 
 return [
 
@@ -15,10 +18,9 @@ return [
     |
     */
 
-    'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
-        '%s%s',
-        'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
-        Sanctum::currentApplicationUrlWithPort()
+    'stateful' => array_values(array_filter(array_map(
+        static fn (string $domain) => trim($domain),
+        explode(',', $statefulDomains)
     ))),
 
     /*

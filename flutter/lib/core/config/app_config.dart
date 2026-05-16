@@ -1,33 +1,33 @@
 import 'package:flutter/foundation.dart';
 
 class AppConfig {
-  // Default to adb reverse for Android devices connected over USB.
-  // Override with --dart-define=API_BASE_URL=... for emulator, Wi-Fi, or production.
   static String get baseUrl {
-    const defaultBaseUrl = 'http://127.0.0.1:8000';
-    const configured = String.fromEnvironment(
-      'API_BASE_URL',
-      defaultValue: defaultBaseUrl,
-    );
+    const configured = String.fromEnvironment('API_BASE_URL');
+    final trimmed = configured.trim();
 
-    const isTest = bool.fromEnvironment('FLUTTER_TEST');
-    if (isTest && configured == defaultBaseUrl) {
+    if (trimmed.isEmpty) {
       throw StateError(
-        'API_BASE_URL MUST be provided when running tests. '
-        'Example: flutter test --dart-define=API_BASE_URL=http://127.0.0.1:8000',
+        'API_BASE_URL is not configured. Copy .env.example to .env and run '
+        'Flutter with --dart-define-from-file=.env.',
       );
     }
 
-    if (!isTest && kDebugMode && _isAndroidLoopbackUrl(configured)) {
+    final uri = Uri.tryParse(trimmed);
+    if (uri == null || !uri.hasScheme || !uri.hasAuthority) {
+      throw StateError(
+        'API_BASE_URL must be an absolute URL, for example '
+        'https://api.example.com.',
+      );
+    }
+
+    if (kDebugMode && _isAndroidLoopbackUrl(trimmed)) {
       debugPrint(
-        '[AppConfig] API_BASE_URL is using Android loopback ($configured). '
-        'This only works with adb reverse on a physical device. '
-        'Use http://10.0.2.2:8000 for the Android emulator or '
-        'http://<your-lan-ip>:8000 for a physical device over Wi-Fi/USB without adb reverse.',
+        '[AppConfig] API_BASE_URL is using Android loopback ($trimmed). '
+        'Make sure this host is reachable from the selected device.',
       );
     }
 
-    return configured;
+    return trimmed;
   }
 
   static bool _isAndroidLoopbackUrl(String url) {

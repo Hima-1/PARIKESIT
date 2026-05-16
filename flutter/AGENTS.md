@@ -8,16 +8,16 @@ You are an AI coding agent working on the **Parikesit** Flutter project. This is
 |------|---------|
 | Get Dependencies | `flutter pub get` |
 | Static Analysis | `flutter analyze` |
-| Run All Tests | `flutter test` |
-| Run Single Test | `flutter test test/path/to/file_test.dart` |
-| Run Single Test by Name | `flutter test --plain-name "test name pattern"` |
-| Run Integration Tests | `flutter test integration_test` |
-| Build Android APK | `flutter build apk --split-per-abi` |
+| Run All Tests | `flutter test --dart-define-from-file=.env` |
+| Run Single Test | `flutter test test/path/to/file_test.dart --dart-define-from-file=.env` |
+| Run Single Test by Name | `flutter test --dart-define-from-file=.env --plain-name "test name pattern"` |
+| Run Integration Tests | `flutter test integration_test --dart-define-from-file=.env` |
+| Build Android APK | `flutter build apk --split-per-abi --dart-define-from-file=.env` |
 
 **Integration test guardrails:**
 - Run on Android device/emulator (`-d <android_device_id>`), not desktop/web.
 - Ensure Laravel backend is up and reachable by the selected device.
-- Provide API target explicitly with `--dart-define=API_BASE_URL=...`.
+- Provide API target explicitly with `--dart-define-from-file=.env`.
 
 **Note:** This project uses an optimized `build_runner` for data models. Always ensure `build.yaml` is configured to only scan `domain` or `models` directories to maintain fast build times.
 
