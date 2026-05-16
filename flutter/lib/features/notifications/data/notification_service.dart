@@ -7,9 +7,9 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/router/route_constants.dart';
 import '../../../core/utils/logger.dart';
 import '../../../firebase_options.dart';
+import 'notification_navigation.dart';
 
 final FlutterLocalNotificationsPlugin _sharedLocalNotifications =
     FlutterLocalNotificationsPlugin();
@@ -86,8 +86,6 @@ class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
 
   static bool _isInitialized = false;
-  static const String _reminderType = 'incomplete_form_reminder';
-  static const String _summaryType = 'incomplete_form_summary';
 
   FirebaseMessaging get _fcm => FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _localNotifications =
@@ -310,26 +308,7 @@ class NotificationService {
   }
 
   String? _resolveTargetRoute(Map<String, dynamic> data) {
-    final targetRoute = data['target_route']?.toString();
-    if (targetRoute != null && targetRoute.isNotEmpty) {
-      return targetRoute;
-    }
-
-    if (data['type'] == _summaryType) {
-      return RouteConstants.assessmentKegiatan;
-    }
-
-    final formulirId = data['formulir_id']?.toString();
-    if (data['type'] != _reminderType ||
-        formulirId == null ||
-        formulirId.isEmpty) {
-      return null;
-    }
-
-    return Uri(
-      path: RouteConstants.assessmentKegiatan,
-      queryParameters: {'formulirId': formulirId},
-    ).toString();
+    return resolveNotificationTargetRoute(data);
   }
 }
 
