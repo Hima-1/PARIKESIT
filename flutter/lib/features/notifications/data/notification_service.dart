@@ -30,7 +30,9 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     );
   }
 
-  await _showLocalNotification(message, ensureInitialized: true);
+  if (message.notification == null) {
+    await _showLocalNotification(message, ensureInitialized: true);
+  }
 }
 
 Future<void> _showLocalNotification(
@@ -94,6 +96,7 @@ class NotificationService {
   StreamSubscription<RemoteMessage>? _foregroundMessageSubscription;
   StreamSubscription<RemoteMessage>? _messageOpenedAppSubscription;
   Future<void> Function(String token)? _tokenSyncHandler;
+  Future<void> Function()? _inboxRefreshHandler;
   GoRouter? _router;
   String? _pendingRoute;
   String? _lastKnownToken;
@@ -167,23 +170,19 @@ class NotificationService {
 
       // 6. Menangani pesan saat aplikasi di foreground
       await _foregroundMessageSubscription?.cancel();
-      _foregroundMessageSubscription = FirebaseMessaging.onMessage.listen((
-        RemoteMessage message,
-      ) {
-        unawaited(_showLocalNotification(message));
-      });
+      _foregroundMessageSubscription = FirebaseMessaging.onMessage.listen(
+        _handleForegroundMessage,
+      );
 
       // 7. Menangani tap notifikasi saat aplikasi di background tapi masih terbuka
       await _messageOpenedAppSubscription?.cancel();
       _messageOpenedAppSubscription = FirebaseMessaging.onMessageOpenedApp
-          .listen((RemoteMessage message) {
-            _handleNotificationInteraction(message.data);
-          });
+          .listen(_handleNotificationOpen);
 
       // 8. Cek jika aplikasi terbuka dari terminasi via notifikasi
       final RemoteMessage? initialMessage = await _fcm.getInitialMessage();
       if (initialMessage != null) {
-        _handleNotificationInteraction(initialMessage.data);
+        _handleNotificationOpen(initialMessage);
       }
 
       _isInitialized = true;
@@ -203,6 +202,10 @@ class NotificationService {
 
     final token = await _fcm.getToken();
     await _handleTokenUpdate(token);
+  }
+
+  void setInboxRefreshHandler(Future<void> Function()? handler) {
+    _inboxRefreshHandler = handler;
   }
 
   void attachRouter(GoRouter router) {
@@ -262,6 +265,29 @@ class NotificationService {
 
     _lastKnownToken = null;
     _tokenSyncHandler = null;
+  }
+
+  Future<void> _handleForegroundMessage(RemoteMessage message) async {
+    await _showLocalNotification(message);
+    await _refreshInbox();
+  }
+
+  void _handleNotificationOpen(RemoteMessage message) {
+    unawaited(_refreshInbox());
+    _handleNotificationInteraction(message.data);
+  }
+
+  Future<void> _refreshInbox() async {
+    final handler = _inboxRefreshHandler;
+    if (handler == null) {
+      return;
+    }
+
+    try {
+      await handler();
+    } catch (error, stackTrace) {
+      AppLogger.error('Notification inbox refresh failed', error, stackTrace);
+    }
   }
 
   void _handleNotificationInteraction(Map<String, dynamic> data) {

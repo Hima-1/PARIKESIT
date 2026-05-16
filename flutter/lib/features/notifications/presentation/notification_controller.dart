@@ -23,6 +23,22 @@ class NotificationController extends AsyncNotifier<NotificationInboxState> {
     }
   }
 
+  Future<void> refreshSilently() async {
+    final requestVersion = ++_requestVersion;
+    final currentState = state.value;
+
+    try {
+      final nextState = await _fetchInitialPage();
+      if (requestVersion == _requestVersion) {
+        state = AsyncValue.data(nextState);
+      }
+    } catch (error, stackTrace) {
+      if (requestVersion == _requestVersion && currentState == null) {
+        state = AsyncValue.error(error, stackTrace);
+      }
+    }
+  }
+
   Future<void> markAsRead(String id) async {
     final currentState = state.value;
     final currentList =

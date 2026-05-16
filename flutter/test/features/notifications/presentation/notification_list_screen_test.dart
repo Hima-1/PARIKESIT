@@ -97,6 +97,46 @@ void main() {
     expect(find.textContaining('Exception'), findsNothing);
     expect(find.textContaining('database failed'), findsNothing);
   });
+
+  testWidgets(
+    'pull to refresh works when notification list is not scrollable',
+    (tester) async {
+      final repository = _FakeNotificationRepository([
+        AppNotification(
+          id: '1',
+          title: 'Reminder',
+          body: 'Segera lengkapi formulir.',
+          type: 'incomplete_form_reminder',
+          data: const {
+            'type': 'incomplete_form_reminder',
+            'formulir_id': '7',
+            'target_route': '/penilaian-kegiatan?formulirId=7',
+          },
+          createdAt: DateTime(2026, 3, 22, 9, 30),
+        ),
+      ]);
+
+      await tester.pumpWidget(
+        TestWrapper(
+          overrides: [
+            notificationRepositoryProvider.overrideWithValue(repository),
+          ],
+          appShellBuilder: (child) => MaterialApp(home: child),
+          child: const NotificationListScreen(),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+      expect(repository.fetchCount, 1);
+
+      await tester.drag(find.byType(ListView), const Offset(0, 320));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
+
+      expect(repository.fetchCount, 2);
+    },
+  );
 }
 
 class _FakeNotificationRepository extends NotificationRepository {
@@ -107,12 +147,15 @@ class _FakeNotificationRepository extends NotificationRepository {
 
   final List<AppNotification> _notifications;
   final bool throwOnDeleteRead;
+  int fetchCount = 0;
 
   @override
   Future<PaginatedResponse<AppNotification>> fetchNotifications({
     int page = 1,
     int perPage = 10,
   }) async {
+    fetchCount++;
+
     return PaginatedResponse<AppNotification>(
       data: _notifications,
       meta: PaginationMeta(

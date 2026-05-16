@@ -15,6 +15,7 @@ import 'core/utils/startup_probe.dart';
 import 'features/auth/presentation/controller/auth_provider.dart';
 import 'features/notifications/data/notification_device_repository.dart';
 import 'features/notifications/data/notification_service.dart';
+import 'features/notifications/presentation/notification_controller.dart';
 import 'firebase_options.dart';
 
 void main() {
@@ -114,12 +115,13 @@ class MyApp extends ConsumerStatefulWidget {
   ConsumerState<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends ConsumerState<MyApp> {
+class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   late final ProviderSubscription<AuthState> _authSubscription;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _authSubscription = ref.listenManual<AuthState>(authNotifierProvider, (
       previous,
       next,
@@ -131,7 +133,21 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   void dispose() {
     _authSubscription.close();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) {
+      return;
+    }
+
+    final authState = ref.read(authNotifierProvider);
+    if (authState.status == AuthStatus.authenticated &&
+        authState.user?.role == 'opd') {
+      unawaited(_refreshNotificationInbox());
+    }
   }
 
   Future<void> _handleAuthState(AuthState authState) async {
@@ -153,6 +169,7 @@ class _MyAppState extends ConsumerState<MyApp> {
 
       if (authState.status != AuthStatus.authenticated ||
           authState.user?.role != 'opd') {
+        notificationService.setInboxRefreshHandler(null);
         final hasAuthToken = await tokenStorage.getToken() != null;
         await notificationService.unregisterDeviceToken(
           deactivate: hasAuthToken
@@ -167,6 +184,7 @@ class _MyAppState extends ConsumerState<MyApp> {
             .read(notificationDeviceRepositoryProvider)
             .registerFcmToken(token);
       });
+      notificationService.setInboxRefreshHandler(_refreshNotificationInbox);
       notificationService.flushPendingNavigation();
     } catch (error, stackTrace) {
       FlutterError.reportError(
@@ -175,6 +193,21 @@ class _MyAppState extends ConsumerState<MyApp> {
           stack: stackTrace,
           library: 'parikesit notifications',
           context: ErrorDescription('auth state notification sync'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _refreshNotificationInbox() async {
+    try {
+      await ref.read(notificationControllerProvider.notifier).refreshSilently();
+    } catch (error, stackTrace) {
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: error,
+          stack: stackTrace,
+          library: 'parikesit notifications',
+          context: ErrorDescription('notification inbox refresh'),
         ),
       );
     }

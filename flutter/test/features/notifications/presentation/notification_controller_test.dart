@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -136,6 +138,91 @@ void main() {
       expect(notifications.map((item) => item.id), ['1', '2', '3']);
       expect(repository.fetchedPages, [1, 2]);
     });
+
+    test(
+      'refreshSilently updates inbox and unread count without clearing current state',
+      () async {
+        final repository = _FakeNotificationRepository([
+          _notification(id: '1', isRead: true),
+        ]);
+        final container = ProviderContainer(
+          overrides: [
+            notificationRepositoryProvider.overrideWithValue(repository),
+          ],
+        );
+        addTearDown(container.dispose);
+
+        await container.read(notificationControllerProvider.future);
+        repository.replaceFirstPage([
+          _notification(id: '2', isRead: false),
+          _notification(id: '3', isRead: false),
+        ]);
+
+        final refresh = container
+            .read(notificationControllerProvider.notifier)
+            .refreshSilently();
+
+        expect(
+          container
+              .read(notificationControllerProvider)
+              .value!
+              .notifications
+              .map((item) => item.id),
+          ['1'],
+        );
+
+        await refresh;
+
+        final notifications = container
+            .read(notificationControllerProvider)
+            .value!
+            .notifications;
+        expect(notifications.map((item) => item.id), ['2', '3']);
+        expect(container.read(unreadNotificationCountProvider), 2);
+      },
+    );
+
+    test(
+      'stale refreshSilently response does not replace newer data',
+      () async {
+        final repository = _ControlledNotificationRepository();
+        final container = ProviderContainer(
+          overrides: [
+            notificationRepositoryProvider.overrideWithValue(repository),
+          ],
+        );
+        addTearDown(container.dispose);
+
+        final initialLoad = container.read(
+          notificationControllerProvider.future,
+        );
+        repository.completeFetch(0, [_notification(id: '1', isRead: false)]);
+        await initialLoad;
+
+        final staleRefresh = container
+            .read(notificationControllerProvider.notifier)
+            .refreshSilently();
+        final freshRefresh = container
+            .read(notificationControllerProvider.notifier)
+            .refreshSilently();
+
+        repository.completeFetch(2, [
+          _notification(id: 'fresh', isRead: false),
+        ]);
+        await freshRefresh;
+
+        repository.completeFetch(1, [
+          _notification(id: 'stale', isRead: false),
+        ]);
+        await staleRefresh;
+
+        final notifications = container
+            .read(notificationControllerProvider)
+            .value!
+            .notifications;
+        expect(notifications.map((item) => item.id), ['fresh']);
+      },
+    );
   });
 }
 
@@ -152,6 +239,12 @@ class _FakeNotificationRepository extends NotificationRepository {
   final List<String> deletedIds = [];
   int deletedReadCount = 0;
   final List<int> fetchedPages = [];
+
+  void replaceFirstPage(List<AppNotification> notifications) {
+    _notifications
+      ..clear()
+      ..addAll(notifications);
+  }
 
   @override
   Future<PaginatedResponse<AppNotification>> fetchNotifications({
@@ -213,6 +306,46 @@ class _FakeNotificationRepository extends NotificationRepository {
     _notifications.removeWhere((notification) => notification.isRead);
     secondPage.removeWhere((notification) => notification.isRead);
     deletedReadCount = before - (_notifications.length + secondPage.length);
+  }
+}
+
+class _ControlledNotificationRepository extends NotificationRepository {
+  _ControlledNotificationRepository() : super(Dio());
+
+  final List<int> fetchedPages = [];
+  final List<Completer<PaginatedResponse<AppNotification>>> _requests = [];
+
+  @override
+  Future<PaginatedResponse<AppNotification>> fetchNotifications({
+    int page = 1,
+    int perPage = 10,
+  }) {
+    fetchedPages.add(page);
+    final completer = Completer<PaginatedResponse<AppNotification>>();
+    _requests.add(completer);
+
+    return completer.future;
+  }
+
+  void completeFetch(int index, List<AppNotification> notifications) {
+    _requests[index].complete(
+      PaginatedResponse<AppNotification>(
+        data: notifications,
+        meta: PaginationMeta(
+          currentPage: 1,
+          lastPage: 1,
+          perPage: 10,
+          total: notifications.length,
+          from: notifications.isEmpty ? null : 1,
+          to: notifications.isEmpty ? null : notifications.length,
+          path: '/notifications',
+        ),
+        links: const PaginationLinks(
+          first: '/notifications?page=1',
+          last: '/notifications?page=1',
+        ),
+      ),
+    );
   }
 }
 

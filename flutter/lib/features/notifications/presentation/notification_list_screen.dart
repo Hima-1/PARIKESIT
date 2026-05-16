@@ -207,6 +207,7 @@ class _NotificationListScreenState
                 ref.read(notificationControllerProvider.notifier).refresh(),
             child: ListView.builder(
               controller: _scrollController,
+              physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               itemCount: entries.length + 1,
               itemBuilder: (context, index) {
