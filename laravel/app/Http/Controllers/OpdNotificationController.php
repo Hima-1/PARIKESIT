@@ -16,6 +16,9 @@ class OpdNotificationController extends Controller
         $sortBy = InputSanitizer::sortBy($request->get('sort'), ['name', 'email', 'created_at'], 'created_at');
         $sortDirection = InputSanitizer::sortDirection($request->get('direction'));
         $search = InputSanitizer::safeSearch($request->get('search', ''));
+        $opdTotal = User::query()
+            ->where('role', 'opd')
+            ->count();
 
         $users = User::query()
             ->where('role', 'opd')
@@ -40,6 +43,7 @@ class OpdNotificationController extends Controller
                     ];
                 }),
                 'count' => $users->count(),
+                'opdTotal' => $opdTotal,
                 'search' => $search,
                 'sortBy' => $sortBy,
                 'sortDirection' => $sortDirection,
@@ -54,6 +58,6 @@ class OpdNotificationController extends Controller
             ]);
         }
 
-        return view('dashboard.notifications.opd-index', compact('users', 'sortBy', 'sortDirection', 'search'));
+        return view('dashboard.notifications.opd-index', compact('users', 'sortBy', 'sortDirection', 'search', 'opdTotal'));
     }
 }

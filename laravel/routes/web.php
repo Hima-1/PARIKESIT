@@ -106,6 +106,7 @@ Route::middleware('auth')->group(function () {
             ->name('opd-notifications.index');
         Route::post('user/{user}/reset-password', [UserController::class, 'resetPassword'])->name('user.reset-password');
         Route::post('user/{user}/trigger-opd-reminder', [UserController::class, 'triggerOpdReminder'])->name('user.trigger-opd-reminder');
+        Route::post('user/trigger-opd-reminder/all', [UserController::class, 'triggerAllOpdReminder'])->name('user.trigger-opd-reminder.all');
         Route::post('user/trigger-opd-reminder/bulk', [UserController::class, 'triggerBulkOpdReminder'])->name('user.trigger-opd-reminder.bulk');
     });
 });

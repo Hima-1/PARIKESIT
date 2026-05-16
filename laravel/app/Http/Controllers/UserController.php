@@ -198,4 +198,37 @@ class UserController extends Controller
             ->route('opd-notifications.index')
             ->with('success', $message);
     }
+
+    public function triggerAllOpdReminder()
+    {
+        $adminId = (int) Auth::id();
+        $processed = 0;
+        $successful = 0;
+        $skipped = 0;
+
+        User::query()
+            ->where('role', 'opd')
+            ->chunkById(100, function ($users) use ($adminId, &$processed, &$successful, &$skipped) {
+                foreach ($users as $user) {
+                    $processed++;
+
+                    $result = $this->opdFormReminderService->sendManualReminderForUser(
+                        $user,
+                        $adminId,
+                    );
+
+                    if (($result['incomplete_form_count'] ?? 0) > 0) {
+                        $successful++;
+                    } else {
+                        $skipped++;
+                    }
+                }
+            });
+
+        $message = "Reminder semua OPD diproses untuk {$processed} user OPD. Berhasil: {$successful}. Dilewati: {$skipped}.";
+
+        return redirect()
+            ->route('opd-notifications.index')
+            ->with('success', $message);
+    }
 }

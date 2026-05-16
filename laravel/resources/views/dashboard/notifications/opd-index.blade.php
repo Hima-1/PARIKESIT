@@ -11,22 +11,12 @@
 
         <hr class="my-4 border-t-2 border-gray-300">
 
-        <form id="bulkReminderForm" action="{{ route('user.trigger-opd-reminder.bulk') }}" method="POST" class="mb-4">
+        <form id="allReminderForm" action="{{ route('user.trigger-opd-reminder.all') }}" method="POST" class="hidden">
             @csrf
-            <div class="flex flex-col gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4 md:flex-row md:items-center md:justify-between">
-                <label class="inline-flex items-center gap-2 text-sm font-medium text-blue-900">
-                    <input type="checkbox" id="selectAllOpd"
-                        class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        {{ $users->isEmpty() ? 'disabled' : '' }}>
-                    <span>Pilih semua OPD di halaman ini</span>
-                </label>
+        </form>
 
-                <button type="button" id="bulkReminderButton"
-                    class="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:bg-blue-300"
-                    disabled>
-                    Kirim Reminder Terpilih
-                </button>
-            </div>
+        <form id="bulkReminderForm" action="{{ route('user.trigger-opd-reminder.bulk') }}" method="POST" class="hidden">
+            @csrf
         </form>
 
         <div class="mb-4 flex space-x-4">
@@ -53,12 +43,34 @@
             <p class="text-lg font-medium">Tidak ada user OPD yang cocok dengan pencarian "<span id="searchTerm">{{ $search }}</span>"</p>
         </div>
 
+        <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div class="text-sm text-gray-600">
+                Total {{ $opdTotal }} user OPD tersedia untuk notifikasi.
+            </div>
+            <div class="flex flex-col gap-2 sm:flex-row">
+                <button type="button" id="allReminderButton"
+                    class="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:bg-blue-300"
+                    {{ $opdTotal === 0 ? 'disabled' : '' }}>
+                    Kirim Notifikasi Semua OPD
+                </button>
+                <button type="button" id="bulkReminderButton"
+                    class="rounded border border-blue-600 px-4 py-2 text-sm font-medium text-blue-700 disabled:cursor-not-allowed disabled:border-blue-200 disabled:text-blue-300"
+                    disabled>
+                    Kirim ke yang Dicentang
+                </button>
+            </div>
+        </div>
+
         <div id="usersTableWrapper">
             <table class="table-auto table-bordered w-full">
                 <thead>
                     <tr class="bg-blue-200 border-2">
                         <th class="px-4 py-2 text-center w-12">
-                            <i class="fas fa-bell text-blue-800"></i>
+                            <input type="checkbox" id="selectAllOpd"
+                                class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                title="Pilih semua OPD di halaman ini"
+                                aria-label="Pilih semua OPD di halaman ini"
+                                {{ $users->isEmpty() ? 'disabled' : '' }}>
                         </th>
                         <th class="px-4 py-2 text-left">
                             <a href="{{ route('opd-notifications.index', ['sort' => 'name', 'direction' => $sortBy == 'name' && $sortDirection == 'asc' ? 'desc' : 'asc', 'search' => $search]) }}"
@@ -161,6 +173,8 @@
         const noResultsMessage = $('#noResultsMessage');
         const searchTermSpan = $('#searchTerm');
         const selectAllOpd = $('#selectAllOpd');
+        const allReminderButton = $('#allReminderButton');
+        const allReminderForm = $('#allReminderForm');
         const bulkReminderButton = $('#bulkReminderButton');
         const bulkReminderForm = $('#bulkReminderForm');
         const paginationSummary = $('#paginationSummary');
@@ -336,6 +350,25 @@
             updateBulkReminderState();
         });
 
+        allReminderButton.on('click', function(e) {
+            e.preventDefault();
+
+            Swal.fire({
+                title: 'Kirim notifikasi semua OPD?',
+                text: 'Reminder akan dikirim ke seluruh user OPD.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#2563eb',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, kirim notifikasi',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    allReminderForm.trigger('submit');
+                }
+            });
+        });
+
         bulkReminderButton.on('click', function(e) {
             e.preventDefault();
 
@@ -345,13 +378,13 @@
             }
 
             Swal.fire({
-                title: 'Kirim reminder bulk?',
-                text: 'Reminder akan dikirim ke ' + selectedCount + ' user OPD terpilih.',
+                title: 'Kirim notifikasi terpilih?',
+                text: 'Reminder akan dikirim ke ' + selectedCount + ' user OPD yang dicentang.',
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#2563eb',
                 cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Ya, kirim reminder',
+                confirmButtonText: 'Ya, kirim notifikasi',
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {

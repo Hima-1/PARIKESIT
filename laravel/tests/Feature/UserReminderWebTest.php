@@ -109,6 +109,10 @@ test('non admin cannot access user management write routes', function () {
                 'user_ids' => [$managedUser->id],
             ])
             ->assertForbidden();
+
+        $this->actingAs($user)
+            ->post(route('user.trigger-opd-reminder.all'))
+            ->assertForbidden();
     }
 });
 
@@ -165,6 +169,41 @@ test('admin can trigger bulk opd reminder from web', function () {
     $response->assertSessionHas('success', 'Reminder bulk diproses untuk 2 user OPD. Berhasil: 1. Dilewati: 3.');
 });
 
+test('admin can trigger reminder for all opd users from web', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $opdOne = User::factory()->create(['role' => 'opd']);
+    $opdTwo = User::factory()->create(['role' => 'opd']);
+    User::factory()->create(['role' => 'walidata']);
+
+    $service = \Mockery::mock(OpdFormReminderService::class);
+    $service->shouldReceive('sendManualReminderForUser')
+        ->once()
+        ->withArgs(fn (User $user, int $adminId) => $user->is($opdOne) && $adminId === $admin->id)
+        ->andReturn([
+            'sent' => 1,
+            'skipped' => 0,
+            'incomplete_form_count' => 2,
+            'message' => 'Reminder diproses.',
+        ]);
+    $service->shouldReceive('sendManualReminderForUser')
+        ->once()
+        ->withArgs(fn (User $user, int $adminId) => $user->is($opdTwo) && $adminId === $admin->id)
+        ->andReturn([
+            'sent' => 0,
+            'skipped' => 1,
+            'incomplete_form_count' => 0,
+            'message' => 'Semua formulir OPD ini sudah lengkap.',
+        ]);
+    app()->instance(OpdFormReminderService::class, $service);
+
+    $response = $this
+        ->actingAs($admin)
+        ->post(route('user.trigger-opd-reminder.all'));
+
+    $response->assertRedirect(route('opd-notifications.index'));
+    $response->assertSessionHas('success', 'Reminder semua OPD diproses untuk 2 user OPD. Berhasil: 1. Dilewati: 1.');
+});
+
 test('bulk opd reminder requires selected users', function () {
     $admin = User::factory()->create(['role' => 'admin']);
 
@@ -188,6 +227,11 @@ test('admin can open opd notifications page and only see opd users', function ()
 
     $response->assertOk();
     $response->assertSee('Notifikasi OPD');
+    $response->assertSee('Kirim Notifikasi Semua OPD');
+    $response->assertSee('Kirim ke yang Dicentang');
+    $response->assertSee('title="Pilih semua OPD di halaman ini"', false);
+    $response->assertDontSee('<span>Pilih semua OPD di halaman ini</span>', false);
+    $response->assertDontSee('Kirim Reminder Terpilih');
     $response->assertSee($opd->name);
     $response->assertDontSee('Walidata Satu');
 });
