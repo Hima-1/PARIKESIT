@@ -8,6 +8,7 @@ import 'package:parikesit/core/network/paginated_response.dart';
 import 'package:parikesit/core/router/route_constants.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
+import 'package:parikesit/core/utils/app_error_mapper.dart';
 import 'package:parikesit/core/widgets/app_empty_state.dart';
 import 'package:parikesit/core/widgets/app_pagination_footer.dart';
 import 'package:parikesit/core/widgets/ethno_card.dart';
@@ -84,7 +85,10 @@ class OpdSelectionScreen extends ConsumerWidget {
         const SizedBox(height: 200),
         Center(
           child: Text(
-            'Gagal memuat OPD: $error',
+            AppErrorMapper.toMessage(
+              error,
+              fallbackMessage: 'Gagal memuat daftar OPD. Silakan coba lagi.',
+            ),
             style: Theme.of(
               context,
             ).textTheme.bodyMedium?.copyWith(color: AppTheme.error),

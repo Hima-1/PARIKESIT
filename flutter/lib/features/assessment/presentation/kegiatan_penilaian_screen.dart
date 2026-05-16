@@ -6,6 +6,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/router/route_constants.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
+import 'package:parikesit/core/utils/app_error_mapper.dart';
 import 'package:parikesit/core/widgets/app_empty_state.dart';
 import 'package:parikesit/core/widgets/ethno_card.dart';
 import 'package:parikesit/core/widgets/ethno_progress_bar.dart';
@@ -62,7 +63,11 @@ class KegiatanPenilaianScreen extends ConsumerWidget {
               const SizedBox(height: 200),
               Center(
                 child: Text(
-                  'Gagal memuat: $error',
+                  AppErrorMapper.toMessage(
+                    error,
+                    fallbackMessage:
+                        'Gagal memuat formulir penilaian. Silakan coba lagi.',
+                  ),
                   style: textTheme.bodyMedium?.copyWith(color: AppTheme.error),
                   textAlign: TextAlign.center,
                 ),

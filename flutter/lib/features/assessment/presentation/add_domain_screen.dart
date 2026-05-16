@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 
 import 'package:parikesit/core/theme/app_theme.dart';
+import 'package:parikesit/core/utils/app_error_mapper.dart';
 import 'package:parikesit/core/utils/input_sanitizer.dart';
 import 'package:parikesit/core/widgets/ethno_button.dart';
 import 'controller/assessment_list_controller.dart';
@@ -86,7 +87,12 @@ class _AddDomainScreenState extends ConsumerState<AddDomainScreen> {
       }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Gagal menambahkan domain: $error'),
+          content: Text(
+            AppErrorMapper.toMessage(
+              error,
+              fallbackMessage: 'Gagal menambahkan domain. Silakan coba lagi.',
+            ),
+          ),
           backgroundColor: AppTheme.error,
         ),
       );

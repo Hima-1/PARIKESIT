@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:parikesit/core/router/route_constants.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
+import 'package:parikesit/core/utils/app_error_mapper.dart';
 import 'package:parikesit/core/widgets/ethno_card.dart';
 import 'package:parikesit/core/widgets/ethno_patterns.dart';
 import 'package:parikesit/core/widgets/section_header.dart';
@@ -218,7 +219,11 @@ class _ActivityReviewScreenState extends ConsumerState<ActivityReviewScreen> {
           child: _buildRefreshableBody(
             child: _buildCenteredScrollableMessage(
               child: Text(
-                'Gagal memuat data: $err',
+                AppErrorMapper.toMessage(
+                  err,
+                  fallbackMessage:
+                      'Gagal memuat data penilaian. Silakan coba lagi.',
+                ),
                 textAlign: TextAlign.center,
                 style: Theme.of(
                   context,

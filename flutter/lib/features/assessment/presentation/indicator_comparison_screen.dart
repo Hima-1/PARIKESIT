@@ -5,6 +5,7 @@ import 'package:parikesit/core/auth/role_access.dart';
 import 'package:parikesit/core/auth/user_role.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
+import 'package:parikesit/core/utils/app_error_mapper.dart';
 import 'package:parikesit/core/widgets/ethno_button.dart';
 import 'package:parikesit/core/widgets/ethno_card.dart';
 import 'package:parikesit/core/widgets/status_banner.dart';
@@ -342,7 +343,15 @@ class _IndicatorAuditFormScreen extends StatelessWidget {
                   ScaffoldMessenger.of(context)
                     ..hideCurrentSnackBar()
                     ..showSnackBar(
-                      SnackBar(content: Text('Gagal menyimpan: $error')),
+                      SnackBar(
+                        content: Text(
+                          AppErrorMapper.toMessage(
+                            error,
+                            fallbackMessage:
+                                'Gagal menyimpan penilaian. Silakan coba lagi.',
+                          ),
+                        ),
+                      ),
                     );
                 }
               }

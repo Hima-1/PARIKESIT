@@ -71,7 +71,9 @@ class AuthNotifier extends Notifier<AuthState> {
           state = AuthState.unauthenticated();
         }
       } catch (e) {
-        state = AuthState.unauthenticated(error: e.toString());
+        state = AuthState.unauthenticated(
+          error: 'Gagal memeriksa sesi. Silakan masuk kembali.',
+        );
       } finally {
         StartupProbe.mark('AuthNotifier._init.state', <String, Object?>{
           'status': state.status.name,

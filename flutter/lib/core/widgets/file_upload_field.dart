@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
+import 'package:parikesit/core/utils/app_error_mapper.dart';
 import 'package:parikesit/core/widgets/ethno_card.dart';
 
 class FileUploadField extends StatefulWidget {
@@ -125,7 +126,13 @@ class _FileUploadFieldState extends State<FileUploadField> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Gagal memilih file: $e'),
+            content: Text(
+              AppErrorMapper.toMessage(
+                e,
+                fallbackMessage:
+                    'Gagal memilih file. Silakan coba pilih file lain.',
+              ),
+            ),
             backgroundColor: AppTheme.error,
           ),
         );

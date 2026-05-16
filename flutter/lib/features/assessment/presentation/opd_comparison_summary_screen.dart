@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
+import 'package:parikesit/core/utils/app_error_mapper.dart';
 import 'package:parikesit/core/widgets/app_empty_state.dart';
 import 'package:parikesit/features/assessment/data/assessment_repository.dart';
 import 'package:parikesit/features/assessment/domain/assessment_models.dart';
@@ -62,7 +63,13 @@ class OpdComparisonSummaryScreen extends ConsumerWidget {
                 ),
                 error: (Object error, StackTrace stackTrace) => Padding(
                   padding: const EdgeInsets.symmetric(vertical: 40),
-                  child: Text('Gagal memuat ringkasan: $error'),
+                  child: Text(
+                    AppErrorMapper.toMessage(
+                      error,
+                      fallbackMessage:
+                          'Gagal memuat ringkasan. Silakan coba lagi.',
+                    ),
+                  ),
                 ),
                 data: (List<ComparisonSummaryModel> summaries) {
                   if (summaries.isEmpty) {

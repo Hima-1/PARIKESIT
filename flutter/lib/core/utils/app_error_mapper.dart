@@ -55,13 +55,6 @@ class AppErrorMapper {
       return 'Permintaan melebihi batas waktu. Silakan coba lagi.';
     }
 
-    final String message = error.toString().trim();
-    if (message.isNotEmpty &&
-        !message.startsWith('Exception:') &&
-        !message.startsWith('DioException')) {
-      return message;
-    }
-
     return fallbackMessage;
   }
 

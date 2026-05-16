@@ -7,6 +7,7 @@ import 'package:parikesit/core/auth/user_role.dart';
 import 'package:parikesit/core/config/app_config.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
+import 'package:parikesit/core/utils/app_error_mapper.dart';
 import 'package:parikesit/core/widgets/app_breadcrumb.dart';
 import 'package:parikesit/core/widgets/ethno_button.dart';
 import 'package:parikesit/core/widgets/ethno_card.dart';
@@ -124,7 +125,11 @@ class DokumentasiDetailScreen extends ConsumerWidget {
             const SizedBox(height: 200),
             Center(
               child: Text(
-                'Gagal memuat detail: $error',
+                AppErrorMapper.toMessage(
+                  error,
+                  fallbackMessage:
+                      'Gagal memuat detail dokumentasi. Silakan coba lagi.',
+                ),
                 style: textTheme.bodyMedium?.copyWith(color: AppTheme.error),
                 textAlign: TextAlign.center,
               ),

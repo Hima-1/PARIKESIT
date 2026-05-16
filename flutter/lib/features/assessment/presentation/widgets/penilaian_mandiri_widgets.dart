@@ -71,7 +71,12 @@ class _BuatFormulirView extends ConsumerWidget {
       }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Gagal menghapus formulir: $error'),
+          content: Text(
+            AppErrorMapper.toMessage(
+              error,
+              fallbackMessage: 'Gagal menghapus formulir. Silakan coba lagi.',
+            ),
+          ),
           backgroundColor: AppTheme.error,
         ),
       );

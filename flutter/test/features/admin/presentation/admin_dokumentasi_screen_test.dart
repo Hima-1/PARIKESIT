@@ -13,6 +13,7 @@ import 'package:parikesit/core/utils/file_saver.dart';
 import 'package:parikesit/core/widgets/app_pagination_footer.dart';
 import 'package:parikesit/features/admin/data/admin_user_repository.dart';
 import 'package:parikesit/features/admin/domain/admin_activity_query.dart';
+import 'package:parikesit/features/admin/presentation/controller/admin_dokumentasi_controller.dart';
 import 'package:parikesit/features/pembinaan/data/dokumentasi_repository.dart';
 import 'package:parikesit/features/pembinaan/data/pembinaan_repository.dart';
 import 'package:parikesit/features/pembinaan/domain/dokumentasi_kegiatan.dart';
@@ -265,6 +266,30 @@ void main() {
       expect(find.textContaining('DioException'), findsNothing);
       expect(find.text('Coba Lagi'), findsOneWidget);
     });
+
+    test('download failure stores friendly status message', () async {
+      final controller = AdminDokumentasiController(
+        dokumentasiRepository: _ThrowingDownloadDokumentasiRepository(),
+        pembinaanRepository: _FakePembinaanRepository(),
+      );
+      addTearDown(controller.dispose);
+
+      await Future<void>.delayed(Duration.zero);
+      await controller.downloadSingleFile('file-dokumentasi/a.pdf', 'a.pdf');
+
+      expect(
+        controller.state.downloadStatusMessage,
+        'Gagal mengunduh file a.pdf. Silakan coba lagi.',
+      );
+      expect(
+        controller.state.downloadStatusMessage,
+        isNot(contains('Exception')),
+      );
+      expect(
+        controller.state.downloadStatusMessage,
+        isNot(contains('storage failed')),
+      );
+    });
   });
 }
 
@@ -383,6 +408,14 @@ class _ThrowingDokumentasiRepository extends _FakeDokumentasiRepository {
       type: DioExceptionType.connectionError,
       error: const SocketException('Failed host lookup'),
     );
+  }
+}
+
+class _ThrowingDownloadDokumentasiRepository
+    extends _FakeDokumentasiRepository {
+  @override
+  Future<List<int>> downloadPublicFile(String storagePath) async {
+    throw Exception('storage failed');
   }
 }
 

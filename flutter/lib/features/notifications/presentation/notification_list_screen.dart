@@ -5,6 +5,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/helpers/async_view.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
+import 'package:parikesit/core/utils/app_error_mapper.dart';
 import 'package:parikesit/core/widgets/ethno_card.dart';
 
 import '../domain/notification_model.dart';
@@ -74,7 +75,14 @@ class _NotificationListScreenState
       }
       messenger.hideCurrentSnackBar();
       messenger.showSnackBar(
-        SnackBar(content: Text('Gagal memproses notifikasi: $error')),
+        SnackBar(
+          content: Text(
+            AppErrorMapper.toMessage(
+              error,
+              fallbackMessage: 'Gagal memproses notifikasi. Silakan coba lagi.',
+            ),
+          ),
+        ),
       );
     }
   }
@@ -126,7 +134,14 @@ class _NotificationListScreenState
         return false;
       }
       messenger.showSnackBar(
-        SnackBar(content: Text('Gagal menghapus notifikasi: $error')),
+        SnackBar(
+          content: Text(
+            AppErrorMapper.toMessage(
+              error,
+              fallbackMessage: 'Gagal menghapus notifikasi. Silakan coba lagi.',
+            ),
+          ),
+        ),
       );
       return false;
     }

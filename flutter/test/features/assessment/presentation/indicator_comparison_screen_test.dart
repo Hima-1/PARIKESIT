@@ -369,6 +369,65 @@ void main() {
     },
   );
 
+  testWidgets('IndicatorReviewerScreen save failure shows friendly feedback', (
+    WidgetTester tester,
+  ) async {
+    final ProviderContainer container = ProviderContainer(
+      overrides: [
+        userRoleProvider.overrideWithValue(UserRole.walidata),
+        assessmentFormControllerProvider(12).overrideWith(
+          () => _ThrowingAssessmentFormController(
+            const AssessmentFormState(
+              formulirId: 12,
+              draftsByIndikatorId: <int, Penilaian>{
+                382: Penilaian(
+                  id: 6,
+                  formulirId: 12,
+                  indikatorId: 382,
+                  nilai: 4,
+                  catatan: 'Catatan OPD',
+                ),
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          home: IndicatorReviewerScreen(
+            activityId: '12',
+            domainId: '10',
+            indicatorId: '382',
+            opdId: '77',
+            data: _staleComparisonData(),
+            indicatorComparisons: <IndicatorComparisonData>[
+              _staleComparisonData(),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('BERI KOREKSI'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'Perlu sinkronisasi');
+    await tester.tap(find.text('SIMPAN KOREKSI'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Gagal menyimpan penilaian. Silakan coba lagi.'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('Exception'), findsNothing);
+    expect(find.textContaining('database failed'), findsNothing);
+  });
+
   testWidgets(
     'cross-OPD indicator navigation keeps opdId when moving to next indicator',
     (WidgetTester tester) async {
@@ -710,5 +769,18 @@ class _TestAssessmentFormController extends AssessmentFormController {
     final AssessmentFormState current = state.value ?? _initialState;
     final Penilaian existing = current.draftsByIndikatorId[indicatorId]!;
     replaceDraft(existing.copyWith(nilaiKoreksi: score, evaluasi: note));
+  }
+}
+
+class _ThrowingAssessmentFormController extends _TestAssessmentFormController {
+  _ThrowingAssessmentFormController(super.initialState);
+
+  @override
+  Future<void> saveWalidataCorrection({
+    required int indicatorId,
+    required double score,
+    String? note,
+  }) async {
+    throw Exception('database failed');
   }
 }

@@ -67,12 +67,46 @@ void main() {
 
     expect(find.text('Hapus yang sudah dibaca'), findsOneWidget);
   });
+
+  testWidgets('bulk action failure shows friendly message', (tester) async {
+    final repository = _FakeNotificationRepository(
+      const [],
+      throwOnDeleteRead: true,
+    );
+
+    await tester.pumpWidget(
+      TestWrapper(
+        overrides: [
+          notificationRepositoryProvider.overrideWithValue(repository),
+        ],
+        appShellBuilder: (child) => MaterialApp(home: child),
+        child: const NotificationListScreen(),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(LucideIcons.moreVertical));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Hapus yang sudah dibaca'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Gagal memproses notifikasi. Silakan coba lagi.'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('Exception'), findsNothing);
+    expect(find.textContaining('database failed'), findsNothing);
+  });
 }
 
 class _FakeNotificationRepository extends NotificationRepository {
-  _FakeNotificationRepository(this._notifications) : super(Dio());
+  _FakeNotificationRepository(
+    this._notifications, {
+    this.throwOnDeleteRead = false,
+  }) : super(Dio());
 
   final List<AppNotification> _notifications;
+  final bool throwOnDeleteRead;
 
   @override
   Future<PaginatedResponse<AppNotification>> fetchNotifications({
@@ -100,5 +134,12 @@ class _FakeNotificationRepository extends NotificationRepository {
   @override
   Future<AppNotification> markAsRead(String id) async {
     return _notifications.firstWhere((notification) => notification.id == id);
+  }
+
+  @override
+  Future<void> deleteReadNotifications() async {
+    if (throwOnDeleteRead) {
+      throw Exception('database failed');
+    }
   }
 }

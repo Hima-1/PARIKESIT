@@ -307,7 +307,10 @@ class AdminDokumentasiController extends StateNotifier<AdminDokumentasiState> {
       state = state.copyWith(
         isDownloading: false,
         clearDownloadProgress: true,
-        downloadStatusMessage: 'Gagal mengunduh file $fileName: $e',
+        downloadStatusMessage: AppErrorMapper.toMessage(
+          e,
+          fallbackMessage: 'Gagal mengunduh file $fileName. Silakan coba lagi.',
+        ),
       );
     }
   }
@@ -371,7 +374,10 @@ class AdminDokumentasiController extends StateNotifier<AdminDokumentasiState> {
       state = state.copyWith(
         isDownloading: false,
         clearDownloadProgress: true,
-        downloadStatusMessage: 'Gagal mengunduh: $e',
+        downloadStatusMessage: AppErrorMapper.toMessage(
+          e,
+          fallbackMessage: 'Gagal mengunduh lampiran. Silakan coba lagi.',
+        ),
       );
     }
   }

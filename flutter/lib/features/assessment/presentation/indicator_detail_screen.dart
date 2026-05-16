@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 import 'package:parikesit/core/theme/app_theme.dart';
+import 'package:parikesit/core/utils/app_error_mapper.dart';
 import 'package:parikesit/core/widgets/ethno_button.dart';
 import 'package:parikesit/core/widgets/ethno_card.dart';
 import 'package:parikesit/core/widgets/file_upload_field.dart';
@@ -75,7 +76,12 @@ class _IndicatorDetailScreenState extends ConsumerState<IndicatorDetailScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Gagal menyimpan: $e'),
+            content: Text(
+              AppErrorMapper.toMessage(
+                e,
+                fallbackMessage: 'Gagal menyimpan draft. Silakan coba lagi.',
+              ),
+            ),
             backgroundColor: AppTheme.error,
           ),
         );
