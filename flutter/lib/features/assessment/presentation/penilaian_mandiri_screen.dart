@@ -41,6 +41,9 @@ class _PenilaianMandiriScreenState
   _PenilaianSegment _segment = _PenilaianSegment.buatFormulir;
   AssessmentFormModel? _selectedFormulir;
 
+  bool get _isViewingSelectedFormulir =>
+      _segment == _PenilaianSegment.isiFormulir && _selectedFormulir != null;
+
   void _selectFormulir(AssessmentFormModel formulir) {
     HapticFeedback.mediumImpact();
     setState(() {
@@ -49,37 +52,40 @@ class _PenilaianMandiriScreenState
     });
   }
 
+  void _returnToFormulirList() {
+    HapticFeedback.lightImpact();
+    setState(() {
+      _selectedFormulir = null;
+      _segment = _PenilaianSegment.isiFormulir;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      floatingActionButton:
-          _segment == _PenilaianSegment.isiFormulir && _selectedFormulir != null
-          ? FloatingActionButton.small(
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                setState(() {
-                  _selectedFormulir = null;
-                  _segment = _PenilaianSegment.isiFormulir;
-                });
-              },
-              backgroundColor: AppTheme.gold,
-              foregroundColor: AppTheme.sogan,
-              child: const Icon(LucideIcons.arrowLeft),
-            )
-          : null,
-      body: Column(
-        children: [
-          _buildToggle(),
-          Expanded(
-            child: _segment == _PenilaianSegment.buatFormulir
-                ? const _BuatFormulirView()
-                : _IsiFormulirView(
-                    formulir: _selectedFormulir,
-                    onSelectFormulir: _selectFormulir,
-                  ),
-          ),
-        ],
+    return PopScope(
+      canPop: !_isViewingSelectedFormulir,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop || !_isViewingSelectedFormulir) {
+          return;
+        }
+
+        _returnToFormulirList();
+      },
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Column(
+          children: [
+            _buildToggle(),
+            Expanded(
+              child: _segment == _PenilaianSegment.buatFormulir
+                  ? const _BuatFormulirView()
+                  : _IsiFormulirView(
+                      formulir: _selectedFormulir,
+                      onSelectFormulir: _selectFormulir,
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }

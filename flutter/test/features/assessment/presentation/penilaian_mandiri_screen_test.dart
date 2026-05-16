@@ -73,6 +73,88 @@ void main() {
     });
 
     testWidgets(
+      'does not show floating back button after an isi formulir item is selected',
+      (WidgetTester tester) async {
+        final container = createContainer(_FakeAssessmentRepository());
+        addTearDown(container.dispose);
+        await pumpScreen(tester, container);
+
+        await tester.tap(find.text('Isi Formulir'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Formulir OPD').first);
+        await tester.pumpAndSettle();
+
+        expect(find.text('Progres Pengisian'), findsOneWidget);
+        expect(find.byType(FloatingActionButton), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'system back returns selected isi formulir detail to the formulir list',
+      (WidgetTester tester) async {
+        final container = createContainer(_FakeAssessmentRepository());
+        addTearDown(container.dispose);
+        await pumpScreen(tester, container);
+
+        await tester.tap(find.text('Isi Formulir'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Formulir OPD').first);
+        await tester.pumpAndSettle();
+
+        expect(find.text('Progres Pengisian'), findsOneWidget);
+        expect(find.text('MULAI MENILAI'), findsNothing);
+
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+
+        expect(find.text('Progres Pengisian'), findsNothing);
+        expect(find.text('MULAI MENILAI'), findsOneWidget);
+        expect(find.text('Isi Formulir'), findsOneWidget);
+      },
+    );
+
+    testWidgets('system back pops normally when no formulir is selected', (
+      WidgetTester tester,
+    ) async {
+      final container = createContainer(_FakeAssessmentRepository());
+      addTearDown(container.dispose);
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            home: Builder(
+              builder: (context) {
+                return Scaffold(
+                  body: TextButton(
+                    onPressed: () {
+                      Navigator.of(context).push<void>(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const PenilaianMandiriScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text('Open penilaian mandiri'),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Open penilaian mandiri'));
+      await tester.pumpAndSettle();
+      expect(find.text('Buat Formulir'), findsOneWidget);
+
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+
+      expect(find.text('Open penilaian mandiri'), findsOneWidget);
+      expect(find.text('Buat Formulir'), findsNothing);
+    });
+
+    testWidgets(
       'shows formulir from assessment list controller state after add flow updates it',
       (WidgetTester tester) async {
         await tester.pumpWidget(

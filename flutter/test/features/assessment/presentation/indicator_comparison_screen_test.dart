@@ -369,6 +369,68 @@ void main() {
     },
   );
 
+  testWidgets(
+    'IndicatorReviewerScreen loads selected OPD data before admin evaluation',
+    (WidgetTester tester) async {
+      final _TestAssessmentFormController controller =
+          _TestAssessmentFormController(
+              const AssessmentFormState(formulirId: 12),
+            )
+            ..penilaianAfterLoad = const Penilaian(
+              id: 6,
+              formulirId: 12,
+              indikatorId: 382,
+              nilai: 4,
+              catatan: 'Catatan OPD',
+              nilaiDiupdate: 4,
+              catatanKoreksi: 'Catatan live walidata',
+            );
+      final ProviderContainer container = ProviderContainer(
+        overrides: [
+          userRoleProvider.overrideWithValue(UserRole.admin),
+          assessmentFormControllerProvider(12).overrideWith(() => controller),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            home: IndicatorReviewerScreen(
+              activityId: '12',
+              domainId: '10',
+              indicatorId: '382',
+              opdId: '77',
+              data: _staleComparisonData(walidataScore: 4),
+              indicatorComparisons: <IndicatorComparisonData>[
+                _staleComparisonData(walidataScore: 4),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(controller.loadIndicatorsForOpdCalls, 1);
+      expect(controller.lastLoadedOpdId, 77);
+      expect(find.text('EVALUASI FINAL'), findsOneWidget);
+
+      await tester.tap(find.text('EVALUASI FINAL'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), 'Final BPS');
+      await tester.tap(find.text('SIMPAN EVALUASI'));
+      await tester.pumpAndSettle();
+
+      expect(controller.adminSaveCalls, 1);
+      expect(controller.lastAdminScore, 1);
+      expect(controller.lastAdminNote, 'Final BPS');
+      expect(find.text('Catatan Evaluasi Final'), findsNothing);
+      expect(find.byType(SnackBar), findsOneWidget);
+    },
+  );
+
   testWidgets('IndicatorReviewerScreen save failure shows friendly feedback', (
     WidgetTester tester,
   ) async {
@@ -626,7 +688,10 @@ void main() {
   );
 }
 
-IndicatorComparisonData _staleComparisonData({bool includeCriteria = true}) {
+IndicatorComparisonData _staleComparisonData({
+  bool includeCriteria = true,
+  double walidataScore = 0,
+}) {
   return IndicatorComparisonData(
     indikator: AssessmentIndikator(
       id: 382,
@@ -643,7 +708,7 @@ IndicatorComparisonData _staleComparisonData({bool includeCriteria = true}) {
       level5Kriteria: includeCriteria ? 'Kriteria level 5' : null,
     ),
     opdScore: 4,
-    walidataScore: 0,
+    walidataScore: walidataScore,
     adminScore: 0,
     namaAspek: 'Aspek A',
   );
@@ -725,6 +790,9 @@ class _TestAssessmentFormController extends AssessmentFormController {
   String? lastWalidataNote;
   double? lastAdminScore;
   String? lastAdminNote;
+  int loadIndicatorsForOpdCalls = 0;
+  int? lastLoadedOpdId;
+  Penilaian? penilaianAfterLoad;
 
   @override
   Future<AssessmentFormState> build() async => _initialState;
@@ -739,6 +807,16 @@ class _TestAssessmentFormController extends AssessmentFormController {
         },
       ),
     );
+  }
+
+  @override
+  Future<void> loadIndicatorsForOpd(int opdId) async {
+    loadIndicatorsForOpdCalls += 1;
+    lastLoadedOpdId = opdId;
+    final Penilaian? loaded = penilaianAfterLoad;
+    if (loaded != null) {
+      replaceDraft(loaded);
+    }
   }
 
   @override

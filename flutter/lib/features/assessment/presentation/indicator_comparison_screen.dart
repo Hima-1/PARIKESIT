@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -65,7 +67,7 @@ class IndicatorComparisonScreen extends StatelessWidget {
   }
 }
 
-class IndicatorReviewerScreen extends ConsumerWidget {
+class IndicatorReviewerScreen extends ConsumerStatefulWidget {
   const IndicatorReviewerScreen({
     super.key,
     required this.activityId,
@@ -86,15 +88,74 @@ class IndicatorReviewerScreen extends ConsumerWidget {
   final int currentIndex;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<IndicatorReviewerScreen> createState() =>
+      _IndicatorReviewerScreenState();
+}
+
+class _IndicatorReviewerScreenState
+    extends ConsumerState<IndicatorReviewerScreen> {
+  String? _lastLoadKey;
+
+  @override
+  void initState() {
+    super.initState();
+    _queueSelectedOpdLoad(widget.opdId);
+  }
+
+  @override
+  void didUpdateWidget(covariant IndicatorReviewerScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.activityId != widget.activityId ||
+        oldWidget.opdId != widget.opdId) {
+      _queueSelectedOpdLoad(widget.opdId);
+    }
+  }
+
+  void _queueSelectedOpdLoad(String? opdId) {
+    final int? activityIdInt = int.tryParse(widget.activityId);
+    final int? opdIdInt = int.tryParse(opdId ?? '');
+    if (activityIdInt == null || opdIdInt == null) {
+      return;
+    }
+
+    final String loadKey = '$activityIdInt:$opdIdInt';
+    if (_lastLoadKey == loadKey) {
+      return;
+    }
+
+    _lastLoadKey = loadKey;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      unawaited(
+        Future<void>.microtask(() async {
+          final provider = assessmentFormControllerProvider(activityIdInt);
+          try {
+            await ref.read(provider.future);
+          } catch (_) {
+            // Admin/Walidata often need to reload with an explicit OPD target.
+          }
+          if (!mounted) {
+            return;
+          }
+          await ref.read(provider.notifier).loadIndicatorsForOpd(opdIdInt);
+        }),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final String? resolvedOpdId = resolveReviewOpdId(
       context,
       isSelfReview: false,
-      opdId: opdId,
+      opdId: widget.opdId,
     );
+    _queueSelectedOpdLoad(resolvedOpdId);
     final bool hasMissingReviewContext = resolvedOpdId == null;
-    final int? activityIdInt = int.tryParse(activityId);
-    final int? indicatorIdInt = int.tryParse(indicatorId);
+    final int? activityIdInt = int.tryParse(widget.activityId);
+    final int? indicatorIdInt = int.tryParse(widget.indicatorId);
     final AssessmentFormState? formState = activityIdInt == null
         ? null
         : ref
@@ -103,16 +164,16 @@ class IndicatorReviewerScreen extends ConsumerWidget {
               ?.value;
     final List<IndicatorComparisonData> resolvedComparisons =
         resolveIndicatorComparisonList(
-          snapshots: indicatorComparisons.isNotEmpty
-              ? indicatorComparisons
-              : (data != null
-                    ? <IndicatorComparisonData>[data!]
+          snapshots: widget.indicatorComparisons.isNotEmpty
+              ? widget.indicatorComparisons
+              : (widget.data != null
+                    ? <IndicatorComparisonData>[widget.data!]
                     : const <IndicatorComparisonData>[]),
           formState: formState,
         );
     final IndicatorComparisonData? currentData = resolveIndicatorComparisonData(
-      indicatorId: indicatorId,
-      routeData: data,
+      indicatorId: widget.indicatorId,
+      routeData: widget.data,
       snapshots: resolvedComparisons,
       formState: formState,
     );
@@ -136,11 +197,16 @@ class IndicatorReviewerScreen extends ConsumerWidget {
     final bool isLocked = currentData.adminScore > 0;
     final bool isWaitingForWalidata = isAdmin && currentData.walidataScore == 0;
     final bool showAction = canWalidataCorrect || canAdminEvaluate;
+    final bool hasLiveAssessment =
+        indicatorIdInt != null &&
+        formState?.draftsByIndikatorId.containsKey(indicatorIdInt) == true;
+    final bool isReviewDataReady = !showAction || hasLiveAssessment;
     final bool canOpenAuditModal =
         showAction &&
         !hasMissingReviewContext &&
         !isLocked &&
         !isWaitingForWalidata &&
+        isReviewDataReady &&
         activityIdInt != null &&
         indicatorIdInt != null;
 
@@ -150,7 +216,7 @@ class IndicatorReviewerScreen extends ConsumerWidget {
         title: const Text('Tinjau Indikator'),
         actions: [
           IndicatorReviewCounter(
-            currentIndex: currentIndex,
+            currentIndex: widget.currentIndex,
             totalCount: resolvedComparisons.length,
           ),
         ],
@@ -182,15 +248,22 @@ class IndicatorReviewerScreen extends ConsumerWidget {
                 icon: LucideIcons.hourglass,
               ),
               AppSpacing.gapH16,
+            ] else if (!isReviewDataReady) ...[
+              const StatusBanner(
+                message: 'Memuat data OPD terbaru sebelum menyimpan tinjauan.',
+                type: StatusBannerType.info,
+                icon: LucideIcons.loader,
+              ),
+              AppSpacing.gapH16,
             ],
             IndicatorReviewContent(currentData: currentData),
           ],
         ),
       ),
       bottomNavigationBar: IndicatorReviewNavigationFooter(
-        activityId: activityId,
-        domainId: domainId,
-        currentIndex: currentIndex,
+        activityId: widget.activityId,
+        domainId: widget.domainId,
+        currentIndex: widget.currentIndex,
         indicatorComparisons: resolvedComparisons,
         isSelfReview: false,
         opdId: resolvedOpdId,
