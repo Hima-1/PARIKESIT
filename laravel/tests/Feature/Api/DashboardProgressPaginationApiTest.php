@@ -6,6 +6,7 @@ use App\Models\Formulir;
 use App\Models\Indikator;
 use App\Models\Penilaian;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 test('admin can paginate dashboard progress data with explicit meta payload', function () {
     Formulir::factory()->count(12)->create();
@@ -147,4 +148,41 @@ test('admin dashboard counts walidata progress from nilai_diupdate without waiti
         ->assertJsonPath('data.0.nama', 'Dinas Kominfo 2026')
         ->assertJsonPath('data.0.walidata_corrected_count', 1)
         ->assertJsonPath('data.0.walidata_total_count', 1);
+});
+
+test('admin dashboard progress query count stays bounded for paginated data', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $opd = User::factory()->create(['role' => 'opd']);
+
+    foreach (range(1, 8) as $index) {
+        $formulir = Formulir::factory()->create([
+            'nama_formulir' => "Formulir {$index}",
+        ]);
+        $domain = Domain::factory()->create();
+        $formulir->domains()->attach($domain->id);
+        $aspek = Aspek::factory()->create(['domain_id' => $domain->id]);
+
+        foreach (range(1, 2) as $indicatorIndex) {
+            $indikator = Indikator::factory()->create(['aspek_id' => $aspek->id]);
+
+            Penilaian::factory()->create([
+                'formulir_id' => $formulir->id,
+                'indikator_id' => $indikator->id,
+                'user_id' => $opd->id,
+                'nilai' => $indicatorIndex,
+                'nilai_diupdate' => $indicatorIndex === 1 ? 4 : null,
+            ]);
+        }
+    }
+
+    DB::flushQueryLog();
+    DB::enableQueryLog();
+
+    $response = loginAsAdmin($admin)->getJson('/api/dashboard/progress-penilaian?page=1&per_page=5');
+
+    $queryCount = count(DB::getQueryLog());
+    DB::disableQueryLog();
+
+    $response->assertOk()->assertJsonCount(5, 'data');
+    expect($queryCount)->toBeLessThanOrEqual(18);
 });

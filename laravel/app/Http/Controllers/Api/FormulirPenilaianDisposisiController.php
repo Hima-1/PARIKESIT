@@ -206,8 +206,20 @@ class FormulirPenilaianDisposisiController extends Controller
         $perPage = $this->resolvePerPage($request->get('per_page'));
         $opds = $this->participatingOpdQuery($formulir)
             ->orderBy('name')
-            ->paginate($perPage)
-            ->through(fn (User $user) => $this->buildAuthenticatedOpdPayload($formulir, $user));
+            ->paginate($perPage);
+
+        $statsByUser = $this->calculationService->getStatsForUsers(
+            $formulir,
+            $opds->getCollection(),
+        );
+
+        $opds->getCollection()->transform(
+            fn (User $user) => $this->buildAuthenticatedOpdPayload(
+                $formulir,
+                $user,
+                $statsByUser[$user->id] ?? null,
+            ),
+        );
 
         return response()->json($opds);
     }
@@ -222,8 +234,20 @@ class FormulirPenilaianDisposisiController extends Controller
         $perPage = $this->resolvePerPage($request->get('per_page'));
         $opds = $this->participatingOpdQuery($formulir)
             ->orderBy('name')
-            ->paginate($perPage)
-            ->through(fn (User $user) => $this->buildPublicOpdScorePayload($formulir, $user));
+            ->paginate($perPage);
+
+        $scoresByUser = $this->calculationService->calculateScoresForUsers(
+            $formulir,
+            $opds->getCollection(),
+        );
+
+        $opds->getCollection()->transform(
+            fn (User $user) => $this->buildPublicOpdScorePayload(
+                $formulir,
+                $user,
+                $scoresByUser[$user->id] ?? null,
+            ),
+        );
 
         return PublicAssessmentOpdResource::collection($opds);
     }
@@ -452,14 +476,14 @@ class FormulirPenilaianDisposisiController extends Controller
      *   stats:array<string,mixed>
      * }
      */
-    private function buildAuthenticatedOpdPayload(Formulir $formulir, User $user): array
+    private function buildAuthenticatedOpdPayload(Formulir $formulir, User $user, ?array $stats = null): array
     {
         return [
             'id' => $user->id,
             'name' => $user->name,
             'role' => $user->role,
             'nomor_telepon' => $user->nomor_telepon,
-            'stats' => $this->calculationService->getStats($formulir, $user),
+            'stats' => $stats ?? $this->calculationService->getStats($formulir, $user),
         ];
     }
 
@@ -473,15 +497,17 @@ class FormulirPenilaianDisposisiController extends Controller
      *   admin_score:?float
      * }>
      */
-    private function buildPublicOpdScorePayload(Formulir $formulir, User $user): array
+    private function buildPublicOpdScorePayload(Formulir $formulir, User $user, ?array $scores = null): array
     {
+        $scores ??= $this->calculationService->calculateFormulirScores($formulir, $user);
+
         return [
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'opd_score' => $this->calculationService->calculateScore($formulir, $user, 'opd'),
-            'walidata_score' => $this->calculationService->calculateScore($formulir, $user, 'walidata'),
-            'admin_score' => $this->calculationService->calculateScore($formulir, $user, 'admin'),
+            'opd_score' => $scores['opd'] ?? null,
+            'walidata_score' => $scores['walidata'] ?? null,
+            'admin_score' => $scores['admin'] ?? null,
         ];
     }
 

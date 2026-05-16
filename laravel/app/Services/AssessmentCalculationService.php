@@ -8,6 +8,7 @@ use App\Models\Formulir;
 use App\Models\Indikator;
 use App\Models\Penilaian;
 use App\Models\User;
+use Illuminate\Support\Collection;
 
 class AssessmentCalculationService
 {
@@ -97,6 +98,33 @@ class AssessmentCalculationService
     {
         $this->loadAssessmentTree($formulir, $user);
 
+        return $this->calculateFormulirScoresFromLoadedTree($formulir, $user);
+    }
+
+    /**
+     * Calculate the three role scores for several users without reloading the tree per user.
+     *
+     * @param  Collection<int, User>  $users
+     * @return array<int, array{opd:?float,walidata:?float,admin:?float}>
+     */
+    public function calculateScoresForUsers(Formulir $formulir, Collection $users): array
+    {
+        if ($users->isEmpty()) {
+            return [];
+        }
+
+        $this->loadAssessmentTreeForUsers($formulir, $users);
+
+        return $users
+            ->mapWithKeys(fn (User $user) => [
+                $user->id => $this->calculateFormulirScoresFromLoadedTree($formulir, $user),
+            ])
+            ->all();
+    }
+
+    private function calculateFormulirScoresFromLoadedTree(Formulir $formulir, User $user): array
+    {
+
         $domainSnapshots = [];
         foreach ($formulir->domains as $domain) {
             $domainSnapshots[$domain->id] = [
@@ -171,6 +199,31 @@ class AssessmentCalculationService
         $formulir->load(['domains.aspek.indikator.penilaian' => function ($query) use ($user, $formulir) {
             $query->where('user_id', $user->id)->where('formulir_id', $formulir->id);
         }]);
+
+        return $this->getStatsFromLoadedTree($formulir, $user);
+    }
+
+    /**
+     * @param  Collection<int, User>  $users
+     * @return array<int, array<string, mixed>>
+     */
+    public function getStatsForUsers(Formulir $formulir, Collection $users): array
+    {
+        if ($users->isEmpty()) {
+            return [];
+        }
+
+        $this->loadAssessmentTreeForUsers($formulir, $users);
+
+        return $users
+            ->mapWithKeys(fn (User $user) => [
+                $user->id => $this->getStatsFromLoadedTree($formulir, $user),
+            ])
+            ->all();
+    }
+
+    private function getStatsFromLoadedTree(Formulir $formulir, User $user): array
+    {
 
         $totalIndikator = 0;
         $terisiOPD = 0;
@@ -248,13 +301,17 @@ class AssessmentCalculationService
             ->orderBy('name')
             ->get();
 
-        return $opds->map(function (User $user) use ($formulir) {
+        $scoresByUser = $this->calculateScoresForUsers($formulir, $opds);
+
+        return $opds->map(function (User $user) use ($scoresByUser) {
+            $scores = $scoresByUser[$user->id] ?? [];
+
             return [
                 'opd_id' => $user->id,
                 'nama_opd' => $user->name,
-                'skor_mandiri' => $this->calculateScore($formulir, $user, 'opd') ?? 0.0,
-                'skor_walidata' => $this->calculateScore($formulir, $user, 'walidata') ?? 0.0,
-                'skor_bps' => $this->calculateScore($formulir, $user, 'admin') ?? 0.0,
+                'skor_mandiri' => ($scores['opd'] ?? null) ?? 0.0,
+                'skor_walidata' => ($scores['walidata'] ?? null) ?? 0.0,
+                'skor_bps' => ($scores['admin'] ?? null) ?? 0.0,
             ];
         })->values()->all();
     }
@@ -264,6 +321,21 @@ class AssessmentCalculationService
         $formulir->load([
             'domains.aspek.indikator.penilaian' => function ($query) use ($user, $formulir) {
                 $query->where('user_id', $user->id)->where('formulir_id', $formulir->id);
+            },
+        ]);
+    }
+
+    /**
+     * @param  Collection<int, User>  $users
+     */
+    private function loadAssessmentTreeForUsers(Formulir $formulir, Collection $users): void
+    {
+        $userIds = $users->pluck('id')->all();
+
+        $formulir->load([
+            'domains.aspek.indikator.penilaian' => function ($query) use ($userIds, $formulir) {
+                $query->whereIn('user_id', $userIds)
+                    ->where('formulir_id', $formulir->id);
             },
         ]);
     }

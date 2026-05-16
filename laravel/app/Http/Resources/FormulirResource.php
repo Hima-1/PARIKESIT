@@ -57,7 +57,9 @@ class FormulirResource extends JsonResource
                                         'level_4_kriteria_10201' => $indikator->level_4_kriteria_10201,
                                         'level_5_kriteria_10201' => $indikator->level_5_kriteria_10201,
                                         'scores' => $indikator->scores ?? null,
-                                        'penilaian' => $indikator->penilaian->where('formulir_id', $this->id)->first(),
+                                        'penilaian' => $indikator->relationLoaded('penilaian')
+                                            ? $indikator->penilaian->where('formulir_id', $this->id)->first()
+                                            : null,
                                     ];
                                 }),
                             ];

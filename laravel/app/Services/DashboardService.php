@@ -89,6 +89,11 @@ class DashboardService
     public function getAssessmentProgressPage(Request $request, $user = null): array
     {
         $user = $user ?: Auth::user();
+
+        if ($user && $user->role === 'admin') {
+            return $this->getAdminAssessmentProgressPage($request);
+        }
+
         $progressData = collect($this->getProgressData($user));
 
         $search = InputSanitizer::plainText($request->get('search', ''), 100);
@@ -229,27 +234,133 @@ class DashboardService
             ->with(['domains.aspek.indikator.penilaian.user'])
             ->latest()
             ->get();
-        $progressData = [];
 
-        foreach ($formulirs as $formulir) {
-            $statistikOpd = $this->getStatistikOPD($formulir);
-            $statistikWalidata = $this->getStatistikWalidata($formulir);
-            $progressData[] = [
-                'id' => $formulir->id,
-                'nama' => $formulir->nama_formulir,
-                'tanggal' => $formulir->tanggal_dibuat,
-                'nilai_evaluasi_akhir' => $this->calculateRataRataDomainEvaluasi($formulir),
-                'indikator_belum_dievaluasi' => $this->getIndikatorBelumDievaluasi($formulir),
-                'statistik_opd' => $statistikOpd,
-                'statistik_walidata' => $statistikWalidata,
-                'opd_filled_count' => $statistikOpd['terisi'],
-                'opd_total_count' => $statistikOpd['total_indikator'],
-                'walidata_corrected_count' => $statistikWalidata['terkoreksi'],
-                'walidata_total_count' => $statistikWalidata['total_indikator'],
-            ];
+        return $formulirs
+            ->map(fn (Formulir $formulir) => $this->buildAdminProgressItem($formulir))
+            ->all();
+    }
+
+    private function getAdminAssessmentProgressPage(Request $request): array
+    {
+        $search = InputSanitizer::plainText($request->get('search', ''), 100);
+        $sortBy = InputSanitizer::sortBy($request->get('sort_by'), ['nama', 'progress_opd', 'progress_walidata', 'tanggal'], 'tanggal');
+        $sortDirection = InputSanitizer::sortDirection($request->get('sort_direction'));
+        $perPage = InputSanitizer::safeIntRange($request->get('per_page'), 10, 1, 50);
+
+        $query = $this->adminProgressSummaryQuery();
+
+        if ($search !== '') {
+            $query->where('nama_formulir', 'like', "%{$search}%");
         }
 
-        return $progressData;
+        $sortColumn = match ($sortBy) {
+            'nama' => 'nama_formulir',
+            'progress_opd' => 'opd_filled_count',
+            'progress_walidata' => 'walidata_corrected_count',
+            default => 'tanggal_dibuat',
+        };
+
+        $paginator = $query
+            ->orderBy($sortColumn, $sortDirection)
+            ->orderBy('id', $sortDirection)
+            ->paginate($perPage);
+
+        $loadedFormulirs = Formulir::query()
+            ->whereKey($paginator->getCollection()->pluck('id'))
+            ->with(['domains.aspek.indikator.penilaian.user'])
+            ->get()
+            ->keyBy('id');
+
+        $items = $paginator->getCollection()
+            ->map(function (Formulir $summary) use ($loadedFormulirs) {
+                $formulir = $loadedFormulirs->get($summary->id, $summary);
+
+                foreach (['total_indicators', 'opd_filled_count', 'walidata_corrected_count'] as $attribute) {
+                    $formulir->setAttribute($attribute, (int) $summary->getAttribute($attribute));
+                }
+
+                return $this->buildAdminProgressItem($formulir);
+            })
+            ->values();
+
+        return [
+            'data' => $items->all(),
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+            ],
+        ];
+    }
+
+    private function adminProgressSummaryQuery()
+    {
+        return Formulir::query()
+            ->operational()
+            ->select('formulirs.*')
+            ->selectSub(function ($query) {
+                $query->from('formulir_domains')
+                    ->join('domains', 'domains.id', '=', 'formulir_domains.domain_id')
+                    ->join('aspeks', 'aspeks.domain_id', '=', 'domains.id')
+                    ->join('indikators', 'indikators.aspek_id', '=', 'aspeks.id')
+                    ->whereColumn('formulir_domains.formulir_id', 'formulirs.id')
+                    ->whereNull('formulir_domains.deleted_at')
+                    ->whereNull('domains.deleted_at')
+                    ->whereNull('aspeks.deleted_at')
+                    ->whereNull('indikators.deleted_at')
+                    ->selectRaw('COUNT(DISTINCT indikators.id)');
+            }, 'total_indicators')
+            ->selectSub(function ($query) {
+                $query->from('penilaians')
+                    ->join('users', 'users.id', '=', 'penilaians.user_id')
+                    ->whereColumn('penilaians.formulir_id', 'formulirs.id')
+                    ->where('users.role', 'opd')
+                    ->whereNull('users.deleted_at')
+                    ->whereNotNull('penilaians.nilai')
+                    ->selectRaw('COUNT(DISTINCT penilaians.indikator_id)');
+            }, 'opd_filled_count')
+            ->selectSub(function ($query) {
+                $query->from('penilaians')
+                    ->whereColumn('penilaians.formulir_id', 'formulirs.id')
+                    ->whereNotNull('penilaians.nilai_diupdate')
+                    ->selectRaw('COUNT(DISTINCT penilaians.indikator_id)');
+            }, 'walidata_corrected_count');
+    }
+
+    private function buildAdminProgressItem(Formulir $formulir): array
+    {
+        $statistikOpd = $this->getStatistikOPD($formulir);
+        $statistikWalidata = $this->getStatistikWalidata($formulir);
+
+        $totalIndicators = $formulir->getAttribute('total_indicators');
+        if ($totalIndicators !== null) {
+            $statistikOpd = $this->statistikPayload((int) $totalIndicators, (int) $formulir->getAttribute('opd_filled_count'));
+            $statistikWalidata = $this->statistikPayload((int) $totalIndicators, (int) $formulir->getAttribute('walidata_corrected_count'), 'terkoreksi');
+        }
+
+        return [
+            'id' => $formulir->id,
+            'nama' => $formulir->nama_formulir,
+            'tanggal' => $formulir->tanggal_dibuat,
+            'nilai_evaluasi_akhir' => $this->calculateRataRataDomainEvaluasi($formulir),
+            'indikator_belum_dievaluasi' => $this->getIndikatorBelumDievaluasi($formulir),
+            'statistik_opd' => $statistikOpd,
+            'statistik_walidata' => $statistikWalidata,
+            'opd_filled_count' => $statistikOpd['terisi'],
+            'opd_total_count' => $statistikOpd['total_indikator'],
+            'walidata_corrected_count' => $statistikWalidata['terkoreksi'],
+            'walidata_total_count' => $statistikWalidata['total_indikator'],
+        ];
+    }
+
+    private function statistikPayload(int $total, int $count, string $countKey = 'terisi'): array
+    {
+        return [
+            'total_indikator' => $total,
+            $countKey => $count,
+            'persentase' => $total > 0 ? round(($count / $total) * 100, 2) : 0,
+        ];
     }
 
     // --- Private Calculation Helpers (Mirrored from Controller) ---

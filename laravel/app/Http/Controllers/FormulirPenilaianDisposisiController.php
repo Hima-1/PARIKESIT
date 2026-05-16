@@ -78,7 +78,12 @@ class FormulirPenilaianDisposisiController extends Controller
 
         // Jika role adalah walidata atau admin, tampilkan semua OPD yang menilai
         if ($user->role === 'walidata' || $user->role === 'admin') {
-            $opdsMenilai = User::with('penilaians.formulir.formulir_domains.domain.aspek.indikator')
+            $opdsMenilai = User::with([
+                'penilaians' => function ($query) use ($formulir) {
+                    $query->where('formulir_id', $formulir->id)
+                        ->with('formulir.formulir_domains.domain.aspek.indikator');
+                },
+            ])
                 ->where('role', 'opd')
                 ->whereHas('penilaians', function ($query) use ($formulir) {
                     $query->where('formulir_id', $formulir->id);
@@ -110,7 +115,13 @@ class FormulirPenilaianDisposisiController extends Controller
                 abort(403, 'Anda tidak memiliki akses ke formulir ini');
             }
 
-            $opdsMenilai = User::with('penilaians.formulir.formulir_domains.domain.aspek.indikator')
+            $opdsMenilai = User::with([
+                'penilaians' => function ($query) use ($formulir, $user) {
+                    $query->where('formulir_id', $formulir->id)
+                        ->where('user_id', $user->id)
+                        ->with('formulir.formulir_domains.domain.aspek.indikator');
+                },
+            ])
                 ->whereHas('penilaians', function ($query) use ($formulir, $user) {
                     $query->where('formulir_id', $formulir->id)
                           ->where('user_id', $user->id);

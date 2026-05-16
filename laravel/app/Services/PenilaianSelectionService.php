@@ -105,6 +105,16 @@ class PenilaianSelectionService
      */
     public function annotateIndicators(Formulir $formulir, ?int $userId, string $field = 'nilai', string $attribute = 'penilaian_aktif'): void
     {
+        $formulir->loadMissing([
+            'domains.aspek.indikator.penilaian' => function ($query) use ($formulir, $userId) {
+                $query->where('formulir_id', $formulir->id);
+
+                if ($userId !== null) {
+                    $query->where('user_id', $userId);
+                }
+            },
+        ]);
+
         foreach ($formulir->domains as $domain) {
             foreach ($domain->aspek as $aspek) {
                 foreach ($aspek->indikator as $indikator) {
@@ -133,6 +143,16 @@ class PenilaianSelectionService
      */
     public function annotateDomainIndicators(Domain $domain, Formulir $formulir, ?int $userId, string $field = 'nilai', string $attribute = 'penilaian_aktif'): void
     {
+        $domain->loadMissing([
+            'aspek.indikator.penilaian' => function ($query) use ($formulir, $userId) {
+                $query->where('formulir_id', $formulir->id);
+
+                if ($userId !== null) {
+                    $query->where('user_id', $userId);
+                }
+            },
+        ]);
+
         foreach ($domain->aspek as $aspek) {
             foreach ($aspek->indikator as $indikator) {
                 $penilaian = $field === 'nilai'
