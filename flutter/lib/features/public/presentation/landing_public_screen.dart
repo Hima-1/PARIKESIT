@@ -31,7 +31,7 @@ class LandingPublicScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ColoredBox(
       key: LandingPublicScreen.backgroundKey,
-      color: AppTheme.cream,
+      color: AppTheme.background,
       child: KawungBackground(
         opacity: 0.025,
         child: SafeArea(

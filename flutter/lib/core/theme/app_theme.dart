@@ -52,10 +52,10 @@ class AppTheme {
   static const Color cyan = AppColors.info;
   static const Color sogan = AppColors.soganDeep;
   static const Color gold = AppColors.terracotta;
-  static const Color merang = AppColors.cream;
+  static const Color merang = AppColors.white;
   static const Color pusaka = AppColors.soganDeep;
   static const Color lightBlue = AppColors.softWash;
-  static const Color background = AppColors.cream;
+  static const Color background = AppColors.white;
 
   static const Color success = AppColors.success;
   static const Color error = AppColors.error;
@@ -136,7 +136,7 @@ class AppTheme {
   static ThemeData _build({required Brightness brightness}) {
     final isDark = brightness == Brightness.dark;
 
-    final scaffoldBg = isDark ? AppColors.darkScaffold : AppColors.cream;
+    final scaffoldBg = isDark ? AppColors.darkScaffold : AppColors.white;
     final surfaceColor = isDark ? AppColors.darkSurface : AppColors.surface;
     final borderTone = isDark ? AppColors.darkBorder : AppColors.border;
     final strongText = isDark ? AppColors.darkTextStrong : AppColors.textStrong;

@@ -220,7 +220,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     StartupProbe.mark('MyApp.build');
 
     return MaterialApp.router(
-      title: 'Lean Flutter App',
+      title: 'Parikesit',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.light,
