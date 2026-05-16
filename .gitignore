@@ -11,6 +11,7 @@ Thumbs.db
 
 # Local AI/tooling workspaces
 .agents/
+.claude/
 .kilocode/
 .appdata/
 skills-lock.json
