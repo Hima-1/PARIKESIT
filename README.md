@@ -13,16 +13,20 @@ Repositori ini tetap mencatat asal fork untuk atribusi:
 Parikesit_Git/
   laravel/   Aplikasi web Laravel 10 dan API Sanctum
   flutter/   Client Flutter untuk Android
-  docs/      Panduan setup dan operasional
+  docs/      Dokumentasi utama proyek
 ```
 
 Source project berada langsung di `laravel` dan `flutter`. Folder dependency lokal, hasil build, file environment privat, upload, log, signing Android, dan file JSON Firebase sengaja diabaikan oleh `.gitignore`.
 
-## Mulai Cepat
+## Mulai Cepat Lokal
 
-1. Ikuti prasyarat di [01. Prasyarat](docs/01-prasyarat.md).
-2. Jalankan MySQL dengan XAMPP atau Laragon.
-3. Konfigurasi dan jalankan backend:
+Untuk penjelasan lengkap dan ramah pemula, mulai dari [docs/README.md](docs/README.md).
+
+1. Ikuti [02. Prasyarat](docs/02-prasyarat.md).
+2. Baca [03. Git dan File Rahasia](docs/03-git-dan-file-rahasia.md).
+3. Siapkan env sesuai [04. Konfigurasi Environment](docs/04-konfigurasi-env.md).
+4. Jalankan MySQL dengan XAMPP atau Laragon.
+5. Konfigurasi dan jalankan backend:
 
 ```powershell
 cd laravel
@@ -35,7 +39,9 @@ php artisan storage:link
 php artisan serve --host=0.0.0.0 --port=8000
 ```
 
-4. Di terminal kedua, jalankan frontend untuk emulator Android:
+Pastikan `laravel/.env` sudah memakai nilai local seperti `APP_ENV=local`, `APP_DEBUG=true`, dan database `parikesit`.
+
+6. Di terminal kedua, jalankan Flutter untuk emulator Android:
 
 ```powershell
 cd flutter
@@ -60,17 +66,19 @@ Setelah `php artisan migrate:fresh --seed`, gunakan akun development berikut:
 | Walidata | `diskominfo@klaten.go.id` | `password` |
 | Contoh OPD | `dpupr@klaten.go.id` | `password` |
 
-## Urutan Dokumentasi
+## Dokumentasi
 
-1. [Prasyarat](docs/01-prasyarat.md)
-2. [Setup backend dengan XAMPP](docs/02-backend-xampp.md)
-3. [Setup backend dengan Laragon](docs/03-backend-laragon.md)
-4. [Menjalankan aplikasi mobile](docs/04-menjalankan-aplikasi-mobile.md)
-5. [Port forwarding dan jaringan perangkat](docs/05-port-forwarding-dan-jaringan.md)
-6. [Struktur proyek dan kebersihan repositori](docs/06-struktur-proyek.md)
-7. [Pemecahan masalah](docs/07-pemecahan-masalah.md)
+Semua dokumentasi proyek dipusatkan di [docs/](docs/README.md). Folder `laravel/docs` dan `flutter/docs` hanya berisi penunjuk ke root docs.
 
-Dokumentasi bawaan framework tetap tersedia di `laravel/docs` dan `flutter/docs`.
+Urutan awal yang disarankan:
+
+1. [01. Ringkasan Proyek](docs/01-ringkasan-proyek.md)
+2. [02. Prasyarat](docs/02-prasyarat.md)
+3. [03. Git dan File Rahasia](docs/03-git-dan-file-rahasia.md)
+4. [04. Konfigurasi Environment](docs/04-konfigurasi-env.md)
+5. [05. Setup Backend Lokal](docs/05-setup-backend-lokal.md)
+6. [06. Menjalankan Flutter Android](docs/06-menjalankan-mobile.md)
+7. [19. Pemecahan Masalah](docs/19-pemecahan-masalah.md)
 
 ## Smoke Test E2E Lokal
 

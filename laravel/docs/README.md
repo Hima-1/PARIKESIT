@@ -1,24 +1,14 @@
-# Dokumentasi Operasional Laravel
+# Dokumentasi Laravel Dipusatkan
 
-Dokumen pada folder ini dibagi menjadi dua kelompok:
+Dokumentasi Laravel sudah dipindahkan ke root `docs/` agar tidak ada dua sumber informasi.
 
-- dokumentasi domain bisnis dan audit yang sudah ada
-- runbook operasional production untuk hosting backend PARIKESIT
+Mulai dari:
 
-## Entry Point Operasional
-
-- `docs/hosting-cpanel.md`: deployment backend Laravel di shared hosting/cPanel
-- `docs/operations-postdeploy.md`: release update, rollback sederhana, rotasi credential, dan smoke test pascadeploy
-
-## Referensi Terkait dari Proyek Flutter
-
-- `../../parikesit_flutter/docs/deployment.md`: gambaran deployment stack end-to-end
-- `../../parikesit_flutter/docs/firebase-fcm.md`: setup Firebase/FCM client dan server
-- `../../parikesit_flutter/docs/mobile-production.md`: build Android production
-
-## Dokumen Lain yang Sudah Ada
-
-- `docs/usecase.md`
-- `docs/activity.md`
-- `docs/basisData.md`
-- `docs/security-audit-2026-03-28.md`
+- [Root docs](../../docs/README.md)
+- [Konfigurasi Environment](../../docs/04-konfigurasi-env.md)
+- [Setup Backend Lokal](../../docs/05-setup-backend-lokal.md)
+- [API Mobile](../../docs/11-api-mobile.md)
+- [Basis Data](../../docs/13-basis-data.md)
+- [Hosting cPanel](../../docs/15-hosting-cpanel.md)
+- [Operasi Postdeploy](../../docs/17-operasi-postdeploy.md)
+- [Catatan Audit](../../docs/20-catatan-audit.md)
