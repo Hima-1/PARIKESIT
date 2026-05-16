@@ -82,6 +82,42 @@ test('sender deactivates device token when firebase reports not registered', fun
     expect(DeviceToken::query()->where('token', 'token-not-registered')->value('is_active'))->toBeFalse();
 });
 
+test('sender includes android notification options for background notification bar delivery', function () {
+    app('config')->set('services.firebase.project_id', 'parikesit-fef3a');
+    app('config')->set('services.firebase.client_email', 'firebase-adminsdk@example.com');
+    app('config')->set('services.firebase.private_key', testPrivateKey());
+
+    $http = new CapturingFcmClient();
+    $sender = new FirebasePushNotificationSender($http);
+
+    $result = $sender->sendToTokens(
+        ['active-token'],
+        ['title' => 'Reminder', 'body' => 'Test'],
+        ['type' => 'incomplete_form_summary', 'target_route' => '/penilaian-kegiatan'],
+    );
+
+    expect($result['success_count'])->toBe(1);
+    expect($result['failure_count'])->toBe(0);
+    expect($http->sentMessages)->toHaveCount(1);
+
+    $message = $http->sentMessages[0];
+    expect($message['token'])->toBe('active-token');
+    expect($message['notification'])->toBe([
+        'title' => 'Reminder',
+        'body' => 'Test',
+    ]);
+    expect($message['data'])->toBe([
+        'type' => 'incomplete_form_summary',
+        'target_route' => '/penilaian-kegiatan',
+    ]);
+    expect(data_get($message, 'android.priority'))->toBe('high');
+    expect(data_get($message, 'android.notification.channel_id'))->toBe('high_importance_channel');
+    expect(data_get($message, 'android.notification.sound'))->toBe('default');
+    expect(data_get($message, 'android.notification.default_sound'))->toBeTrue();
+    expect(data_get($message, 'android.notification.notification_priority'))->toBe('PRIORITY_HIGH');
+    expect(data_get($message, 'android.notification.visibility'))->toBe('PUBLIC');
+});
+
 function testPrivateKey(): string
 {
     return <<<'KEY'
@@ -114,4 +150,45 @@ Ycvm4w+ZZ2N73lVEkflS4o0i2LYzl3HUhjrDAX7rnx6k+K1okqlS1v4w+pWmL6qW
 L/KtU+NLTQjRnS0bZR0NLvM=
 -----END PRIVATE KEY-----
 KEY;
+}
+
+class CapturingFcmClient implements ClientInterface
+{
+    public array $sentMessages = [];
+
+    public function send(\Psr\Http\Message\RequestInterface $request, array $options = []): \Psr\Http\Message\ResponseInterface
+    {
+        throw new BadMethodCallException('Not used in this test.');
+    }
+
+    public function sendAsync(\Psr\Http\Message\RequestInterface $request, array $options = []): \GuzzleHttp\Promise\PromiseInterface
+    {
+        throw new BadMethodCallException('Not used in this test.');
+    }
+
+    public function request(string $method, $uri = '', array $options = []): \Psr\Http\Message\ResponseInterface
+    {
+        throw new BadMethodCallException('Not used in this test.');
+    }
+
+    public function requestAsync(string $method, $uri = '', array $options = []): \GuzzleHttp\Promise\PromiseInterface
+    {
+        throw new BadMethodCallException('Not used in this test.');
+    }
+
+    public function getConfig(?string $option = null): mixed
+    {
+        return null;
+    }
+
+    public function post($uri, array $options = []): \Psr\Http\Message\ResponseInterface
+    {
+        if ($uri === '/token') {
+            return new Response(200, [], json_encode(['access_token' => 'test-access-token']));
+        }
+
+        $this->sentMessages[] = $options['json']['message'] ?? [];
+
+        return new Response(200, [], json_encode(['name' => 'projects/parikesit-fef3a/messages/test-message']));
+    }
 }

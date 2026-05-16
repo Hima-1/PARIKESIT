@@ -53,6 +53,13 @@ class FirebasePushNotificationSender implements PushNotificationSender
                             'data' => array_map(static fn ($value) => (string) $value, $data),
                             'android' => [
                                 'priority' => 'high',
+                                'notification' => [
+                                    'channel_id' => 'high_importance_channel',
+                                    'sound' => 'default',
+                                    'default_sound' => true,
+                                    'notification_priority' => 'PRIORITY_HIGH',
+                                    'visibility' => 'PUBLIC',
+                                ],
                             ],
                         ],
                     ],
