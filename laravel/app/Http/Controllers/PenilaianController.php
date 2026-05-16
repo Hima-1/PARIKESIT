@@ -8,6 +8,7 @@ use App\Models\Domain;
 use App\Models\Formulir;
 use App\Models\Indikator;
 use App\Models\Penilaian;
+use App\Services\AssessmentCalculationService;
 use App\Services\PenilaianSelectionService;
 use App\Services\PenilaianService;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -19,6 +20,7 @@ class PenilaianController extends Controller
     public function __construct(
         private readonly PenilaianSelectionService $penilaianSelectionService,
         private readonly PenilaianService $penilaianService,
+        private readonly AssessmentCalculationService $calculationService,
     ) {}
 
     public function index()
@@ -36,24 +38,14 @@ class PenilaianController extends Controller
             ->get();
 
         foreach ($data['kegiatanPenilaian'] as $formulir) {
-            $totalIndikator = 0;
-            $terisi = 0;
-            foreach ($formulir->domains as $domain) {
-                foreach ($domain->aspek as $aspek) {
-                    $totalIndikator += $aspek->indikator->count();
-                    foreach ($aspek->indikator as $indikator) {
-                        // Filter berdasarkan user & formulir yang sedang di-loop
-                        if ($indikator->penilaian->where('user_id', Auth::user()->id)->where('formulir_id', $formulir->id)->isNotEmpty()) {
-                            $terisi++;
-                        }
-                    }
-                }
-            }
+            $stats = $this->calculationService->getLoadedStats($formulir, Auth::user());
+            $totalIndikator = (int) $stats['total_indikator'];
+            $terisi = (int) $stats['opd_progress']['count'];
 
             // Tambahkan data ke instance Formulir
             $formulir->total_indikator = $totalIndikator;
             $formulir->indikator_terisi = $terisi;
-            $formulir->persentase = $totalIndikator > 0 ? round(($terisi / $totalIndikator) * 100, 2) : 0;
+            $formulir->persentase = (float) $stats['opd_progress']['percentage'];
         }
 
         // Tambahkan pengecekan untuk kegiatan penilaian kosong
@@ -79,57 +71,21 @@ class PenilaianController extends Controller
             abort(403, 'Anda tidak memiliki akses ke formulir ini');
         }
 
-        $totalIndikator = 0;
-        $terisi = 0;
-
         // Array untuk menyimpan hasil persentase per domain
         $dataPersentasePerDomain = [];
 
         $formulir->load('domains.aspek.indikator.penilaian');
+        $stats = $this->calculationService->getLoadedStats($formulir, Auth::user());
+        $totalIndikator = (int) $stats['total_indikator'];
+        $terisi = (int) $stats['opd_progress']['count'];
 
         foreach ($formulir->domains as $domain) {
-
-            // Perhitungan Indeks Domain menggunakan Weighted Average
-            // Rumus: Indeks Domain_k = (Σ_{i=1}^{I} Bobot Indikator_{ik} × Nilai Indikator_{ik}) / (Σ_{i=1}^{I} Bobot Indikator_{ik})
-            // Catatan: Perhitungan langsung dari Indikator ke Domain (skip Aspek)
-            $domainNilai = [];
-            $totalBobot = 0;
-
-            foreach ($domain->aspek as $aspek) {
-                foreach ($aspek->indikator as $indikator) {
-                    $totalIndikator++;
-
-                    // Hitung hanya penilaian untuk formulir & user saat ini
-                    if (
-                        $this->penilaianSelectionService->resolveFilledFromCollection(
-                            $indikator->penilaian,
-                            $formulir->id,
-                            Auth::id(),
-                            'nilai',
-                        ) !== null
-                    ) {
-                        $terisi++;
-                    }
-
-                    // Ambil penilaian untuk indikator ini
-                    $penilaian = $this->penilaianSelectionService->resolveFromCollection(
-                        $indikator->penilaian,
-                        $formulir->id,
-                        Auth::id(),
-                        'nilai',
-                    );
-
-                    if ($penilaian && $penilaian->nilai !== null) {
-                        $bobot = $indikator->bobot_indikator ?? 1;
-                        $domainNilai[] = $penilaian->nilai * $bobot;
-                        $totalBobot += $bobot;
-                    }
-                }
-            }
-
-            // Hitung rata-rata tertimbang untuk domain
-            // Gunakan round() untuk konsistensi dengan DashboardController
-            $nilaiDomain = ($totalBobot > 0) ? round(array_sum($domainNilai) / $totalBobot, 2) : 0;
+            $nilaiDomain = $this->calculationService->calculateDomainScore(
+                $formulir,
+                $domain,
+                Auth::user(),
+                'opd',
+            ) ?? 0;
 
             // Simpan data persentase domain berdasarkan ID domain
             $dataPersentasePerDomain[$domain->id] = [

@@ -13,9 +13,14 @@ class DashboardService
 {
     private PenilaianSelectionService $penilaianSelectionService;
 
-    public function __construct(?PenilaianSelectionService $penilaianSelectionService = null)
-    {
+    private AssessmentCalculationService $calculationService;
+
+    public function __construct(
+        ?PenilaianSelectionService $penilaianSelectionService = null,
+        ?AssessmentCalculationService $calculationService = null,
+    ) {
         $this->penilaianSelectionService = $penilaianSelectionService ?? new PenilaianSelectionService;
+        $this->calculationService = $calculationService ?? new AssessmentCalculationService($this->penilaianSelectionService);
     }
 
     /**
@@ -161,39 +166,17 @@ class DashboardService
         $progressData = [];
 
         foreach ($formulirs as $formulir) {
-            $totalIndikator = 0;
-            $indikatorTerisi = 0;
-
-            foreach ($formulir->domains as $domain) {
-                foreach ($domain->aspek as $aspek) {
-                    foreach ($aspek->indikator as $indikator) {
-                        $totalIndikator++;
-                        $penilaian = $this->penilaianSelectionService->resolveFilledFromCollection(
-                            $indikator->penilaian,
-                            $formulir->id,
-                            $user->id,
-                            'nilai',
-                        );
-
-                        if ($penilaian && $penilaian->nilai !== null) {
-                            $indikatorTerisi++;
-                        }
-                    }
-                }
-            }
+            $dashboardProgress = $this->calculationService->getLoadedDashboardProgress($formulir, $user);
+            $scores = $this->calculationService->calculateLoadedFormulirScores($formulir, $user);
 
             $progressData[] = [
                 'id' => $formulir->id,
                 'nama' => $formulir->nama_formulir,
                 'tanggal' => $formulir->tanggal_dibuat,
-                'progress_per_indikator' => [
-                    'total' => $totalIndikator,
-                    'terisi' => $indikatorTerisi,
-                    'persentase' => $totalIndikator > 0 ? round(($indikatorTerisi / $totalIndikator) * 100, 2) : 0,
-                ],
-                'hasil_penilaian_akhir' => $this->calculateRataRataDomain($formulir, $user, 'nilai'),
-                'progress_koreksi_walidata' => $this->calculateProgressKoreksi($formulir, $user),
-                'progress_evaluasi_admin' => $this->calculateProgressEvaluasi($formulir, $user),
+                'progress_per_indikator' => $dashboardProgress['progress_per_indikator'],
+                'hasil_penilaian_akhir' => $scores['opd'],
+                'progress_koreksi_walidata' => $dashboardProgress['progress_koreksi_walidata'],
+                'progress_evaluasi_admin' => $dashboardProgress['progress_evaluasi_admin'],
             ];
         }
 
@@ -365,188 +348,14 @@ class DashboardService
 
     // --- Private Calculation Helpers (Mirrored from Controller) ---
 
-    private function calculateRataRataDomain($formulir, $user, $field = 'nilai')
-    {
-        $domainAverages = [];
-        foreach ($formulir->domains as $domain) {
-            $domainNilai = [];
-            $totalBobot = 0;
-            foreach ($domain->aspek as $aspek) {
-                foreach ($aspek->indikator as $indikator) {
-                    $penilaian = $this->penilaianSelectionService->resolveFromCollection(
-                        $indikator->penilaian,
-                        $formulir->id,
-                        $user->id,
-                        $field,
-                    );
-                    if ($penilaian && $penilaian->$field !== null) {
-                        $bobot = $indikator->bobot_indikator ?? 1;
-                        $domainNilai[] = $penilaian->$field * $bobot;
-                        $totalBobot += $bobot;
-                    }
-                }
-            }
-            if (count($domainNilai) > 0 && $totalBobot > 0) {
-                $domainAverages[] = [
-                    'nilai' => round(array_sum($domainNilai) / $totalBobot, 2),
-                    'bobot' => $domain->bobot_domain ?? 1,
-                ];
-            }
-        }
-
-        $totalNilai = 0;
-        $totalBobot = 0;
-        foreach ($domainAverages as $domain) {
-            $totalNilai += $domain['nilai'] * $domain['bobot'];
-            $totalBobot += $domain['bobot'];
-        }
-
-        return $totalBobot > 0 ? round($totalNilai / $totalBobot, 2) : null;
-    }
-
     private function calculateRataRataDomainKoreksi($formulir)
     {
-        $domainAverages = [];
-        foreach ($formulir->domains as $domain) {
-            $domainNilai = [];
-            $totalBobot = 0;
-            foreach ($domain->aspek as $aspek) {
-                foreach ($aspek->indikator as $indikator) {
-                    $penilaian = $this->penilaianSelectionService->resolveFromCollection(
-                        $indikator->penilaian,
-                        $formulir->id,
-                        null,
-                        'nilai_diupdate',
-                    );
-                    if ($penilaian && $penilaian->nilai_diupdate !== null) {
-                        $bobot = $indikator->bobot_indikator ?? 1;
-                        $domainNilai[] = $penilaian->nilai_diupdate * $bobot;
-                        $totalBobot += $bobot;
-                    }
-                }
-            }
-            if (count($domainNilai) > 0 && $totalBobot > 0) {
-                $domainAverages[] = [
-                    'nilai' => round(array_sum($domainNilai) / $totalBobot, 2),
-                    'bobot' => $domain->bobot_domain ?? 1,
-                ];
-            }
-        }
-        $totalNilai = 0;
-        $totalBobot = 0;
-        foreach ($domainAverages as $domain) {
-            $totalNilai += $domain['nilai'] * $domain['bobot'];
-            $totalBobot += $domain['bobot'];
-        }
-
-        return $totalBobot > 0 ? round($totalNilai / $totalBobot, 2) : null;
+        return $this->calculationService->calculateLoadedAggregateScores($formulir)['walidata'];
     }
 
     private function calculateRataRataDomainEvaluasi($formulir)
     {
-        $domainAverages = [];
-        foreach ($formulir->domains as $domain) {
-            $domainNilai = [];
-            $totalBobot = 0;
-            foreach ($domain->aspek as $aspek) {
-                foreach ($aspek->indikator as $indikator) {
-                    $penilaian = $this->penilaianSelectionService->resolveFromCollection(
-                        $indikator->penilaian,
-                        $formulir->id,
-                        null,
-                        'evaluasi',
-                    );
-                    if ($penilaian && $penilaian->evaluasi !== null) {
-                        $nilaiEvaluasi = is_numeric($penilaian->evaluasi) ? (float) $penilaian->evaluasi : null;
-                        if ($nilaiEvaluasi !== null) {
-                            $bobot = $indikator->bobot_indikator ?? 1;
-                            $domainNilai[] = $nilaiEvaluasi * $bobot;
-                            $totalBobot += $bobot;
-                        }
-                    }
-                }
-            }
-            if (count($domainNilai) > 0 && $totalBobot > 0) {
-                $domainAverages[] = [
-                    'nilai' => round(array_sum($domainNilai) / $totalBobot, 2),
-                    'bobot' => $domain->bobot_domain ?? 1,
-                ];
-            }
-        }
-        $totalNilai = 0;
-        $totalBobot = 0;
-        foreach ($domainAverages as $domain) {
-            $totalNilai += $domain['nilai'] * $domain['bobot'];
-            $totalBobot += $domain['bobot'];
-        }
-
-        return $totalBobot > 0 ? round($totalNilai / $totalBobot, 2) : null;
-    }
-
-    private function calculateProgressKoreksi($formulir, $user)
-    {
-        $totalIndikator = 0;
-        $sudahDikoreksi = 0;
-
-        foreach ($formulir->domains as $domain) {
-            foreach ($domain->aspek as $aspek) {
-                foreach ($aspek->indikator as $indikator) {
-                    $penilaian = $this->penilaianSelectionService->resolveFromCollection(
-                        $indikator->penilaian,
-                        $formulir->id,
-                        null,
-                        'nilai_diupdate',
-                    );
-
-                    if ($penilaian && $penilaian->nilai !== null) {
-                        $totalIndikator++;
-
-                        if ($penilaian->nilai_diupdate !== null) {
-                            $sudahDikoreksi++;
-                        }
-                    }
-                }
-            }
-        }
-
-        return [
-            'total' => $totalIndikator,
-            'sudah_dikoreksi' => $sudahDikoreksi,
-            'persentase' => $totalIndikator > 0 ? round(($sudahDikoreksi / $totalIndikator) * 100, 2) : 0,
-        ];
-    }
-
-    private function calculateProgressEvaluasi($formulir, $user)
-    {
-        $totalIndikator = 0;
-        $sudahDievaluasi = 0;
-
-        foreach ($formulir->domains as $domain) {
-            foreach ($domain->aspek as $aspek) {
-                foreach ($aspek->indikator as $indikator) {
-                    $penilaian = $this->penilaianSelectionService->resolveFromCollection(
-                        $indikator->penilaian,
-                        $formulir->id,
-                        null,
-                        'evaluasi',
-                    );
-
-                    if ($penilaian && $penilaian->nilai_koreksi !== null) {
-                        $totalIndikator++;
-
-                        if ($penilaian->evaluasi !== null && $penilaian->evaluasi !== '') {
-                            $sudahDievaluasi++;
-                        }
-                    }
-                }
-            }
-        }
-
-        return [
-            'total' => $totalIndikator,
-            'sudah_dievaluasi' => $sudahDievaluasi,
-            'persentase' => $totalIndikator > 0 ? round(($sudahDievaluasi / $totalIndikator) * 100, 2) : 0,
-        ];
+        return $this->calculationService->calculateLoadedAggregateScores($formulir)['admin'];
     }
 
     private function getIndikatorBelumDikoreksi($formulir)

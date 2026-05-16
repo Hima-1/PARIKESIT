@@ -41,7 +41,7 @@ class AssessmentCalculationService
         $snapshot = $this->calculateLayerSnapshotFromIndicators(
             $aspek->indikator,
             $formulir,
-            $user,
+            $user->id,
         );
 
         return $snapshot[$layer] ?? null;
@@ -55,7 +55,7 @@ class AssessmentCalculationService
         $snapshot = $this->calculateLayerSnapshotFromIndicators(
             $domain->aspek->flatMap(fn (Aspek $aspek) => $aspek->indikator),
             $formulir,
-            $user,
+            $user->id,
         );
 
         return $snapshot[$layer] ?? null;
@@ -71,7 +71,7 @@ class AssessmentCalculationService
         return $this->calculateLayerSnapshotFromIndicators(
             $aspek->indikator,
             $formulir,
-            $user,
+            $user->id,
         );
     }
 
@@ -85,7 +85,7 @@ class AssessmentCalculationService
         return $this->calculateLayerSnapshotFromIndicators(
             $domain->aspek->flatMap(fn (Aspek $aspek) => $aspek->indikator),
             $formulir,
-            $user,
+            $user->id,
         );
     }
 
@@ -124,6 +124,34 @@ class AssessmentCalculationService
 
     private function calculateFormulirScoresFromLoadedTree(Formulir $formulir, User $user): array
     {
+        return $this->calculateFormulirScoresFromLoadedTreeForUserId($formulir, $user->id);
+    }
+
+    /**
+     * Calculate the three role scores from an already loaded assessment tree.
+     *
+     * @return array{opd:?float,walidata:?float,admin:?float}
+     */
+    public function calculateLoadedFormulirScores(Formulir $formulir, User $user): array
+    {
+        return $this->calculateFormulirScoresFromLoadedTree($formulir, $user);
+    }
+
+    /**
+     * Calculate aggregate role scores from an already loaded tree without narrowing to one OPD.
+     *
+     * @return array{opd:?float,walidata:?float,admin:?float}
+     */
+    public function calculateLoadedAggregateScores(Formulir $formulir): array
+    {
+        return $this->calculateFormulirScoresFromLoadedTreeForUserId($formulir, null);
+    }
+
+    /**
+     * @return array{opd:?float,walidata:?float,admin:?float}
+     */
+    private function calculateFormulirScoresFromLoadedTreeForUserId(Formulir $formulir, ?int $userId): array
+    {
 
         $domainSnapshots = [];
         foreach ($formulir->domains as $domain) {
@@ -131,7 +159,7 @@ class AssessmentCalculationService
                 'scores' => $this->calculateLayerSnapshotFromIndicators(
                     $domain->aspek->flatMap(fn (Aspek $aspek) => $aspek->indikator),
                     $formulir,
-                    $user,
+                    $userId,
                 ),
                 'weight' => (float) ($domain->bobot_domain ?? 1),
             ];
@@ -224,6 +252,60 @@ class AssessmentCalculationService
 
     private function getStatsFromLoadedTree(Formulir $formulir, User $user): array
     {
+        return $this->getStatsFromLoadedTreeForUserId($formulir, $user->id);
+    }
+
+    /**
+     * Return stats from an already loaded tree.
+     *
+     * @return array<string, mixed>
+     */
+    public function getLoadedStats(Formulir $formulir, User $user): array
+    {
+        return $this->getStatsFromLoadedTree($formulir, $user);
+    }
+
+    /**
+     * Return dashboard progress payloads from an already loaded tree.
+     *
+     * @return array{
+     *   progress_per_indikator: array{total:int,terisi:int,persentase:float},
+     *   progress_koreksi_walidata: array{total:int,sudah_dikoreksi:int,persentase:float},
+     *   progress_evaluasi_admin: array{total:int,sudah_dievaluasi:int,persentase:float}
+     * }
+     */
+    public function getLoadedDashboardProgress(Formulir $formulir, User $user): array
+    {
+        $stats = $this->getStatsFromLoadedTree($formulir, $user);
+        $totalIndicators = (int) $stats['total_indikator'];
+        $opdFilled = (int) $stats['opd_progress']['count'];
+        $walidataCorrected = (int) $stats['walidata_progress']['count'];
+        $adminEvaluated = (int) $stats['admin_progress']['count'];
+
+        return [
+            'progress_per_indikator' => [
+                'total' => $totalIndicators,
+                'terisi' => $opdFilled,
+                'persentase' => $totalIndicators > 0 ? round(($opdFilled / $totalIndicators) * 100, 2) : 0,
+            ],
+            'progress_koreksi_walidata' => [
+                'total' => $opdFilled,
+                'sudah_dikoreksi' => $walidataCorrected,
+                'persentase' => $opdFilled > 0 ? round(($walidataCorrected / $opdFilled) * 100, 2) : 0,
+            ],
+            'progress_evaluasi_admin' => [
+                'total' => $walidataCorrected,
+                'sudah_dievaluasi' => $adminEvaluated,
+                'persentase' => $walidataCorrected > 0 ? round(($adminEvaluated / $walidataCorrected) * 100, 2) : 0,
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getStatsFromLoadedTreeForUserId(Formulir $formulir, ?int $userId): array
+    {
 
         $totalIndikator = 0;
         $terisiOPD = 0;
@@ -235,15 +317,15 @@ class AssessmentCalculationService
                 foreach ($aspek->indikator as $indikator) {
                     $totalIndikator++;
 
-                    if ($this->getIndicatorLayerValue($indikator, $formulir, $user, 'opd') !== null) {
+                    if ($this->getIndicatorLayerValue($indikator, $formulir, $userId, 'opd') !== null) {
                         $terisiOPD++;
                     }
 
-                    if ($this->getIndicatorLayerValue($indikator, $formulir, $user, 'walidata') !== null) {
+                    if ($this->getIndicatorLayerValue($indikator, $formulir, $userId, 'walidata') !== null) {
                         $terkoreksiWalidata++;
                     }
 
-                    if ($this->getIndicatorLayerValue($indikator, $formulir, $user, 'admin') !== null) {
+                    if ($this->getIndicatorLayerValue($indikator, $formulir, $userId, 'admin') !== null) {
                         $terevaluasiAdmin++;
                     }
                 }
@@ -344,7 +426,7 @@ class AssessmentCalculationService
      * @param  iterable<Indikator>  $indikators
      * @return array{opd:?float,walidata:?float,admin:?float}
      */
-    private function calculateLayerSnapshotFromIndicators(iterable $indikators, Formulir $formulir, User $user): array
+    private function calculateLayerSnapshotFromIndicators(iterable $indikators, Formulir $formulir, ?int $userId): array
     {
         $layers = [
             'opd' => ['weighted' => 0.0, 'weight' => 0.0],
@@ -356,7 +438,7 @@ class AssessmentCalculationService
             $weight = (float) ($indikator->bobot_indikator ?? 1);
 
             foreach (self::LAYERS as $layer) {
-                $value = $this->getIndicatorLayerValue($indikator, $formulir, $user, $layer);
+                $value = $this->getIndicatorLayerValue($indikator, $formulir, $userId, $layer);
                 if ($value === null) {
                     continue;
                 }
@@ -419,7 +501,7 @@ class AssessmentCalculationService
     private function resolvePenilaianForLayer(
         Indikator $indikator,
         Formulir $formulir,
-        User $user,
+        ?int $userId,
         string $layer,
     ): ?Penilaian {
         $field = $this->getPrimaryFieldForLayer($layer);
@@ -427,7 +509,7 @@ class AssessmentCalculationService
         $penilaian = $this->penilaianSelectionService->resolveForIndicator(
             $indikator,
             $formulir,
-            $user->id,
+            $userId,
             $field,
         );
 
@@ -435,7 +517,7 @@ class AssessmentCalculationService
             return $this->penilaianSelectionService->resolveForIndicator(
                 $indikator,
                 $formulir,
-                $user->id,
+                $userId,
                 'evaluasi',
             );
         }
@@ -446,9 +528,9 @@ class AssessmentCalculationService
     private function indicatorToScores(Indikator $indikator, Formulir $formulir, User $user): ?array
     {
         $scores = [
-            'opd' => $this->getIndicatorLayerValue($indikator, $formulir, $user, 'opd'),
-            'walidata' => $this->getIndicatorLayerValue($indikator, $formulir, $user, 'walidata'),
-            'admin' => $this->getIndicatorLayerValue($indikator, $formulir, $user, 'admin'),
+            'opd' => $this->getIndicatorLayerValue($indikator, $formulir, $user->id, 'opd'),
+            'walidata' => $this->getIndicatorLayerValue($indikator, $formulir, $user->id, 'walidata'),
+            'admin' => $this->getIndicatorLayerValue($indikator, $formulir, $user->id, 'admin'),
         ];
 
         if (
@@ -465,10 +547,10 @@ class AssessmentCalculationService
     private function getIndicatorLayerValue(
         Indikator $indikator,
         Formulir $formulir,
-        User $user,
+        ?int $userId,
         string $layer,
     ): ?float {
-        $penilaian = $this->resolvePenilaianForLayer($indikator, $formulir, $user, $layer);
+        $penilaian = $this->resolvePenilaianForLayer($indikator, $formulir, $userId, $layer);
 
         return $this->getValueFromPenilaian($penilaian, $layer);
     }

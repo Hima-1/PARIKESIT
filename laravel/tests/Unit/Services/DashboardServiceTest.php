@@ -174,3 +174,35 @@ test('it keeps walidata and admin progress separated after evaluation', function
         ->and($opdProgress[0]['progress_evaluasi_admin']['persentase'])->toBe(100.0)
         ->and($adminProgress[0]['walidata_corrected_count'])->toBe(1);
 });
+
+test('it counts admin evaluation from nilai_koreksi even when evaluation note is empty', function () {
+    $opd = User::factory()->create(['role' => 'opd']);
+    $admin = User::factory()->create(['role' => 'admin']);
+    $formulir = Formulir::factory()->create();
+
+    $domain = Domain::factory()->create();
+    $formulir->domains()->attach($domain->id);
+    $aspek = Aspek::factory()->create(['domain_id' => $domain->id]);
+    $indikator = Indikator::factory()->create([
+        'aspek_id' => $aspek->id,
+        'bobot_indikator' => 100,
+    ]);
+
+    Penilaian::factory()->create([
+        'formulir_id' => $formulir->id,
+        'indikator_id' => $indikator->id,
+        'user_id' => $opd->id,
+        'nilai' => 3,
+        'nilai_diupdate' => 4,
+        'nilai_koreksi' => 5,
+        'dikoreksi_by' => $admin->id,
+        'evaluasi' => null,
+    ]);
+
+    $opdProgress = $this->service->getOPDProgress($opd);
+    $adminProgress = $this->service->getAdminProgress();
+
+    expect($opdProgress[0]['progress_evaluasi_admin']['sudah_dievaluasi'])->toBe(1)
+        ->and($opdProgress[0]['progress_evaluasi_admin']['persentase'])->toBe(100.0)
+        ->and($adminProgress[0]['nilai_evaluasi_akhir'])->toBe(5.0);
+});

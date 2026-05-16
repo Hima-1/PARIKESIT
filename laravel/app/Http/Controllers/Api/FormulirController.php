@@ -44,7 +44,9 @@ class FormulirController extends Controller
         $formulir->load(['domains.aspek.indikator.penilaian', 'creator']);
 
         if ($user && $user->role === 'opd') {
-            return $this->calculationService->applyAssessmentScores($formulir, $user);
+            return $this->calculationService
+                ->applyAssessmentScores($formulir, $user)
+                ->setAttribute('assessment_user_id', $user->id);
         }
 
         return $formulir;

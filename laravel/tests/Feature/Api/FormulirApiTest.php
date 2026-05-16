@@ -150,6 +150,41 @@ test('opd formulir detail includes score snapshots', function () {
         ->assertJsonPath('data.domains.0.aspek.0.scores.opd', 4);
 });
 
+test('formulir detail selects the active aggregate penilaian through selection service', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $firstOpd = User::factory()->create(['role' => 'opd']);
+    $latestOpd = User::factory()->create(['role' => 'opd']);
+    $formulir = Formulir::factory()->create(['created_by_id' => $firstOpd->id]);
+
+    $domain = \App\Models\Domain::factory()->create(['bobot_domain' => 100]);
+    $formulir->domains()->attach($domain);
+    $aspek = \App\Models\Aspek::factory()->create(['domain_id' => $domain->id, 'bobot_aspek' => 100]);
+    $indikator = \App\Models\Indikator::factory()->create(['aspek_id' => $aspek->id, 'bobot_indikator' => 100]);
+
+    Penilaian::factory()->create([
+        'formulir_id' => $formulir->id,
+        'user_id' => $firstOpd->id,
+        'indikator_id' => $indikator->id,
+        'nilai' => 3,
+        'created_at' => now()->subDay(),
+        'updated_at' => now()->subDay(),
+    ]);
+
+    $activePenilaian = Penilaian::factory()->create([
+        'formulir_id' => $formulir->id,
+        'user_id' => $latestOpd->id,
+        'indikator_id' => $indikator->id,
+        'nilai' => 5,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    loginAs($admin)
+        ->getJson("/api/formulir/{$formulir->id}")
+        ->assertOk()
+        ->assertJsonPath('data.domains.0.aspek.0.indikator.0.penilaian.id', $activePenilaian->id);
+});
+
 test('formulir detail exposes kode indikator and criteria payload', function () {
     $user = User::factory()->create(['role' => 'opd']);
     $formulir = Formulir::factory()->create(['created_by_id' => $user->id]);
