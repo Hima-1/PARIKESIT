@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
-import 'package:parikesit/core/theme/app_theme.dart';
+import 'package:parikesit/core/theme/tokens/colors.dart';
 import 'package:parikesit/core/theme/tokens/motion.dart';
+import 'package:parikesit/core/theme/tokens/radii.dart';
 
 enum StatusBannerType { success, error, warning, info }
 
@@ -25,13 +26,13 @@ class StatusBanner extends StatelessWidget {
   Color _getPrimaryColor() {
     switch (type) {
       case StatusBannerType.success:
-        return AppTheme.success;
+        return AppColors.success;
       case StatusBannerType.error:
-        return AppTheme.error;
+        return AppColors.error;
       case StatusBannerType.warning:
-        return AppTheme.warning;
+        return AppColors.warning;
       case StatusBannerType.info:
-        return AppTheme.info;
+        return AppColors.info;
     }
   }
 
@@ -58,7 +59,7 @@ class StatusBanner extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 12).add(AppSpacing.pH16),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+        borderRadius: AppRadii.rrMd,
         border: Border.all(color: primaryColor.withValues(alpha: 0.2)),
       ),
       child: Row(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../theme/app_spacing.dart';
-import '../theme/app_theme.dart';
 
 import 'ethno_button.dart';
 
@@ -20,6 +19,8 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: padding ?? AppSpacing.pH8,
       child: Row(
@@ -28,7 +29,7 @@ class SectionHeader extends StatelessWidget {
           Text(
             title,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: AppTheme.sogan,
+              color: scheme.primary,
               fontWeight: FontWeight.bold,
             ),
           ),

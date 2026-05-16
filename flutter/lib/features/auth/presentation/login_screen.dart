@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:parikesit/core/theme/app_theme.dart';
+import 'package:parikesit/core/theme/tokens/colors.dart';
 import 'package:parikesit/core/utils/startup_probe.dart';
 import 'package:parikesit/features/auth/presentation/widgets/parikesit_login_content.dart';
 
@@ -39,9 +39,9 @@ class LoginScreen extends StatelessWidget {
                   key: backToPublicButtonKey,
                   tooltip: 'Kembali ke publik',
                   style: IconButton.styleFrom(
-                    backgroundColor: AppTheme.surface,
-                    foregroundColor: AppTheme.textStrong,
-                    side: const BorderSide(color: AppTheme.borderColor),
+                    backgroundColor: AppColors.surface,
+                    foregroundColor: AppColors.textStrong,
+                    side: const BorderSide(color: AppColors.border),
                   ),
                   onPressed: () => context.go(RouteConstants.landing),
                   icon: const Icon(LucideIcons.arrowLeft),

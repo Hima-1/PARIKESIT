@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../theme/app_spacing.dart';
-import '../theme/app_theme.dart';
+import '../theme/tokens/colors.dart';
+import '../theme/tokens/radii.dart';
 
 class MaturitySelector extends StatelessWidget {
   const MaturitySelector({
@@ -25,6 +26,8 @@ class MaturitySelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -46,7 +49,9 @@ class MaturitySelector extends StatelessWidget {
                         fontWeight: isSelected
                             ? FontWeight.w800
                             : FontWeight.w600,
-                        color: isSelected ? AppTheme.sogan : AppTheme.neutral,
+                        color: isSelected
+                            ? scheme.primary
+                            : scheme.onSurface.withValues(alpha: 0.55),
                         fontSize: 9,
                       ),
                     ),
@@ -55,7 +60,7 @@ class MaturitySelector extends StatelessWidget {
                     if (opdScore != null ||
                         walidataScore != null ||
                         adminScore != null)
-                      _buildAuditMarkers(level),
+                      _buildAuditMarkers(context, level),
                   ],
                 ),
               ),
@@ -77,21 +82,25 @@ class MaturitySelector extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
         color: isSelected
-            ? AppTheme.sogan
+            ? Theme.of(context).colorScheme.primary
             : (enabled
-                  ? AppTheme.sogan.withValues(alpha: 0.05)
-                  : AppTheme.neutralGrey),
-        borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+                  ? Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.05)
+                  : Theme.of(context).colorScheme.outlineVariant),
+        borderRadius: AppRadii.rrMd,
         border: Border.all(
-          color: isSelected ? AppTheme.gold : Colors.transparent,
+          color: isSelected
+              ? Theme.of(context).colorScheme.secondary
+              : Colors.transparent,
           width: 2,
         ),
       ),
       child: Center(
         child: isSelected
-            ? const Icon(
+            ? Icon(
                 LucideIcons.checkCircle2,
-                color: AppTheme.gold,
+                color: Theme.of(context).colorScheme.secondary,
                 size: 24,
               )
             : Text(
@@ -99,25 +108,30 @@ class MaturitySelector extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w900,
                   color: enabled
-                      ? AppTheme.sogan.withValues(alpha: 0.4)
-                      : AppTheme.neutral,
+                      ? Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.4)
+                      : Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.55),
                 ),
               ),
       ),
     );
   }
 
-  Widget _buildAuditMarkers(int level) {
+  Widget _buildAuditMarkers(BuildContext context, int level) {
+    final scheme = Theme.of(context).colorScheme;
     final List<Widget> markers = [];
 
     if (opdScore?.round() == level) {
-      markers.add(_buildMarker(AppTheme.sogan, 'OPD'));
+      markers.add(_buildMarker(scheme.primary, 'OPD'));
     }
     if (walidataScore?.round() == level) {
-      markers.add(_buildMarker(AppTheme.gold, 'W'));
+      markers.add(_buildMarker(scheme.secondary, 'W'));
     }
     if (adminScore?.round() == level) {
-      markers.add(_buildMarker(AppTheme.success, 'A'));
+      markers.add(_buildMarker(AppColors.success, 'A'));
     }
 
     if (markers.isEmpty) return const SizedBox(height: 16);

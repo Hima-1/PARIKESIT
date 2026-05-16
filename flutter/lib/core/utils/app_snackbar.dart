@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
 
-import '../theme/app_theme.dart';
+import '../theme/tokens/colors.dart';
+import '../theme/tokens/radii.dart';
 
 class AppSnackbar {
   AppSnackbar._();
@@ -12,7 +13,7 @@ class AppSnackbar {
     _showWithMessenger(
       messenger,
       message: message,
-      backgroundColor: AppTheme.jatiGreen,
+      backgroundColor: AppColors.success,
       icon: LucideIcons.checkCircle2,
     );
   }
@@ -24,7 +25,7 @@ class AppSnackbar {
     _showWithMessenger(
       messenger,
       message: message,
-      backgroundColor: AppTheme.jatiGreen,
+      backgroundColor: AppColors.success,
       icon: LucideIcons.checkCircle2,
     );
   }
@@ -34,7 +35,7 @@ class AppSnackbar {
     _showWithMessenger(
       messenger,
       message: message,
-      backgroundColor: AppTheme.sogaRed,
+      backgroundColor: AppColors.error,
       icon: LucideIcons.alertCircle,
     );
   }
@@ -44,7 +45,7 @@ class AppSnackbar {
     _showWithMessenger(
       messenger,
       message: message,
-      backgroundColor: AppTheme.pusaka,
+      backgroundColor: AppColors.soganDeep,
       icon: LucideIcons.info,
     );
   }
@@ -69,9 +70,7 @@ class AppSnackbar {
         ),
         backgroundColor: backgroundColor,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppTheme.borderRadius),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: AppRadii.rrMd),
         margin: const EdgeInsets.all(16),
         duration: const Duration(seconds: 3),
       ),

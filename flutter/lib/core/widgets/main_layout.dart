@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_spacing.dart';
-import '../theme/app_theme.dart';
 import '../theme/tokens/breakpoints.dart';
+import '../theme/tokens/colors.dart';
 import 'app_bottom_nav.dart';
 import 'app_header.dart';
 import 'app_sidebar.dart';
@@ -18,7 +18,7 @@ class MainLayout extends StatelessWidget {
       data: baseTheme.copyWith(
         scaffoldBackgroundColor: Colors.transparent,
         cardTheme: baseTheme.cardTheme.copyWith(
-          color: AppTheme.surface,
+          color: AppColors.surface,
           shadowColor: Colors.transparent,
         ),
       ),

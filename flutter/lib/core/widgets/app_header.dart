@@ -8,7 +8,6 @@ import '../../features/auth/domain/user.dart';
 import '../../features/auth/presentation/controller/auth_provider.dart';
 import '../../features/notifications/presentation/notification_controller.dart';
 import '../router/route_constants.dart';
-import '../theme/app_theme.dart';
 import 'notification_badge.dart';
 
 class AppHeader extends ConsumerWidget implements PreferredSizeWidget {
@@ -20,13 +19,14 @@ class AppHeader extends ConsumerWidget implements PreferredSizeWidget {
     final user = authState.user;
     final unreadCount = ref.watch(unreadNotificationCountProvider);
     final location = GoRouterState.of(context).matchedLocation;
+    final scheme = Theme.of(context).colorScheme;
 
     final title = _getTitle(location);
 
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: AppTheme.cream,
-        border: Border(bottom: BorderSide(color: AppTheme.borderColor)),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerHighest,
+        border: Border(bottom: BorderSide(color: scheme.outline)),
       ),
       child: AppBar(
         backgroundColor: Colors.transparent,
@@ -38,7 +38,7 @@ class AppHeader extends ConsumerWidget implements PreferredSizeWidget {
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w700,
             letterSpacing: 0.4,
-            color: AppTheme.textStrong,
+            color: scheme.onSurface,
           ),
         ),
         actions: [
@@ -56,14 +56,12 @@ class AppHeader extends ConsumerWidget implements PreferredSizeWidget {
   bool _shouldShowNotificationAction(User? user) => user?.role == 'opd';
 
   Widget _buildNotificationAction(BuildContext context, int unreadCount) {
+    final scheme = Theme.of(context).colorScheme;
+
     return NotificationBadge(
       count: unreadCount,
       child: IconButton(
-        icon: const Icon(
-          LucideIcons.bell,
-          size: 20,
-          color: AppTheme.textStrong,
-        ),
+        icon: Icon(LucideIcons.bell, size: 20, color: scheme.onSurface),
         tooltip: unreadCount > 0
             ? 'Notifikasi ($unreadCount belum dibaca)'
             : 'Notifikasi',
@@ -79,6 +77,7 @@ class AppHeader extends ConsumerWidget implements PreferredSizeWidget {
 
   Widget _buildUserAvatar(BuildContext context, User? user) {
     if (user == null) return const SizedBox.shrink();
+    final scheme = Theme.of(context).colorScheme;
 
     return GestureDetector(
       onTap: () {
@@ -91,17 +90,15 @@ class AppHeader extends ConsumerWidget implements PreferredSizeWidget {
         width: 32,
         height: 32,
         decoration: BoxDecoration(
-          color: AppTheme.terracotta.withValues(alpha: 0.10),
+          color: scheme.secondary.withValues(alpha: 0.10),
           shape: BoxShape.circle,
-          border: Border.all(
-            color: AppTheme.terracotta.withValues(alpha: 0.25),
-          ),
+          border: Border.all(color: scheme.secondary.withValues(alpha: 0.25)),
         ),
         alignment: Alignment.center,
         child: Text(
           user.name.isNotEmpty ? user.name[0].toUpperCase() : '?',
-          style: const TextStyle(
-            color: AppTheme.terracotta,
+          style: TextStyle(
+            color: scheme.secondary,
             fontSize: 13,
             fontWeight: FontWeight.w700,
           ),

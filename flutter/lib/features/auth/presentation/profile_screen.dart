@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
-import 'package:parikesit/core/theme/app_theme.dart';
 import 'package:parikesit/core/widgets/ethno_card.dart';
 import 'package:parikesit/features/auth/domain/user.dart';
 import 'package:parikesit/features/auth/presentation/controller/auth_provider.dart';
@@ -80,17 +79,19 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   Widget _buildProfileHeader(BuildContext context, String name, String email) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Column(
       children: [
         Container(
           width: 100,
           height: 100,
           decoration: BoxDecoration(
-            color: AppTheme.gold.withValues(alpha: 0.1),
+            color: scheme.secondary.withValues(alpha: 0.1),
             shape: BoxShape.circle,
-            border: Border.all(color: AppTheme.gold, width: 2),
+            border: Border.all(color: scheme.secondary, width: 2),
           ),
-          child: const Icon(LucideIcons.user, size: 60, color: AppTheme.sogan),
+          child: Icon(LucideIcons.user, size: 60, color: scheme.primary),
         ),
       ],
     );
@@ -102,9 +103,11 @@ class ProfileScreen extends ConsumerWidget {
     String label,
     String value,
   ) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Row(
       children: [
-        Icon(icon, color: AppTheme.gold, size: 24),
+        Icon(icon, color: scheme.secondary, size: 24),
         AppSpacing.gapW16,
         Expanded(
           child: Column(
@@ -113,7 +116,7 @@ class ProfileScreen extends ConsumerWidget {
               Text(
                 label,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppTheme.neutral,
+                  color: scheme.onSurface.withValues(alpha: 0.55),
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -121,7 +124,7 @@ class ProfileScreen extends ConsumerWidget {
                 value,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.sogan,
+                  color: scheme.primary,
                 ),
               ),
             ],
@@ -155,7 +158,7 @@ class ProfileScreen extends ConsumerWidget {
             LucideIcons.logOut,
             'Logout',
             () => _showLogoutDialog(context, ref),
-            color: AppTheme.sogaRed,
+            color: Theme.of(context).colorScheme.error,
             isLast: true,
           ),
         ],
@@ -171,7 +174,7 @@ class ProfileScreen extends ConsumerWidget {
     Color? color,
     bool isLast = false,
   }) {
-    final tileColor = color ?? AppTheme.sogan;
+    final tileColor = color ?? Theme.of(context).colorScheme.primary;
 
     return ListTile(
       leading: Icon(icon, color: tileColor, size: 22),

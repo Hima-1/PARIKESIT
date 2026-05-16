@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_theme.dart';
-
 class NotificationBadge extends StatelessWidget {
   const NotificationBadge({
     super.key,
@@ -15,6 +13,7 @@ class NotificationBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (count == 0) return child;
+    final scheme = Theme.of(context).colorScheme;
 
     return Semantics(
       label: '$count notifikasi belum dibaca',
@@ -30,15 +29,18 @@ class NotificationBadge extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppTheme.terracotta,
+                  color: scheme.secondary,
                   borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: AppTheme.cream, width: 1.5),
+                  border: Border.all(
+                    color: scheme.surfaceContainerHighest,
+                    width: 1.5,
+                  ),
                 ),
                 constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
                 child: Text(
                   count > 9 ? '9+' : '$count',
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: scheme.onSecondary,
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                     height: 1.1,

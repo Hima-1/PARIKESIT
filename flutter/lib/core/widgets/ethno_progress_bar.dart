@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../theme/app_spacing.dart';
-import '../theme/app_theme.dart';
 
 class EthnoProgressBar extends StatelessWidget {
   const EthnoProgressBar({
@@ -18,6 +17,8 @@ class EthnoProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -28,7 +29,7 @@ class EthnoProgressBar extends StatelessWidget {
               label,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 fontWeight: FontWeight.w700,
-                color: AppTheme.sogan.withValues(alpha: 0.6),
+                color: scheme.primary.withValues(alpha: 0.6),
               ),
             ),
             if (showPercentage)

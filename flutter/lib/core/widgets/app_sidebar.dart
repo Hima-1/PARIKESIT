@@ -7,7 +7,7 @@ import 'package:parikesit/core/theme/app_spacing.dart';
 import '../auth/role_access.dart';
 import '../auth/user_role.dart';
 import '../router/route_constants.dart';
-import '../theme/app_theme.dart';
+import '../theme/tokens/radii.dart';
 
 class AppSidebar extends ConsumerWidget {
   const AppSidebar({super.key});
@@ -45,18 +45,19 @@ class AppSidebar extends ConsumerWidget {
 
     final bool showAdminUsers =
         !isOpd && RoleAccess.canAccessRoute(role, RouteConstants.adminUsers);
+    final scheme = Theme.of(context).colorScheme;
 
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: AppTheme.surface,
-        border: Border(right: BorderSide(color: AppTheme.borderColor)),
+      decoration: BoxDecoration(
+        color: scheme.surface,
+        border: Border(right: BorderSide(color: scheme.outline)),
       ),
       child: SizedBox(
         width: 264,
         child: Column(
           children: [
             _buildLogo(context),
-            const Divider(color: AppTheme.borderColor, height: 1),
+            Divider(color: scheme.outline, height: 1),
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -132,6 +133,8 @@ class AppSidebar extends ConsumerWidget {
   }
 
   Widget _buildLogo(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Container(
       height: 80,
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -142,13 +145,13 @@ class AppSidebar extends ConsumerWidget {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: AppTheme.terracotta,
-              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+              color: scheme.secondary,
+              borderRadius: AppRadii.rrSm,
             ),
             alignment: Alignment.center,
-            child: const Icon(
+            child: Icon(
               LucideIcons.barChart3,
-              color: Colors.white,
+              color: scheme.onSecondary,
               size: 16,
             ),
           ),
@@ -158,7 +161,7 @@ class AppSidebar extends ConsumerWidget {
               'PARIKESIT',
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: AppTheme.textStrong,
+                color: scheme.onSurface,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 1.0,
               ),
@@ -170,12 +173,14 @@ class AppSidebar extends ConsumerWidget {
   }
 
   Widget _buildSectionHeader(BuildContext context, String title) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
       child: Text(
         title,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: AppTheme.textSubtle,
+          color: scheme.onSurface.withValues(alpha: 0.58),
           fontWeight: FontWeight.w700,
           letterSpacing: 1.2,
           fontSize: 11,
@@ -195,17 +200,20 @@ class AppSidebar extends ConsumerWidget {
         currentRoute == route ||
         (route != '/' && currentRoute.startsWith(route));
 
-    final Color tone = isSelected ? AppTheme.terracotta : AppTheme.textMuted;
+    final scheme = Theme.of(context).colorScheme;
+    final Color tone = isSelected
+        ? scheme.secondary
+        : scheme.onSurface.withValues(alpha: 0.72);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 2, 12, 2),
       child: Material(
         color: isSelected
-            ? AppTheme.terracotta.withValues(alpha: 0.08)
+            ? scheme.secondary.withValues(alpha: 0.08)
             : Colors.transparent,
-        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+        borderRadius: AppRadii.rrSm,
         child: InkWell(
-          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+          borderRadius: AppRadii.rrSm,
           onTap: () => context.go(route),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -217,7 +225,7 @@ class AppSidebar extends ConsumerWidget {
                   child: Text(
                     title,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: isSelected ? AppTheme.textStrong : tone,
+                      color: isSelected ? scheme.onSurface : tone,
                       fontWeight: isSelected
                           ? FontWeight.w600
                           : FontWeight.w500,
@@ -233,10 +241,12 @@ class AppSidebar extends ConsumerWidget {
   }
 
   Widget _buildFooter(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: AppTheme.borderColor)),
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: scheme.outline)),
       ),
       child: Row(
         children: [
@@ -244,14 +254,14 @@ class AppSidebar extends ConsumerWidget {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: AppTheme.cream,
-              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-              border: AppTheme.hairlineBorder,
+              color: scheme.surfaceContainerHighest,
+              borderRadius: AppRadii.rrSm,
+              border: Border.all(color: scheme.outline),
             ),
             alignment: Alignment.center,
-            child: const Icon(
+            child: Icon(
               LucideIcons.headphones,
-              color: AppTheme.terracotta,
+              color: scheme.secondary,
               size: 16,
             ),
           ),
@@ -263,14 +273,14 @@ class AppSidebar extends ConsumerWidget {
               Text(
                 'Bantuan',
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: AppTheme.textStrong,
+                  color: scheme.onSurface,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               Text(
                 'Kontak Support',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: AppTheme.textSubtle,
+                  color: scheme.onSurface.withValues(alpha: 0.58),
                   fontSize: 11,
                 ),
               ),

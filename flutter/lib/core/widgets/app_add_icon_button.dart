@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-import '../theme/app_theme.dart';
+import '../theme/tokens/radii.dart';
 
 class AppAddIconButton extends StatelessWidget {
   const AppAddIconButton({
@@ -15,6 +15,8 @@ class AppAddIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return IconButton.filled(
       onPressed: onPressed,
       tooltip: tooltip,
@@ -22,11 +24,9 @@ class AppAddIconButton extends StatelessWidget {
       constraints: const BoxConstraints.tightFor(width: 40, height: 40),
       padding: EdgeInsets.zero,
       style: IconButton.styleFrom(
-        backgroundColor: AppTheme.terracotta,
-        foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-        ),
+        backgroundColor: scheme.secondary,
+        foregroundColor: scheme.onSecondary,
+        shape: RoundedRectangleBorder(borderRadius: AppRadii.rrSm),
       ),
     );
   }

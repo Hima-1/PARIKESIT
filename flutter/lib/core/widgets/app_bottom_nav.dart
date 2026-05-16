@@ -6,7 +6,6 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../auth/role_access.dart';
 import '../auth/user_role.dart';
 import '../router/route_constants.dart';
-import '../theme/app_theme.dart';
 
 class AppBottomNav extends ConsumerWidget {
   const AppBottomNav({super.key});
@@ -15,7 +14,9 @@ class AppBottomNav extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final role = ref.watch(userRoleProvider);
     final location = GoRouterState.of(context).matchedLocation;
+    final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final unselectedColor = scheme.onSurface.withValues(alpha: 0.72);
 
     final List<_BottomNavItem> items = _getNavItems(role);
 
@@ -24,9 +25,9 @@ class AppBottomNav extends ConsumerWidget {
     final int currentIndex = _calculateSelectedIndex(location, items);
 
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: AppTheme.surface,
-        border: Border(top: BorderSide(color: AppTheme.borderColor)),
+      decoration: BoxDecoration(
+        color: scheme.surface,
+        border: Border(top: BorderSide(color: scheme.outline)),
       ),
       child: BottomNavigationBar(
         currentIndex: currentIndex,
@@ -42,16 +43,16 @@ class AppBottomNav extends ConsumerWidget {
         elevation: 0,
         backgroundColor: Colors.transparent,
         enableFeedback: true,
-        selectedItemColor: AppTheme.terracotta,
-        unselectedItemColor: AppTheme.textMuted,
+        selectedItemColor: scheme.secondary,
+        unselectedItemColor: unselectedColor,
         selectedLabelStyle: textTheme.labelSmall?.copyWith(
           fontWeight: FontWeight.w700,
-          color: AppTheme.terracotta,
+          color: scheme.secondary,
           fontSize: 11,
         ),
         unselectedLabelStyle: textTheme.labelSmall?.copyWith(
           fontWeight: FontWeight.w500,
-          color: AppTheme.textMuted,
+          color: unselectedColor,
           fontSize: 11,
         ),
         items: items.map((item) {

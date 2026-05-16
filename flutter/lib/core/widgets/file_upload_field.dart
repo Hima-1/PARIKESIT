@@ -2,7 +2,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
-import 'package:parikesit/core/theme/app_theme.dart';
+import 'package:parikesit/core/theme/tokens/radii.dart';
 import 'package:parikesit/core/utils/app_error_mapper.dart';
 import 'package:parikesit/core/widgets/ethno_card.dart';
 
@@ -76,7 +76,7 @@ class _FileUploadFieldState extends State<FileUploadField> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(validationError),
-              backgroundColor: AppTheme.error,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -100,7 +100,7 @@ class _FileUploadFieldState extends State<FileUploadField> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('Maksimal $maxFiles berkas dapat dipilih.'),
-                backgroundColor: AppTheme.error,
+                backgroundColor: Theme.of(context).colorScheme.error,
               ),
             );
           }
@@ -133,7 +133,7 @@ class _FileUploadFieldState extends State<FileUploadField> {
                     'Gagal memilih file. Silakan coba pilih file lain.',
               ),
             ),
-            backgroundColor: AppTheme.error,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -181,6 +181,7 @@ class _FileUploadFieldState extends State<FileUploadField> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final fileName = _filePath?.split('/').last.split('\\').last;
     final List<String> fileNames = _filePaths
@@ -210,7 +211,7 @@ class _FileUploadFieldState extends State<FileUploadField> {
           child: Text(
             widget.label,
             style: textTheme.titleSmall?.copyWith(
-              color: AppTheme.sogan,
+              color: scheme.primary,
               fontWeight: FontWeight.w800,
             ),
           ),
@@ -229,16 +230,16 @@ class _FileUploadFieldState extends State<FileUploadField> {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: AppTheme.terracotta.withValues(alpha: 0.10),
-                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                    color: scheme.secondary.withValues(alpha: 0.10),
+                    borderRadius: AppRadii.rrSm,
                     border: Border.all(
-                      color: AppTheme.terracotta.withValues(alpha: 0.20),
+                      color: scheme.secondary.withValues(alpha: 0.20),
                     ),
                   ),
                   alignment: Alignment.center,
                   child: Icon(
                     hasSelection ? LucideIcons.file : LucideIcons.uploadCloud,
-                    color: AppTheme.terracotta,
+                    color: scheme.secondary,
                     size: 18,
                   ),
                 ),
@@ -251,8 +252,8 @@ class _FileUploadFieldState extends State<FileUploadField> {
                         titleText,
                         style: textTheme.bodyMedium?.copyWith(
                           color: hasSelection
-                              ? AppTheme.sogan
-                              : AppTheme.neutral,
+                              ? scheme.primary
+                              : scheme.onSurface.withValues(alpha: 0.55),
                           fontWeight: hasSelection
                               ? FontWeight.w700
                               : FontWeight.w500,
@@ -265,7 +266,7 @@ class _FileUploadFieldState extends State<FileUploadField> {
                           (String name) => Text(
                             name,
                             style: textTheme.labelSmall?.copyWith(
-                              color: AppTheme.neutral.withValues(alpha: 0.75),
+                              color: scheme.onSurface.withValues(alpha: 0.55),
                               fontWeight: FontWeight.w600,
                             ),
                             maxLines: 1,
@@ -276,7 +277,7 @@ class _FileUploadFieldState extends State<FileUploadField> {
                         Text(
                           helperText!,
                           style: textTheme.labelSmall?.copyWith(
-                            color: AppTheme.neutral.withValues(alpha: 0.6),
+                            color: scheme.onSurface.withValues(alpha: 0.45),
                             fontSize: 10,
                           ),
                         ),
@@ -285,9 +286,9 @@ class _FileUploadFieldState extends State<FileUploadField> {
                 ),
                 if (hasSelection && !widget.isLoading)
                   IconButton(
-                    icon: const Icon(
+                    icon: Icon(
                       LucideIcons.xCircle,
-                      color: AppTheme.error,
+                      color: scheme.error,
                       size: 22,
                     ),
                     tooltip: 'Hapus file',
@@ -296,12 +297,12 @@ class _FileUploadFieldState extends State<FileUploadField> {
                     constraints: const BoxConstraints(),
                   ),
                 if (widget.isLoading)
-                  const SizedBox(
+                  SizedBox(
                     width: 20,
                     height: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation(AppTheme.terracotta),
+                      valueColor: AlwaysStoppedAnimation(scheme.secondary),
                     ),
                   ),
               ],

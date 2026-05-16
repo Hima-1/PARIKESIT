@@ -33,6 +33,17 @@ class AppColors {
   static const Color neutral = Color(0xFF9CA3AF);
   static const Color softWash = Color(0xFFF1EBE3);
 
+  // Dark theme
+  static const Color darkScaffold = Color(0xFF1A130E);
+  static const Color darkSurface = Color(0xFF241B14);
+  static const Color darkBorder = Color(0xFF3A2E25);
+  static const Color darkTextStrong = Color(0xFFF2EBE3);
+  static const Color darkTextMuted = Color(0xFFB8A99B);
+  static const Color darkTextSubtle = Color(0xFF8C7B6E);
+  static const Color darkPrimary = Color(0xFFC79B7A);
+  static const Color darkSecondary = Color(0xFFD68A4E);
+  static const Color darkTooltip = Color(0xFF0F0A07);
+
   // Inverse / always-light
   static const Color white = Colors.white;
 }

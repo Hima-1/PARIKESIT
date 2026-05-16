@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import '../theme/app_theme.dart';
 
 class BreadcrumbItem {
   const BreadcrumbItem({required this.label, this.onTap});
@@ -15,7 +14,10 @@ class AppBreadcrumb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final mutedText = scheme.onSurface.withValues(alpha: 0.72);
+    final subtleText = scheme.onSurface.withValues(alpha: 0.55);
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -34,7 +36,7 @@ class AppBreadcrumb extends StatelessWidget {
                   child: Text(
                     item.label,
                     style: textTheme.labelMedium?.copyWith(
-                      color: AppTheme.terracotta,
+                      color: scheme.secondary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -43,17 +45,17 @@ class AppBreadcrumb extends StatelessWidget {
                 Text(
                   item.label,
                   style: textTheme.labelMedium?.copyWith(
-                    color: isLast ? AppTheme.textStrong : AppTheme.textMuted,
+                    color: isLast ? scheme.onSurface : mutedText,
                     fontWeight: isLast ? FontWeight.w600 : FontWeight.w500,
                   ),
                 ),
               if (!isLast)
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Icon(
                     LucideIcons.chevronRight,
                     size: 14,
-                    color: AppTheme.textSubtle,
+                    color: subtleText,
                   ),
                 ),
             ],

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
-import 'package:parikesit/core/theme/app_theme.dart';
+import 'package:parikesit/core/theme/tokens/radii.dart';
 import 'package:parikesit/core/widgets/app_text_field.dart';
 import 'package:parikesit/core/widgets/ethno_button.dart';
 import 'package:parikesit/core/widgets/ethno_card.dart';
@@ -82,6 +82,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Ubah Password')),
       body: KawungBackground(
@@ -109,21 +111,17 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                                 vertical: 10,
                               ),
                               decoration: BoxDecoration(
-                                color: AppTheme.sogaRed.withValues(alpha: 0.08),
-                                borderRadius: BorderRadius.circular(
-                                  AppTheme.borderRadius,
-                                ),
+                                color: scheme.error.withValues(alpha: 0.08),
+                                borderRadius: AppRadii.rrMd,
                                 border: Border.all(
-                                  color: AppTheme.sogaRed.withValues(
-                                    alpha: 0.25,
-                                  ),
+                                  color: scheme.error.withValues(alpha: 0.25),
                                 ),
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     LucideIcons.alertCircle,
-                                    color: AppTheme.sogaRed,
+                                    color: scheme.error,
                                     size: 20,
                                   ),
                                   AppSpacing.gapW8,
@@ -134,7 +132,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                                           .textTheme
                                           .labelLarge
                                           ?.copyWith(
-                                            color: AppTheme.sogaRed,
+                                            color: scheme.error,
                                             fontWeight: FontWeight.w600,
                                           ),
                                     ),

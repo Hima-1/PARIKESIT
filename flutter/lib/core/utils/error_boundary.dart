@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
-import 'package:parikesit/core/theme/app_theme.dart';
 import 'package:parikesit/core/widgets/ethno_button.dart';
 
 typedef _ErrorWidgetBuilder = Widget Function(FlutterErrorDetails details);
@@ -41,9 +40,9 @@ class _GlobalErrorBoundaryState extends State<GlobalErrorBoundary> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
+                Icon(
                   LucideIcons.alertCircle,
-                  color: AppTheme.error,
+                  color: Theme.of(context).colorScheme.error,
                   size: 64,
                 ),
                 AppSpacing.gapH16,

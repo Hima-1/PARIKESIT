@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import '../theme/app_theme.dart';
 
 class AppTextField extends StatefulWidget {
   const AppTextField({
@@ -60,6 +59,8 @@ class _AppTextFieldState extends State<AppTextField> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return TextFormField(
       controller: widget.controller,
       obscureText: _isObscured,
@@ -77,7 +78,7 @@ class _AppTextFieldState extends State<AppTextField> {
       autovalidateMode: widget.autovalidateMode,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
         fontWeight: FontWeight.w600,
-        color: AppTheme.sogan,
+        color: scheme.onSurface,
       ),
       decoration: InputDecoration(
         labelText: widget.label,
@@ -87,7 +88,7 @@ class _AppTextFieldState extends State<AppTextField> {
             ? IconButton(
                 icon: Icon(
                   _isObscured ? LucideIcons.eyeOff : LucideIcons.eye,
-                  color: AppTheme.sogan.withValues(alpha: 0.5),
+                  color: scheme.onSurface.withValues(alpha: 0.5),
                   size: 20,
                 ),
                 tooltip: _isObscured

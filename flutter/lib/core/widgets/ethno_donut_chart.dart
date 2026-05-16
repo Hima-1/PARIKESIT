@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_spacing.dart';
-import '../theme/app_theme.dart';
+import '../theme/tokens/colors.dart';
 
 class EthnoDonutChart extends StatelessWidget {
   const EthnoDonutChart({
@@ -25,6 +25,7 @@ class EthnoDonutChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final total = verified + inProgress + notStarted;
     if (total == 0) return const Center(child: Text('No data'));
 
@@ -43,19 +44,19 @@ class EthnoDonutChart extends StatelessWidget {
                   startDegreeOffset: -90,
                   sections: [
                     PieChartSectionData(
-                      color: AppTheme.success,
+                      color: AppColors.success,
                       value: verified,
                       title: '',
                       radius: radius,
                     ),
                     PieChartSectionData(
-                      color: AppTheme.warning,
+                      color: AppColors.warning,
                       value: inProgress,
                       title: '',
                       radius: radius,
                     ),
                     PieChartSectionData(
-                      color: AppTheme.neutral,
+                      color: AppColors.neutral,
                       value: notStarted,
                       title: '',
                       radius: radius,
@@ -72,14 +73,14 @@ class EthnoDonutChart extends StatelessWidget {
                       style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(
                             fontWeight: FontWeight.w900,
-                            color: AppTheme.sogan,
+                            color: scheme.primary,
                           ),
                     ),
                     if (centerSubText != null)
                       Text(
                         centerSubText!,
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: AppTheme.neutral,
+                          color: scheme.onSurface.withValues(alpha: 0.55),
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -100,9 +101,9 @@ class EthnoDonutChart extends StatelessWidget {
       runSpacing: 8,
       alignment: WrapAlignment.center,
       children: [
-        _LegendItem(color: AppTheme.success, label: 'Selesai'),
-        _LegendItem(color: AppTheme.warning, label: 'Proses'),
-        _LegendItem(color: AppTheme.neutral, label: 'Belum'),
+        _LegendItem(color: AppColors.success, label: 'Selesai'),
+        _LegendItem(color: AppColors.warning, label: 'Proses'),
+        _LegendItem(color: AppColors.neutral, label: 'Belum'),
       ],
     );
   }
@@ -115,6 +116,8 @@ class _LegendItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -128,7 +131,7 @@ class _LegendItem extends StatelessWidget {
           label,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
             fontWeight: FontWeight.w700,
-            color: AppTheme.neutral,
+            color: scheme.onSurface.withValues(alpha: 0.55),
           ),
         ),
       ],

@@ -136,14 +136,14 @@ class AppTheme {
   static ThemeData _build({required Brightness brightness}) {
     final isDark = brightness == Brightness.dark;
 
-    final scaffoldBg = isDark ? const Color(0xFF1A130E) : AppColors.cream;
-    final surfaceColor = isDark ? const Color(0xFF241B14) : AppColors.surface;
-    final borderTone = isDark ? const Color(0xFF3A2E25) : AppColors.border;
-    final strongText = isDark ? const Color(0xFFF2EBE3) : AppColors.textStrong;
-    final mutedText = isDark ? const Color(0xFFB8A99B) : AppColors.textMuted;
-    final subtleText = isDark ? const Color(0xFF8C7B6E) : AppColors.textSubtle;
-    final primary = isDark ? const Color(0xFFC79B7A) : AppColors.soganBrown;
-    final accent = isDark ? const Color(0xFFD68A4E) : AppColors.terracotta;
+    final scaffoldBg = isDark ? AppColors.darkScaffold : AppColors.cream;
+    final surfaceColor = isDark ? AppColors.darkSurface : AppColors.surface;
+    final borderTone = isDark ? AppColors.darkBorder : AppColors.border;
+    final strongText = isDark ? AppColors.darkTextStrong : AppColors.textStrong;
+    final mutedText = isDark ? AppColors.darkTextMuted : AppColors.textMuted;
+    final subtleText = isDark ? AppColors.darkTextSubtle : AppColors.textSubtle;
+    final primary = isDark ? AppColors.darkPrimary : AppColors.soganBrown;
+    final accent = isDark ? AppColors.darkSecondary : AppColors.terracotta;
 
     final baseTextTheme = GoogleFonts.plusJakartaSansTextTheme().apply(
       bodyColor: strongText,
@@ -484,7 +484,7 @@ class AppTheme {
       ),
       tooltipTheme: TooltipThemeData(
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF0F0A07) : AppColors.soganDeep,
+          color: isDark ? AppColors.darkTooltip : AppColors.soganDeep,
           borderRadius: AppRadii.rrSm,
         ),
         textStyle: AppTypography.body(color: Colors.white, fontSize: 12),

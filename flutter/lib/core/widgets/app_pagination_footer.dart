@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-import '../theme/app_theme.dart';
+import '../theme/tokens/radii.dart';
 
 class AppPaginationFooter extends StatelessWidget {
   const AppPaginationFooter({
@@ -24,10 +24,13 @@ class AppPaginationFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final status = Text(
       'Halaman $currentPage dari $lastPage',
-      style: textTheme.bodySmall?.copyWith(color: AppTheme.textMuted),
+      style: textTheme.bodySmall?.copyWith(
+        color: scheme.onSurface.withValues(alpha: 0.72),
+      ),
       textAlign: TextAlign.center,
     );
 
@@ -66,20 +69,20 @@ class _PaginationIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return IconButton.outlined(
       onPressed: onPressed,
       tooltip: tooltip,
       icon: Icon(icon, size: 18),
-      color: AppTheme.textStrong,
-      disabledColor: AppTheme.textSubtle,
+      color: scheme.onSurface,
+      disabledColor: scheme.onSurface.withValues(alpha: 0.5),
       constraints: const BoxConstraints.tightFor(width: 36, height: 36),
       padding: EdgeInsets.zero,
       style: IconButton.styleFrom(
-        backgroundColor: AppTheme.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-        ),
-        side: const BorderSide(color: AppTheme.borderColor),
+        backgroundColor: scheme.surface,
+        shape: RoundedRectangleBorder(borderRadius: AppRadii.rrSm),
+        side: BorderSide(color: scheme.outline),
       ),
     );
   }

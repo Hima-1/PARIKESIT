@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/app_date_formatter.dart';
 import '../../../../core/widgets/ethno_card.dart';
 import '../../../../core/widgets/ethno_progress_bar.dart';
@@ -19,7 +18,9 @@ class AdminAssessmentProgressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final mutedText = scheme.onSurface.withValues(alpha: 0.55);
 
     return EthnoCard(
       isFlat: true,
@@ -33,20 +34,20 @@ class AdminAssessmentProgressCard extends StatelessWidget {
             progress.name,
             style: textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: AppTheme.sogan,
+              color: scheme.primary,
             ),
           ),
           AppSpacing.gapH4,
           Text(
             AppDateFormatter.fullDate(progress.date),
-            style: textTheme.labelSmall?.copyWith(color: AppTheme.neutral),
+            style: textTheme.labelSmall?.copyWith(color: mutedText),
           ),
           AppSpacing.gapH24,
           Text(
             'Statistik Pengisian',
             style: textTheme.labelLarge?.copyWith(
               fontWeight: FontWeight.w800,
-              color: AppTheme.sogan,
+              color: scheme.primary,
             ),
           ),
           AppSpacing.gapH16,
@@ -55,7 +56,7 @@ class AdminAssessmentProgressCard extends StatelessWidget {
             value: progress.opdTotalCount > 0
                 ? (progress.opdFilledCount / progress.opdTotalCount)
                 : 0.0,
-            color: AppTheme.navy,
+            color: scheme.primary,
           ),
           AppSpacing.gapH16,
           EthnoProgressBar(
@@ -64,14 +65,14 @@ class AdminAssessmentProgressCard extends StatelessWidget {
                 ? (progress.walidataCorrectedCount /
                       progress.walidataTotalCount)
                 : 0.0,
-            color: AppTheme.sogan,
+            color: scheme.primary,
           ),
           AppSpacing.gapH16,
           Text(
             'Proses pengisian dan koreksi masih berlangsung',
             style: textTheme.labelSmall?.copyWith(
               fontStyle: FontStyle.italic,
-              color: AppTheme.neutral.withValues(alpha: 0.7),
+              color: mutedText.withValues(alpha: 0.7),
             ),
           ),
         ],

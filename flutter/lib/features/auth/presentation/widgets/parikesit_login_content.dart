@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:parikesit/core/theme/app_spacing.dart';
-import 'package:parikesit/core/theme/app_theme.dart';
+import 'package:parikesit/core/theme/tokens/radii.dart';
 import 'package:parikesit/core/utils/input_sanitizer.dart';
 import 'package:parikesit/core/utils/startup_probe.dart';
 import 'package:parikesit/core/widgets/app_text_field.dart';
@@ -64,6 +64,7 @@ class _ParikesitLoginContentState extends ConsumerState<ParikesitLoginContent> {
   @override
   Widget build(BuildContext context) {
     final AuthState authState = ref.watch(authNotifierProvider);
+    final ColorScheme scheme = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
     final bool keyboardVisible = MediaQuery.viewInsetsOf(context).bottom > 0;
     final bool shouldCenterContent =
@@ -158,7 +159,7 @@ class _ParikesitLoginContentState extends ConsumerState<ParikesitLoginContent> {
                           'v1.0.0-stable',
                           textAlign: TextAlign.center,
                           style: textTheme.labelSmall?.copyWith(
-                            color: AppTheme.sogan.withValues(alpha: 0.4),
+                            color: scheme.primary.withValues(alpha: 0.4),
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -186,6 +187,7 @@ class _LoginBranding extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme scheme = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
     return Column(
       children: [
@@ -193,7 +195,11 @@ class _LoginBranding extends StatelessWidget {
           width: 180,
           height: 180,
           padding: const EdgeInsets.all(12),
-          decoration: AppTheme.brandingContainerDecoration,
+          decoration: BoxDecoration(
+            color: scheme.surface,
+            borderRadius: AppRadii.rrLg,
+            border: Border.all(color: scheme.outline),
+          ),
           child: Image.asset(
             'assets/images/maskot.png',
             key: ParikesitLoginContent.mascotImageKey,
@@ -207,7 +213,7 @@ class _LoginBranding extends StatelessWidget {
           style: textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.w900,
             letterSpacing: 2.0,
-            color: AppTheme.sogan,
+            color: scheme.primary,
           ),
         ),
         AppSpacing.gapH4,
@@ -215,7 +221,7 @@ class _LoginBranding extends StatelessWidget {
           'Pemantauan Kematangan Statistik\nTerintegrasi dan Handal',
           textAlign: TextAlign.center,
           style: textTheme.labelSmall?.copyWith(
-            color: AppTheme.sogan.withValues(alpha: 0.55),
+            color: scheme.primary.withValues(alpha: 0.55),
             fontWeight: FontWeight.w600,
           ),
         ),
