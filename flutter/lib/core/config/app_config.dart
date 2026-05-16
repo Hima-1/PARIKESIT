@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 class AppConfig {
   static String get baseUrl {
     const configured = String.fromEnvironment('API_BASE_URL');
@@ -20,20 +18,7 @@ class AppConfig {
       );
     }
 
-    if (kDebugMode && _isAndroidLoopbackUrl(trimmed)) {
-      debugPrint(
-        '[AppConfig] API_BASE_URL is using Android loopback ($trimmed). '
-        'Make sure this host is reachable from the selected device.',
-      );
-    }
-
     return trimmed;
-  }
-
-  static bool _isAndroidLoopbackUrl(String url) {
-    final uri = Uri.tryParse(url);
-    final host = uri?.host;
-    return host == '127.0.0.1' || host == 'localhost';
   }
 
   static String get apiPrefix {

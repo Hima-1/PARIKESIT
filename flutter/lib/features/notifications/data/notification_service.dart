@@ -3,12 +3,12 @@ import 'dart:convert';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/router/route_constants.dart';
+import '../../../core/utils/logger.dart';
 import '../../../firebase_options.dart';
 
 final FlutterLocalNotificationsPlugin _sharedLocalNotifications =
@@ -31,7 +31,6 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   }
 
   await _showLocalNotification(message, ensureInitialized: true);
-  debugPrint('Handling background message: ${message.messageId}');
 }
 
 Future<void> _showLocalNotification(
@@ -105,9 +104,6 @@ class NotificationService {
     }
 
     if (Firebase.apps.isEmpty) {
-      debugPrint(
-        'Skipping notification initialization: Firebase not initialized.',
-      );
       return;
     }
 
@@ -175,9 +171,6 @@ class NotificationService {
         RemoteMessage message,
       ) {
         unawaited(_showLocalNotification(message));
-        final notification = message.notification;
-        final title = notification?.title ?? message.data['title'] as String?;
-        debugPrint('Foreground message: $title');
       });
 
       // 7. Menangani tap notifikasi saat aplikasi di background tapi masih terbuka
@@ -195,8 +188,7 @@ class NotificationService {
 
       _isInitialized = true;
     } catch (e, stackTrace) {
-      debugPrint('Notification service init failed: $e');
-      debugPrint('$stackTrace');
+      AppLogger.error('Notification service init failed', e, stackTrace);
     }
   }
 
@@ -230,12 +222,10 @@ class NotificationService {
 
   Future<void> _handleTokenUpdate(String? token) async {
     if (token == null || token.isEmpty) {
-      debugPrint('FCM token unavailable.');
       return;
     }
 
     _lastKnownToken = token;
-    debugPrint('FCM token refreshed.');
     final handler = _tokenSyncHandler;
     if (handler == null) {
       return;
@@ -244,8 +234,7 @@ class NotificationService {
     try {
       await handler(token);
     } catch (error, stackTrace) {
-      debugPrint('FCM token sync failed: $error');
-      debugPrint('$stackTrace');
+      AppLogger.error('FCM token sync failed', error, stackTrace);
     }
   }
 
@@ -261,16 +250,14 @@ class NotificationService {
       try {
         await deactivate(token);
       } catch (error, stackTrace) {
-        debugPrint('FCM token deactivate failed: $error');
-        debugPrint('$stackTrace');
+        AppLogger.error('FCM token deactivate failed', error, stackTrace);
       }
     }
 
     try {
       await _fcm.deleteToken();
     } catch (error, stackTrace) {
-      debugPrint('FCM deleteToken failed: $error');
-      debugPrint('$stackTrace');
+      AppLogger.error('FCM deleteToken failed', error, stackTrace);
     }
 
     _lastKnownToken = null;
@@ -278,8 +265,6 @@ class NotificationService {
   }
 
   void _handleNotificationInteraction(Map<String, dynamic> data) {
-    debugPrint('Notification tapped.');
-
     final type = data['type']?.toString();
     if (type == null || type.isEmpty) {
       return;

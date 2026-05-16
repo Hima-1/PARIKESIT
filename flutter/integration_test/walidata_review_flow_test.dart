@@ -47,7 +47,6 @@ void main() {
     // We expect ExpansionTiles for domains/indicators
     final domainExpansionTile = find.byType(ExpansionTile).first;
     if (domainExpansionTile.evaluate().isNotEmpty) {
-      debugPrint('Expanding domain to verify indicators...');
       await tester.tap(domainExpansionTile);
       await tester.pumpAndSettle();
 

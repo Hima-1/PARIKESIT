@@ -6,14 +6,13 @@ use App\Models\User;
 use App\Models\Aspek;
 use App\Models\Domain;
 use App\Models\Formulir;
+use App\Models\FormulirPenilaianDisposisi;
 use App\Models\Indikator;
 use App\Models\Penilaian;
 use App\Services\AssessmentCalculationService;
 use App\Services\PenilaianSelectionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use App\Models\FormulirPenilaianDisposisi;
 
 class FormulirPenilaianDisposisiController extends Controller
 {
@@ -165,32 +164,6 @@ class FormulirPenilaianDisposisiController extends Controller
             abort(404, 'Domain tidak ditemukan.');
         }
 
-        // Debug logging
-        Log::info('Koreksi Isi Domain Debug', [
-            'opd_name' => $opd->name,
-            'opd_id' => $opd->id,
-            'formulir_name' => $formulir->nama_formulir,
-            'formulir_id' => $formulir->id,
-            'domain_name' => $domain->nama_domain,
-            'domain_id' => $domain->id
-        ]);
-
-        // Debug logging tambahan untuk penilaian Walidata
-        Log::info('Penilaian Walidata Debug', [
-            'opd_name' => $opd->name,
-            'opd_id' => $opd->id,
-            'formulir_name' => $formulir->nama_formulir,
-            'formulir_id' => $formulir->id,
-            'domain_name' => $domain->nama_domain,
-            'domain_id' => $domain->id,
-            'penilaian_walidata' => Penilaian::where('user_id', $opd->id)
-                ->where('formulir_id', $formulir->id)
-                ->whereHas('user', function($query) {
-                    $query->where('role', 'walidata');
-                })
-                ->get()->toArray()
-        ]);
-
         $formulir->load('domains.aspek.indikator.penilaian');
         $aspectScores = collect($this->calculationService->getAspectComparisons($formulir, $opd))
             ->keyBy('aspek_id')
@@ -241,19 +214,6 @@ class FormulirPenilaianDisposisiController extends Controller
         $nilai_dikoreksi = $this->penilaianSelectionService->resolveForIndicator($indikator, $formulir, $opd->id, 'nilai_diupdate');
         $nilai_dievaluasi = $this->penilaianSelectionService->resolveForIndicator($indikator, $formulir, $opd->id, 'nilai_koreksi');
 
-        // Tambahkan logging untuk detail penilaian
-        Log::info('Koreksi Penilaian Detail', [
-            'opd_name' => $opd->name,
-            'formulir_name' => $formulir->nama_formulir,
-            'domain_name' => $domain->nama_domain,
-            'aspek_name' => $aspek->nama_aspek,
-            'indikator_name' => $indikator->nama_indikator,
-            'nilai_diinput' => $nilai_diinput ? $nilai_diinput->toArray() : null,
-            'nilai_dikoreksi' => $nilai_dikoreksi ? $nilai_dikoreksi->toArray() : null,
-            'nilai_dievaluasi' => $nilai_dievaluasi ? $nilai_dievaluasi->toArray() : null,
-            'current_user_role' => Auth::user()->role
-        ]);
-
         return view('dashboard.disposisi.koreksi-penilaian', compact(
             'opd',
             'formulir',
@@ -277,12 +237,6 @@ class FormulirPenilaianDisposisiController extends Controller
             'catatan_koreksi' => 'nullable|string',
         ]);
 
-        \Log::error('Store Koreksi Request', [
-            'all_data' => $request->all(),
-            'user_role' => Auth::user()->role,
-            'user_id' => Auth::id()
-        ]);
-
         $penilaian = Penilaian::findOrFail($validated['penilaian_id']);
         $pengoreksi = Auth::user()->id;
         $pengoreksiUser = User::find($pengoreksi);
@@ -295,18 +249,6 @@ class FormulirPenilaianDisposisiController extends Controller
             ]);
             return redirect()->back()->with('error', 'Evaluasi sudah terisi dan tidak dapat diubah');
         }
-
-        // Debug logging yang lebih komprehensif
-        \Log::error('Store Koreksi Debug - Detailed', [
-            'request_data' => $request->all(),
-            'penilaian_id' => $request->penilaian_id,
-            'penilaian_details' => $penilaian ? $penilaian->toArray() : null,
-            'pengoreksi_id' => $pengoreksi,
-            'pengoreksi_role' => $pengoreksiUser->role,
-            'pengoreksi_name' => $pengoreksiUser->name,
-            'request_nilai' => $validated['nilai'],
-            'current_user_role' => Auth::user()->role
-        ]);
 
         // Pastikan hanya Walidata yang bisa update
         if ($pengoreksiUser->role !== 'walidata') {
@@ -324,12 +266,6 @@ class FormulirPenilaianDisposisiController extends Controller
             'diupdate_by' => $pengoreksi,
             'tanggal_diperbarui' => now(),
             // bukti_dukung tidak diupdate, tetap gunakan bukti dukung dari OPD
-        ]);
-
-        // Log hasil update
-        \Log::info('Store Koreksi Update Result', [
-            'penilaian_id' => $penilaian->id,
-            'updated_penilaian' => $penilaian->fresh()->toArray()
         ]);
 
         return redirect()->back()->with('success', 'Berhasil mengoreksi penilaian');

@@ -14,12 +14,10 @@ Future<void> pumpUntil(
   Duration step = const Duration(milliseconds: 200),
 }) async {
   final labelStr = label != null ? ' ($label)' : '';
-  debugPrint('Waiting for $finder$labelStr...');
   final end = DateTime.now().add(timeout);
   while (DateTime.now().isBefore(end)) {
     await tester.pump(step);
     if (finder.evaluate().isNotEmpty) {
-      debugPrint('Found $finder$labelStr.');
       return;
     }
   }
@@ -80,15 +78,11 @@ Future<void> ensureLoggedIn(
   await tester.pump(const Duration(seconds: 1));
 
   if (loginFinder.evaluate().isNotEmpty) {
-    debugPrint('Login screen detected. Logging in as $email...');
     await loginAs(tester, email, password);
-  } else {
-    debugPrint('Already logged in or login screen not immediately visible.');
   }
 }
 
 Future<void> logout(WidgetTester tester) async {
-  debugPrint('Logging out...');
   // Logic to find logout button/menu depends on the role,
   // but usually it's in a profile menu or sidebar.
   final logoutFinder = find.text('Logout');
@@ -123,7 +117,6 @@ Future<void> navigateTo(
   String? targetText,
   String? label,
 }) async {
-  debugPrint('Navigating to ${label ?? finder}...');
   await tester.ensureVisible(finder);
   await tester.tap(finder);
   await tester.pumpAndSettle();
@@ -143,14 +136,12 @@ Future<void> verifyScreen(WidgetTester tester, String titleText) async {
 
 /// Enters text into a field found by [key] and pumps.
 Future<void> enterFormText(WidgetTester tester, Key key, String value) async {
-  debugPrint('Entering "$value" into field $key...');
   await tester.enterText(find.byKey(key), value);
   await tester.pumpAndSettle();
 }
 
 /// Taps a button found by [key] and pumps.
 Future<void> tapButton(WidgetTester tester, Key key, {String? label}) async {
-  debugPrint('Tapping button ${label ?? key}...');
   await tester.tap(find.byKey(key));
   await tester.pumpAndSettle();
 }
@@ -162,7 +153,6 @@ Future<void> waitForDashboard(
   String label = 'Dashboard',
   Duration timeout = const Duration(seconds: 30),
 }) async {
-  debugPrint('Waiting for $label dashboard ($marker)...');
   final end = DateTime.now().add(timeout);
 
   while (DateTime.now().isBefore(end)) {
@@ -170,7 +160,6 @@ Future<void> waitForDashboard(
     await tester.pump(const Duration(milliseconds: 500));
 
     if (marker.evaluate().isNotEmpty) {
-      debugPrint('Found $label dashboard marker.');
       return;
     }
   }
@@ -187,9 +176,7 @@ Future<void> withSemanticsDisabled(
   // In integration tests, sometimes the only way to avoid the parentDataDirty error
   // is to avoid pumpAndSettle or to wrap the problematic area in ExcludeSemantics.
   // This helper provides a conceptual wrapper for such operations.
-  debugPrint('Starting semantics-sensitive operation...');
   await callback();
-  debugPrint('Finished semantics-sensitive operation.');
 }
 
 /// A safer version of pumpAndSettle that caps the number of frames to avoid infinite loops.
