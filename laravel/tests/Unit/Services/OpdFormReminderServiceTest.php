@@ -207,7 +207,7 @@ test('manual reminder locks summary payload fields', function () {
     expect($this->sender->messages[0]['data'])->toMatchArray([
         'type' => 'incomplete_form_summary',
         'incomplete_form_count' => '2',
-        'target_route' => '/penilaian-kegiatan',
+        'target_route' => '/penilaian-mandiri',
     ]);
     expect(json_decode($this->sender->messages[0]['data']['formulir_ids'], true))->toBe(['401', '402']);
     $this->assertDatabaseHas('inbox_notifications', [

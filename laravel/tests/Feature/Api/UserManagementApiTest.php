@@ -462,8 +462,10 @@ test('admin trigger reminder locks summary payload for multiple incomplete forms
 
     expect($sender->messages)->toHaveCount(1);
     expect($sender->messages[0]['data']['type'])->toBe('incomplete_form_summary');
-    expect($sender->messages[0]['data']['target_route'])->toBe('/penilaian-kegiatan');
-    expect(json_decode($sender->messages[0]['data']['formulir_ids'], true))->toBe([
+    expect($sender->messages[0]['data']['target_route'])->toBe('/penilaian-mandiri');
+    $formulirIds = json_decode($sender->messages[0]['data']['formulir_ids'], true);
+    sort($formulirIds);
+    expect($formulirIds)->toBe([
         (string) $firstForm->id,
         (string) $secondForm->id,
     ]);

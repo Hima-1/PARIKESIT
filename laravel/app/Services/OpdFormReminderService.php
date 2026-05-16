@@ -220,7 +220,7 @@ class OpdFormReminderService
                 'type' => self::MANUAL_REMINDER_TYPE,
                 'incomplete_form_count' => (string) $count,
                 'formulir_ids' => json_encode($formulirIds),
-                'target_route' => '/penilaian-kegiatan',
+                'target_route' => '/penilaian-mandiri',
             ],
         ];
     }
